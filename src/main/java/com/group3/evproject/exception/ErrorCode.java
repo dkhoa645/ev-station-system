@@ -1,0 +1,26 @@
+package com.group3.evproject.exception;
+
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+
+@Getter
+public enum ErrorCode {
+    USERNAME_INVALID(1001,"Username must have at least {min} characters" , HttpStatus.BAD_REQUEST),
+    USERNAME_EXISTS(1002,"Username is already exist" , HttpStatus.BAD_REQUEST),
+    PASSWORD_INVALID(1003,"Password must have at least {min} characters" , HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTS(1004,"Email is already exist" , HttpStatus.BAD_REQUEST),
+    USERNAME_NOT_EXISTS(1005,"Username not exist" , HttpStatus.BAD_REQUEST),
+    UNAUTHENTICATED(1006,"Unauthenticated" , HttpStatus.UNAUTHORIZED),
+    ;
+
+    ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
+        this.code = code;
+        this.message = message;
+        this.httpStatusCode = httpStatusCode;
+    }
+
+    private final int code;
+    private final String message;
+    private final HttpStatusCode httpStatusCode;
+}
