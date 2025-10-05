@@ -26,12 +26,6 @@ public class AuthController {
     UserService userService;
     AuthenticationService authenticationService;
 
-    @PostMapping
-    ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.createUser(request))
-                .build();
-    }
 
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticated(@RequestBody AuthenticationRequest request) {
@@ -47,6 +41,13 @@ public class AuthController {
         var result = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
                 .result(result)
+                .build();
+    }
+
+    @PostMapping("/register")
+    ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.registerUser(request))
                 .build();
     }
 
