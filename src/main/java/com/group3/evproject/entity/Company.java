@@ -11,7 +11,6 @@ import lombok.experimental.FieldDefaults;
 public class Company {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
-
     String name;
     String address;
     String contactEmail;

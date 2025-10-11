@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Vehicle {
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
@@ -19,6 +20,7 @@ public class Vehicle {
     Company company;
 
     String licensePlate;
+
     String model;
 }
 

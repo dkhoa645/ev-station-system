@@ -12,8 +12,9 @@ public enum ErrorCode {
     EMAIL_EXISTS(1004,"Email is already exist" , HttpStatus.BAD_REQUEST),
     USERNAME_NOT_EXISTS(1005,"Username not exist" , HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN)
-
+    UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
+    VEHICLE_NOT_EXISTS(1008, "Vehicle does not exist", HttpStatus.BAD_REQUEST),
+    VEHICLE_EXISTS(1009, "Vehicle already exist", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
