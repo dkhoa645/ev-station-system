@@ -33,7 +33,7 @@ public class VehicleService  {
         }
 
     public VehicleResponse saveVehicle(VehicleRequest vehicleRequest) {
-        if(vehicleRepository.existVehicleByLicensePlate(vehicleRequest.getLicensePlate())){
+        if(vehicleRepository.existsByLicensePlate(vehicleRequest.getLicensePlate())){
             throw new AppException(ErrorCode.VEHICLE_EXISTS);
         }
         Vehicle vehicle = vehicleMapper.toVehicle(vehicleRequest);

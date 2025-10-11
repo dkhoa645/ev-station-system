@@ -20,6 +20,7 @@ public interface VehicleMapper {
     Vehicle toVehicle(VehicleRequest vehicleRequest);
     VehicleResponse toVehicleResponse(Vehicle vehicle);
 
+
     @Named("mapUser")
     default User mapUser(Long userId) {
         if (userId == null) return null;
@@ -27,7 +28,6 @@ public interface VehicleMapper {
         user.setId(userId);
         return user;
     }
-
     @Named("mapCompany")
     default Company mapCompany(Integer companyId) {
         if (companyId == null) return null;

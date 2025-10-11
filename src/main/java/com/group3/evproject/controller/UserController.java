@@ -30,18 +30,36 @@ public class UserController {
                 .result(userService.getAllUsers())
                 .build();
     }
+
+    @GetMapping("/{userId}")
+    ApiResponse<UserResponse> getUserById(@PathVariable Long userId) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getUserById(userId))
+                .build();
+    }
+
     @PostMapping
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createUser(request))
                 .build();
     }
-//    @PutMapping("/{userId}")
-//    ApiResponse<UserResponse> updateUser
-//            (@PathVariable Integer userId,
-//             @RequestBody @Valid UserUpdateRequest request) {
-//
-//
-//    }
+
+    @PutMapping("/{userId}")
+    ApiResponse<UserResponse> updateUser
+            (@PathVariable Long userId,
+             @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.updateUser(userId, userUpdateRequest))
+                .build();
+
+    }
+
+    @DeleteMapping("/{userId}")
+    ApiResponse<String> deleteUser(@PathVariable Long userId) {
+        return ApiResponse.<String>builder()
+                .result("User has been deleted")
+                .build();
+    }
 
 }
