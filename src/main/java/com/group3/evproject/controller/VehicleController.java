@@ -41,15 +41,15 @@ public class VehicleController {
                 .build();
     }
 
-    @PutMapping
-    public ApiResponse<Vehicle> updateVehicle(@RequestBody VehicleRequest vehicleRequest) {
-
-    }
-
-    @DeleteMapping
-    public ApiResponse<Vehicle> deleteVehicleById(@RequestParam int id) {
-
-    }
+//    @PutMapping
+//    public ApiResponse<Vehicle> updateVehicle(@RequestBody VehicleRequest vehicleRequest) {
+//
+//    }
+//
+//    @DeleteMapping
+//    public ApiResponse<Vehicle> deleteVehicleById(@RequestParam int id) {
+//
+//    }
 
 
 }

@@ -9,8 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "user")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -19,16 +18,18 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-
-    String name;
-
     @Column(unique = true, nullable = false)
     String email;
-
     @Column(unique = true, nullable = false)
     String username;
-
     String password;
+    @Column(name = "verification_token")
+    String verificationToken;
+    @Column(name = "verified")
+    boolean verified = false;
+
+    @Column(name = "reset_token")
+    String resetToken;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

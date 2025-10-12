@@ -47,8 +47,17 @@ public class AuthController {
     @PostMapping("/register")
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
-                .result(userService.registerUser(request))
+                .result(authenticationService.registerUser(request))
                 .build();
     }
+
+    @GetMapping("/verify")
+    public ApiResponse<String> verifyEmail(@RequestParam String token) {
+        String message = authenticationService.verifyEmail(token);
+        return ApiResponse.<String>builder()
+                .result(message)
+                .build();
+    }
+
 
 }

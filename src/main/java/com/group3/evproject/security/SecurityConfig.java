@@ -20,7 +20,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // tắt CSRF cho API
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll() // tất cả POST /auth/** bỏ qua
+                        .requestMatchers( "/auth/**").permitAll() // tất cả POST /auth/** bỏ qua
                         .anyRequest().authenticated()                              // các endpoint khác yêu cầu auth
                 )
                 .httpBasic(withDefaults()); // HTTP Basic mặc định

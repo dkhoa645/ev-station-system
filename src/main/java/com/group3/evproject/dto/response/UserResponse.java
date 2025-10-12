@@ -1,7 +1,10 @@
 package com.group3.evproject.dto.response;
 
+import com.group3.evproject.entity.Role;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.HashSet;
 
 @Data
 @NoArgsConstructor
@@ -9,7 +12,11 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponse {
-    String id;
+    Long id;
     String email;
+    String username;
     String name;
+    boolean verified;
+    HashSet<Role> roles;
+    String message;
 }

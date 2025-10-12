@@ -21,4 +21,16 @@ public class GlobalException {
                         .message(errorCode.getMessage())
                         .build());
     }
+
+    @ExceptionHandler(AppException.class)
+    ResponseEntity<ApiResponse> handleAppException(AppException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        return ResponseEntity.status(errorCode.getHttpStatusCode())
+                .body(ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build());
+    }
+
+
 }

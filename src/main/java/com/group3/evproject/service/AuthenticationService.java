@@ -2,16 +2,23 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.dto.request.AuthenticationRequest;
 import com.group3.evproject.dto.request.IntrospectRequest;
+import com.group3.evproject.dto.request.UserCreationRequest;
 import com.group3.evproject.dto.response.AuthenticationResponse;
 import com.group3.evproject.dto.response.IntrospectResponse;
+import com.group3.evproject.dto.response.UserResponse;
+import com.group3.evproject.entity.Role;
+import com.group3.evproject.entity.RoleEnum;
+import com.group3.evproject.entity.User;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
+import com.group3.evproject.repository.RoleRepository;
 import com.group3.evproject.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.transaction.Transactional;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
@@ -25,14 +32,20 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {
-
+    RoleRepository roleRepository;
     UserRepository userRepository;
+    EmailService emailService;
+
+    private PasswordEncoder passwordEncoder;
+
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -49,6 +62,13 @@ public class AuthenticationService {
 
         if(!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        boolean isUserRole = user.getRoles().stream()
+                .anyMatch(role -> role.getName().equals("USER"));
+
+        if (isUserRole && !user.isVerified()) {
+            throw new AppException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
         var token = generateToken(request.getUsername());
@@ -104,7 +124,71 @@ public class AuthenticationService {
         return IntrospectResponse.builder()
                 .valid(verified && expityTime.after(new Date()))
                 .build();
+    }
 
+    @Transactional
+    public UserResponse registerUser(UserCreationRequest request) {
+        // 1. Kiểm tra email tồn tại
+        User existUser = userRepository.findByEmail(request.getEmail());
+        if(existUser != null) {
+            if(existUser.isVerified()){
+                throw new AppException(ErrorCode.EMAIL_VERIFIED);
+            }else{
+//           *Tồn tại nhưng chưa xác thực
+                String verificationToken = UUID.randomUUID().toString();
+                existUser.setVerificationToken(verificationToken);
+                userRepository.save(existUser);
+                emailService.sendVerificationEmail(existUser.getEmail(), verificationToken);
+                return UserResponse.builder()
+                        .id(existUser.getId())
+                        .email(existUser.getEmail())
+                        .username(existUser.getUsername())
+                        .verified(existUser.isVerified())
+                        .message("Email resent!!Please check your email to verify your account.")
+                        .build();
+            }
+        }
+
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new AppException(ErrorCode.USERNAME_EXISTS);
+        }
+        // 2. Tạo User mới
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setVerified(false);
+        // 3. Gán role mặc định USER
+        Role role = roleRepository.findByName("USER");
+        user.getRoles().add(role);
+        // 4. Sinh token xác minh email
+        String verificationToken = UUID.randomUUID().toString();
+        user.setVerificationToken(verificationToken);
+        userRepository.save(user);
+
+        // 5. Gửi email xác thực
+        emailService.sendVerificationEmail(user.getEmail(), verificationToken);
+
+        // 6. Trả về DTO
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .verified(user.isVerified())
+                .message("Registration successfull! Please Verify your Email")
+                .build();
+    }
+
+    @Transactional
+    public String verifyEmail(String token) {
+        User user = userRepository.findByVerificationToken((token));
+        if (user == null) {
+            throw new AppException(ErrorCode.TOKEN_INVALID);
+        }
+        user.setVerified(true);
+        user.setVerificationToken(null);
+        userRepository.save(user);
+        return "Email verified successfully! You can now login.";
     }
 
 

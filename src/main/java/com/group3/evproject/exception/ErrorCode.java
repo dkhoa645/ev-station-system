@@ -15,6 +15,10 @@ public enum ErrorCode {
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     VEHICLE_NOT_EXISTS(1008, "Vehicle does not exist", HttpStatus.BAD_REQUEST),
     VEHICLE_EXISTS(1009, "Vehicle already exist", HttpStatus.BAD_REQUEST),
+    EMAIL_NOT_VERIFIED(1010,"Email is not verified" , HttpStatus.BAD_REQUEST),
+    EMAIL_VERIFIED(1011,"Username is exist and verified" , HttpStatus.BAD_REQUEST),
+    TOKEN_INVALID(1012,"Token is invalid" , HttpStatus.BAD_REQUEST)
+
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
