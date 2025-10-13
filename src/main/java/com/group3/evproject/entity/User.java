@@ -23,6 +23,7 @@ public class User {
     @Column(unique = true, nullable = false)
     String username;
     String password;
+    String name;
     @Column(name = "verification_token")
     String verificationToken;
     @Column(name = "verified")

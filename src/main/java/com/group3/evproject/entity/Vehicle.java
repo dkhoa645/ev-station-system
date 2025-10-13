@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 public class Vehicle {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
 
     @ManyToOne @JoinColumn(name = "user_id")
     User user;
@@ -19,8 +19,13 @@ public class Vehicle {
     @ManyToOne @JoinColumn(name = "company_id")
     Company company;
 
+    @Column(name = "license_plate")
     String licensePlate;
 
-    String model;
+    @ManyToOne @JoinColumn(name = "model_id")
+    VehicleModel model;
+
+    @Enumerated(EnumType.STRING)
+    VehicleStatus status;
 }
 

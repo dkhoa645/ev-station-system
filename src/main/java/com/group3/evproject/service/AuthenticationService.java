@@ -18,6 +18,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -35,6 +36,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.UUID;
 
+
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -49,10 +52,10 @@ public class AuthenticationService {
 
     @NonFinal
     @Value("${jwt.signerKey}")
-    protected  String SIGNER_KEY =
+    protected String SIGNER_KEY =
             "WgHn5RfQOLDuYzYwVs9rqFfD7wvDRJxa7JjjiMa1VmL/3pl2o2H/vdynTH+DmtfE";
 
-    public AuthenticationResponse authenticated(AuthenticationRequest request)  {
+    public AuthenticationResponse authenticated(AuthenticationRequest request) {
         var user = userRepository
                 .findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_EXISTS));
@@ -60,7 +63,7 @@ public class AuthenticationService {
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
-        if(!authenticated) {
+        if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
@@ -90,9 +93,7 @@ public class AuthenticationService {
                 .subject(username)
                 .issuer("backend-dev")
                 .issueTime(new Date())
-                .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
-                ))
+                .expirationTime(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
                 .claim("customClaim", "Custom")
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -130,10 +131,10 @@ public class AuthenticationService {
     public UserResponse registerUser(UserCreationRequest request) {
         // 1. Kiểm tra email tồn tại
         User existUser = userRepository.findByEmail(request.getEmail());
-        if(existUser != null) {
-            if(existUser.isVerified()){
+        if (existUser != null) {
+            if (existUser.isVerified()) {
                 throw new AppException(ErrorCode.EMAIL_VERIFIED);
-            }else{
+            } else {
 //           *Tồn tại nhưng chưa xác thực
                 String verificationToken = UUID.randomUUID().toString();
                 existUser.setVerificationToken(verificationToken);
@@ -192,5 +193,17 @@ public class AuthenticationService {
     }
 
 
-
+    public String extractUsernameFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AppException(ErrorCode.TOKEN_INVALID); // hoặc TOKEN_MISSING
+        }
+        String token = authHeader.substring(7);
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return signedJWT.getJWTClaimsSet().getSubject();
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.TOKEN_INVALID);
+        }
+    }
 }

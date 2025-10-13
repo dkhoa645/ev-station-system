@@ -12,14 +12,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class VehicleRequest {
 
-    String userId;
-
     @NotBlank(message = "License plate is required")
     String licensePlate;
 
     @NotBlank(message = "Model is required")
-    String model;
+    Long modelId;
 
-
-    Integer companyId;
 }

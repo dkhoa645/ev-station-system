@@ -36,6 +36,12 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+    }
+
+
+    @Transactional
     public UserResponse createUser(UserCreationRequest userCreationRequest) {
         User user = userMapper.toUser(userCreationRequest);
         user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));

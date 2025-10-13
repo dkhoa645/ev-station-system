@@ -5,6 +5,7 @@ import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.entity.Vehicle;
 import com.group3.evproject.service.VehicleService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,24 +21,25 @@ public class VehicleController {
 
     VehicleService vehicleService;
 
-    @GetMapping
-    public ApiResponse<List<Vehicle>> getVehicles() {
-        return ApiResponse.<List<Vehicle>>builder()
-                .result(vehicleService.getVehicles())
-                .build();
-    }
-
-    @GetMapping("/{id}")
-    public ApiResponse<Vehicle> getVehicleById(@PathVariable int id) {
-        return ApiResponse.<Vehicle>builder()
-                .result(vehicleService.findVehicleById(id))
-                .build();
-    }
-
+//    @GetMapping
+//    public ApiResponse<List<Vehicle>> getVehicles() {
+//        return ApiResponse.<List<Vehicle>>builder()
+//                .result(vehicleService.getVehicles())
+//                .build();
+//    }
+//
+//    @GetMapping("/{id}")
+//    public ApiResponse<Vehicle> getVehicleById(@PathVariable int id) {
+//        return ApiResponse.<Vehicle>builder()
+//                .result(vehicleService.findVehicleById(id))
+//                .build();
+//    }
+//
     @PostMapping()
-    public ApiResponse<VehicleResponse> saveVehicle(@RequestBody VehicleRequest vehicleRequest) {
+    public ApiResponse<VehicleResponse> registerVehicle(@RequestBody VehicleRequest vehicleRequest,
+                                                        HttpServletRequest request) {
         return ApiResponse.<VehicleResponse>builder()
-                .result(vehicleService.saveVehicle(vehicleRequest))
+                .result(vehicleService.registerVehicle(request,vehicleRequest))
                 .build();
     }
 
