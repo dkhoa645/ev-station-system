@@ -1,22 +1,33 @@
 package com.group3.evproject.service;
 
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Service
 @RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    @Value("${SENDGRID_API_KEY}")
+    private String sendGridApiKey;
 
-    public void sendVerificationEmail(String toEmail, String verificationToken) {
-        String subject = "Email Verification";
-        String verifyUrl = "http://localhost:8080/auth/verify?token=" + verificationToken;
+    public void sendVerificationEmail(String toEmail, String verificationToken)  {
+        String subject = "Verify your EV Charge account";
+        String verifyUrl = "http://ev-station-system-production.up.railway.app/auth/verify?token=" + verificationToken;
 
         // Nội dung email dạng HTML
         String body = """
@@ -44,16 +55,34 @@ public class EmailService {
         </body>
         </html>
         """.formatted(verifyUrl);
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom("vietanh.hotrokekhai@gmail.com");
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText(body, true); // true = HTML
-            mailSender.send(message);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send verification email", e);
+
+        Email from = new Email("vietanh.hotrokekhai@gmail.com");
+        Email recipient = new Email(toEmail);
+        Content content = new Content("text/html",body);
+        Mail mail = new Mail(from,subject,recipient,content);
+
+        SendGrid sg = new SendGrid(sendGridApiKey);
+        Request  request = new Request();
+
+        try{
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            sg.api(request);
+        }catch(IOException ex){
+            throw new RuntimeException("Failed to send email",ex);
         }
+
+//        try {
+//            MimeMessage message = mailSender.createMimeMessage();
+//            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+//            helper.setFrom("vietanh.hotrokekhai@gmail.com");
+//            helper.setTo(toEmail);
+//            helper.setSubject(subject);
+//            helper.setText(body, true); // true = HTML
+//            mailSender.send(message);
+//        } catch (MessagingException e) {
+//            throw new RuntimeException("Failed to send verification email", e);
+//        }
     }
 }

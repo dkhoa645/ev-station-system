@@ -11,6 +11,7 @@ import com.group3.evproject.entity.RoleEnum;
 import com.group3.evproject.entity.User;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
+import com.group3.evproject.mapper.UserMapper;
 import com.group3.evproject.repository.RoleRepository;
 import com.group3.evproject.repository.UserRepository;
 import com.nimbusds.jose.*;
@@ -48,6 +49,7 @@ public class AuthenticationService {
     EmailService emailService;
 
     private PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
 
     @NonFinal
@@ -144,7 +146,6 @@ public class AuthenticationService {
                         .id(existUser.getId())
                         .email(existUser.getEmail())
                         .username(existUser.getUsername())
-                        .verified(existUser.isVerified())
                         .message("Email resent!!Please check your email to verify your account.")
                         .build();
             }
@@ -154,14 +155,12 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.USERNAME_EXISTS);
         }
         // 2. Tạo User mới
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setUsername(request.getUsername());
+        User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setVerified(false);
         // 3. Gán role mặc định USER
-        Role role = roleRepository.findByName("USER");
-        user.getRoles().add(role);
+//        Role role = roleRepository.findByName("USER");
+//        user.getRoles().add(role);
         // 4. Sinh token xác minh email
         String verificationToken = UUID.randomUUID().toString();
         user.setVerificationToken(verificationToken);
@@ -171,13 +170,9 @@ public class AuthenticationService {
         emailService.sendVerificationEmail(user.getEmail(), verificationToken);
 
         // 6. Trả về DTO
-        return UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .username(user.getUsername())
-                .verified(user.isVerified())
-                .message("Registration successfull! Please Verify your Email")
-                .build();
+        UserResponse userResponse = userMapper.toUserResponse(user);
+        userResponse.setMessage("Registration successfull! Please Verify your Email");
+        return userResponse;
     }
 
     @Transactional

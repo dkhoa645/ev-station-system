@@ -16,7 +16,5 @@ public class UserResponse {
     String email;
     String username;
     String name;
-    boolean verified;
-    HashSet<Role> roles;
     String message;
 }
