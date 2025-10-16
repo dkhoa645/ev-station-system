@@ -10,6 +10,7 @@ import java.util.List;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
+
     boolean existsByLicensePlate(String licensePlate);
 
     List<Vehicle> findByUser(User user);

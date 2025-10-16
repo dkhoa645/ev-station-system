@@ -1,76 +1,46 @@
 package com.group3.evproject.service;
-import com.group3.evproject.entity.Booking;
-import com.group3.evproject.repository.BookingRepository;
-import jakarta.persistence.Id;
+import com.group3.evproject.entity.Vehicle;
+import com.group3.evproject.entity.*;
+import com.group3.evproject.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class BookingService {
-    private  final BookingRepository bookingRepository;
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final ChargingStationRepository chargingStationRepository;
+    private final ChargingSpotRepository chargingSpotRepository;
 
-    public Booking createBooking(Booking booking) {
-        if(booking.getStatus() == null){
-            booking.setStatus("BOOKED");
+    public Booking createBooking(Integer stationId, LocalDateTime startTime, LocalDateTime endTime, Integer userId, Integer vehicleId) {
+        User user = userRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        ChargingStation station = chargingStationRepository.findById(stationId)
+                .orElseThrow(() -> new RuntimeException("Station not found"));
+       // Vehicle vehicle = VehicleRepository.findById(Long.valueOf(vehicleId))
+               // .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+        Optional<ChargingSpot> availableSpot = station.getSpots().stream().filter(s -> "AVAILABLE".equals(s.getStatus())).findFirst();
+        if (availableSpot.isEmpty()) {
+            throw new RuntimeException("No availble charging spot at this station");
         }
-        booking.setStartTime(LocalDateTime.now());
-        return bookingRepository.save(booking);
-    }
+        ChargingSpot spot = availableSpot.get();
 
-    public Booking updateBooking(Integer id, Booking updatedBooking) {
-        Optional<Booking> existing = bookingRepository.findById(id);
-        if(existing.isPresent()){
-            Booking booking = existing.get();
-            booking.setStation(updatedBooking.getStation());
-            booking.setVehicle(updatedBooking.getVehicle());
-            booking.setSpot(updatedBooking.getSpot());
-            booking.setStartTime(updatedBooking.getStartTime());
-            booking.setEndTime(updatedBooking.getEndTime());
-            booking.setStatus(updatedBooking.getStatus());
-            return bookingRepository.save(booking);
-        } else{
-            throw new RuntimeException("Booking not found with id: " + id);
-        }
-    }
+        Booking booking = new Booking();
+        booking.setUser(user);
+        booking.setStation(station);
+        booking.setSpot(spot);
+        booking.setStartTime(startTime);
+        booking.setEndTime(endTime);
+        booking.setStatus("BOOKED");
+       // booking.setVehicle(vehicle);
 
-    public void cancelBooking(Integer id) {
-        Booking booking = bookingRepository.findById(id).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
-        booking.setStatus("CANCELLED");
         bookingRepository.save(booking);
-    }
 
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
-    }
-
-    public Booking getBookingById(Integer id) {
-        return bookingRepository.findById(id).orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
-    }
-
-    public List<Booking> getBookingsByUserId(Integer userId) {
-        return bookingRepository.findByUserId(userId);
-    }
-
-    public List<Booking> getBookingsByStationId(Integer stationId) {
-        return bookingRepository.findByStationId(stationId);
-    }
-
-    public List<Booking> getBookingsByStatus(String status) {
-        return bookingRepository.findByStatus(status);
-    }
-
-    public List<Booking> getBookingBetween(LocalDateTime start, LocalDateTime end) {
-        return bookingRepository.findByStartTimeBetween(start, end);
-    }
-
-    public boolean checkActiveBooking(Integer userId) {
-        List<Booking> activeBookings = bookingRepository.findByUserIdAndStatus(userId, "active");
-        return !activeBookings.isEmpty();
+        spot.setStatus("BOOKED");
+        chargingSpotRepository.save(spot);
+        return booking;
     }
 }
