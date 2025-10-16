@@ -11,6 +11,7 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.UserMapper;
 import com.group3.evproject.mapper.VehicleMapper;
 import com.group3.evproject.repository.VehicleRepository;
+import com.sendgrid.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import lombok.experimental.FieldDefaults;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -56,6 +58,17 @@ public class VehicleService  {
                         .user(user)
                         .status(VehicleStatus.PENDING)
                         .build()));
+    }
+    //Vehicle Response
+    public List<VehicleResponse> getByUserId(HttpServletRequest request) {
+        String username = authenticationService.extractUsernameFromRequest(request);
+        User user = userService.getUserByUsername(username);
+        List<Vehicle> list = vehicleRepository.findByUser(user);
+        List<VehicleResponse> responses = new ArrayList<>();
+        for(Vehicle vehicle : list){
+            responses.add(vehicleMapper.vehicleToVehicleResponse(vehicle));
+        }
+        return responses;
     }
 
 

@@ -35,6 +35,13 @@ public class VehicleController {
                 .build();
     }
 //
+    @GetMapping("/user")
+    public ApiResponse<List<VehicleResponse>> getUserVehicle(HttpServletRequest request) {
+    return ApiResponse.<List<VehicleResponse>>builder()
+            .result(vehicleService.getByUserId(request))
+            .build();
+}
+
     @PostMapping()
     public ApiResponse<VehicleResponse> registerVehicle(@RequestBody VehicleRequest vehicleRequest,
                                                         HttpServletRequest request) {

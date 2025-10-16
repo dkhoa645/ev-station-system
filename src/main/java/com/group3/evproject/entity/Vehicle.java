@@ -12,19 +12,14 @@ public class Vehicle {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-
     @ManyToOne @JoinColumn(name = "user_id")
     User user;
-
     @ManyToOne @JoinColumn(name = "company_id")
     Company company;
-
     @Column(name = "license_plate")
     String licensePlate;
-
     @ManyToOne @JoinColumn(name = "model_id")
     VehicleModel model;
-
     @Enumerated(EnumType.STRING)
     VehicleStatus status;
 }
