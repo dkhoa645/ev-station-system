@@ -1,5 +1,6 @@
 package com.group3.evproject.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.group3.evproject.dto.response.ApiResponse;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
@@ -40,8 +41,20 @@ public class GlobalException {
         return ResponseEntity.status(errorCode.getHttpStatusCode())
                 .body(ApiResponse.builder()
                         .code(errorCode.getCode())
-                        .message(errorCode.getMessage())
+                        .message(ex.getMessage())
                         .build());
+    }
+
+    @ExceptionHandler(InvalidFormatException.class)
+    ResponseEntity<Map<String, String>> handleInvalidFormatException(InvalidFormatException ex) {
+        Map<String, String> errors = new HashMap<>();
+        String fieldName = "";
+        if(!ex.getPath().isEmpty()){
+            fieldName = ex.getPath().get(0).getFieldName();
+        }
+        errors.put("field", fieldName);
+        errors.put("message", "Value must be "+ex.getTargetType());
+        return ResponseEntity.badRequest().body(errors);
     }
 
 

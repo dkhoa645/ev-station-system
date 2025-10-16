@@ -60,7 +60,7 @@ public class AuthenticationService {
     public AuthenticationResponse authenticated(AuthenticationRequest request) {
         var user = userRepository
                 .findByUsername(request.getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_EXISTS));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
@@ -152,7 +152,7 @@ public class AuthenticationService {
         }
 
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new AppException(ErrorCode.USERNAME_EXISTS);
+            throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
         }
         // 2. Tạo User mới
         User user = userMapper.toUser(request);

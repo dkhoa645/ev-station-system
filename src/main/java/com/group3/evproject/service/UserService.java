@@ -46,10 +46,10 @@ public class UserService {
         User user = userMapper.toUser(userCreationRequest);
         user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
         if(userRepository.existsByUsername(user.getUsername())){
-                throw new AppException(ErrorCode.USERNAME_EXISTS);
+                throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
         }
         if(userRepository.existsByEmail(user.getEmail())){
-            throw new AppException(ErrorCode.EMAIL_EXISTS);
+            throw new AppException(ErrorCode.RESOURCES_EXISTS, "Email");
         }
         return userMapper.toUserResponse(userRepository.save(user));
     }
@@ -67,30 +67,35 @@ public class UserService {
         user.getRoles().add(userRole);
 
         if(userRepository.existsByUsername(user.getUsername())){
-            throw new AppException(ErrorCode.USERNAME_EXISTS);
+            throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
         }
         if(userRepository.existsByEmail(user.getEmail())){
-            throw new AppException(ErrorCode.EMAIL_EXISTS);
+            throw new AppException(ErrorCode.RESOURCES_EXISTS,"Email");
         }
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
     public UserResponse getUserById(@PathVariable Long id) {
         return userMapper.toUserResponse(userRepository.findById(id)
-                .orElseThrow(()-> new AppException(ErrorCode.USERNAME_NOT_EXISTS)));
+                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"User")));
     }
 
     //ADMIN
     @Transactional
     public UserResponse updateUser(Long userId, UserUpdateRequest userUpdateRequest) {
         User user = userRepository.findById(userId)
-                .orElseThrow(()-> new AppException(ErrorCode.USERNAME_NOT_EXISTS));
+                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
         userMapper.updateUserFromRequest(userUpdateRequest, user);
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
     @Transactional
     public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
+        if(userRepository.existsById(userId)) {
+            userRepository.deleteById(userId);
+        }
+        else {
+            throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User");
+        }
     }
 }

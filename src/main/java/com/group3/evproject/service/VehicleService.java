@@ -41,7 +41,7 @@ public class VehicleService  {
 
     public VehicleResponse registerVehicle(HttpServletRequest request, VehicleRequest vehicleRequest) {
         if(vehicleRepository.existsByLicensePlate(vehicleRequest.getLicensePlate())){
-            throw new AppException(ErrorCode.VEHICLE_EXISTS);
+            throw new AppException(ErrorCode.RESOURCES_EXISTS,"Vehicle");
         }
         VehicleModel vehicleModel = vehicleModelService.getModelById(vehicleRequest.getModelId());
 
