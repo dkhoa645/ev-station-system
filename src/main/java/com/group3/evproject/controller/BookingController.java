@@ -19,14 +19,13 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Booking> createBooking(@RequestBody BookingRequest bookingRequest){
         Integer userId = bookingRequest.getUserId();
-        Integer vehicleId = bookingRequest.getVehicleId();
+    //    Integer vehicleId = bookingRequest.getVehicleId();
         Integer stationId = bookingRequest.getStationId();
         LocalDateTime startTime = bookingRequest.getStartTime();
         LocalDateTime endTime = bookingRequest.getEndTime();
 
         Booking response = bookingService.createBooking(
-                stationId, startTime, endTime, userId, vehicleId
-        );
+                stationId, startTime, endTime, userId);
         System.out.println("Booking created" + response);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

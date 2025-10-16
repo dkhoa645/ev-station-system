@@ -15,7 +15,7 @@ public class BookingService {
     private final ChargingStationRepository chargingStationRepository;
     private final ChargingSpotRepository chargingSpotRepository;
 
-    public Booking createBooking(Integer stationId, LocalDateTime startTime, LocalDateTime endTime, Integer userId, Integer vehicleId) {
+    public Booking createBooking(Integer stationId, LocalDateTime startTime, LocalDateTime endTime, Integer userId) {
         User user = userRepository.findById(Long.valueOf(userId))
                 .orElseThrow(() -> new RuntimeException("User not found"));
         ChargingStation station = chargingStationRepository.findById(stationId)
