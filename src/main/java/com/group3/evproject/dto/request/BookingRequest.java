@@ -12,8 +12,8 @@ public class BookingRequest {
     @Schema(description = "ID of the user making the booking", example = "1")
     private Integer userId;
 
-    @Schema(description = "ID of the vehicle to be charged", example = "1")
-    private Integer vehicleId;
+   // @Schema(description = "ID of the vehicle to be charged", example = "1")
+   // private Integer vehicleId;
 
     @Schema(description = "ID of the charging station", example = "1")
     private Integer stationId;
