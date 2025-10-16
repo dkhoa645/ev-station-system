@@ -1,0 +1,61 @@
+package com.group3.evproject.controller;
+
+import com.group3.evproject.dto.request.SubscriptionPlanRequest;
+import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.entity.SubscriptionPlan;
+import com.group3.evproject.service.SubscriptionPlanService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RequestMapping("/subscription-plan")
+@RestController
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class SubscriptionPlanController {
+    SubscriptionPlanService subscriptionPlanService;
+
+    @GetMapping
+    public ApiResponse<List<SubscriptionPlan>> getAllSubscriptionPlans() {
+        return ApiResponse.<List<SubscriptionPlan>>builder()
+                .result(subscriptionPlanService.getAll())
+                .build();
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<SubscriptionPlan> getSubscriptionPlanById(@PathVariable Long id) {
+        return ApiResponse.<SubscriptionPlan>builder()
+                .result(subscriptionPlanService.getById(id))
+                .build();
+    }
+
+    @PostMapping
+    public ApiResponse<SubscriptionPlan> createSubscriptionPlan(
+            @RequestBody SubscriptionPlan subscriptionPlan) {
+        return ApiResponse.<SubscriptionPlan>builder()
+                .result(subscriptionPlanService.createPlan(subscriptionPlan))
+                .build();
+    }
+//
+    @PutMapping("/{id}")
+    public ApiResponse<SubscriptionPlan> updateSubscriptionPlan(
+            @PathVariable Long id,
+            @RequestBody SubscriptionPlanRequest request) {
+        return ApiResponse.<SubscriptionPlan>builder()
+                .result(subscriptionPlanService.updatePlan(id,request))
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<String> deleteSubscriptionPlan(
+            @PathVariable Long id
+    ){
+        subscriptionPlanService.deleteById(id);
+        return ApiResponse.<String>builder()
+                .result("Subscription Plan has been deleted")
+                .build();
+    }
+}
