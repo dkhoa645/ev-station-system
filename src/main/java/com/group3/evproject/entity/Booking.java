@@ -23,9 +23,9 @@ public class Booking {
     @JoinColumn(name = "station_id", nullable = false)
     ChargingStation station;
 
-    @ManyToOne
-    @JoinColumn(name = "vehicle_id", nullable = false)
-    Vehicle vehicle;
+//    @ManyToOne
+//    @JoinColumn(name = "vehicle_id", nullable = false)
+//    Vehicle vehicle;
 
     @ManyToOne
     @JoinColumn(name = "spot_id", nullable = false)
