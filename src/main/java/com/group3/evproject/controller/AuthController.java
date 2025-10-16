@@ -10,12 +10,14 @@ import com.group3.evproject.dto.response.UserResponse;
 import com.group3.evproject.service.AuthenticationService;
 import com.group3.evproject.service.UserService;
 import com.nimbusds.jose.JOSEException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.text.ParseException;
 
 @RequestMapping("/auth")
@@ -51,13 +53,22 @@ public class AuthController {
                 .build();
     }
 
-    @GetMapping("/verify")
-    public ApiResponse<String> verifyEmail(@RequestParam String token) {
-        String message = authenticationService.verifyEmail(token);
-        return ApiResponse.<String>builder()
-                .result(message)
-                .build();
+//    @GetMapping("/verify")
+//    public ApiResponse<String> verifyEmail(@RequestParam String token) {
+//        String message = authenticationService.verifyEmail(token);
+//        return ApiResponse.<String>builder()
+//                .result(message)
+//                .build();
+//    }
+@GetMapping("/verify")
+public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
+    String message = authenticationService.verifyEmail(token);
+    if (message.contains("success")) {
+        response.sendRedirect("http://localhost:5173/");
+    } else {
+        response.sendRedirect("http://localhost:5173/");
     }
+}
 
 
 }

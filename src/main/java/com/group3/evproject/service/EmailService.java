@@ -73,16 +73,6 @@ public class EmailService {
             throw new RuntimeException("Failed to send email",ex);
         }
 
-//        try {
-//            MimeMessage message = mailSender.createMimeMessage();
-//            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-//            helper.setFrom("vietanh.hotrokekhai@gmail.com");
-//            helper.setTo(toEmail);
-//            helper.setSubject(subject);
-//            helper.setText(body, true); // true = HTML
-//            mailSender.send(message);
-//        } catch (MessagingException e) {
-//            throw new RuntimeException("Failed to send verification email", e);
-//        }
+
     }
 }
