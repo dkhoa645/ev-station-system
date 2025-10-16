@@ -23,7 +23,6 @@ public class VehicleModelController {
                 .result(vehicleModelService.getAllModel())
                 .build();
     }
-
     @PostMapping("/bulk")
     public ApiResponse<List<VehicleModel>> addVehicleModels(@RequestBody List<VehicleModel> models) {
         List<VehicleModel> savedModels = vehicleModelService.saveAllModel(models);
