@@ -21,19 +21,19 @@ public class VehicleController {
 
     VehicleService vehicleService;
 
-//    @GetMapping
-//    public ApiResponse<List<Vehicle>> getVehicles() {
-//        return ApiResponse.<List<Vehicle>>builder()
-//                .result(vehicleService.getVehicles())
-//                .build();
-//    }
+    @GetMapping
+    public ApiResponse<List<Vehicle>> getVehicles() {
+        return ApiResponse.<List<Vehicle>>builder()
+                .result(vehicleService.getAllVehicles())
+                .build();
+    }
 //
-//    @GetMapping("/{id}")
-//    public ApiResponse<Vehicle> getVehicleById(@PathVariable int id) {
-//        return ApiResponse.<Vehicle>builder()
-//                .result(vehicleService.findVehicleById(id))
-//                .build();
-//    }
+    @GetMapping("/{id}")
+    public ApiResponse<Vehicle> getVehicleById(@PathVariable Long id) {
+        return ApiResponse.<Vehicle>builder()
+                .result(vehicleService.getById(id))
+                .build();
+    }
 //
     @PostMapping()
     public ApiResponse<VehicleResponse> registerVehicle(@RequestBody VehicleRequest vehicleRequest,

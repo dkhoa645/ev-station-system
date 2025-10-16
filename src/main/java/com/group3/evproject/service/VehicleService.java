@@ -30,14 +30,14 @@ public class VehicleService  {
     VehicleMapper vehicleMapper;
     VehicleModelService vehicleModelService;
 
-//    public List<Vehicle> getVehicles() {
-//        return  vehicleRepository.findAll();
-//    }
+    public List<Vehicle> getAllVehicles() {
+        return  vehicleRepository.findAll();
+    }
 //
-//    public Vehicle findVehicleById(int id) {
-//        return vehicleRepository.findById(id)
-//                .orElseThrow(() -> new AppException(ErrorCode.VEHICLE_NOT_EXISTS));
-//        }
+    public Vehicle getById(Long id) {
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
+        }
 
     public VehicleResponse registerVehicle(HttpServletRequest request, VehicleRequest vehicleRequest) {
         if(vehicleRepository.existsByLicensePlate(vehicleRequest.getLicensePlate())){
@@ -57,4 +57,6 @@ public class VehicleService  {
                         .status(VehicleStatus.PENDING)
                         .build()));
     }
+
+
 }
