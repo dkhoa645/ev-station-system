@@ -1,10 +1,12 @@
+// java
 package com.group3.evproject.service;
-import com.group3.evproject.entity.Vehicle;
+
 import com.group3.evproject.entity.*;
 import com.group3.evproject.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -18,13 +20,18 @@ public class BookingService {
     public Booking createBooking(Integer stationId, LocalDateTime startTime, LocalDateTime endTime, Integer userId) {
         User user = userRepository.findById(Long.valueOf(userId))
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
         ChargingStation station = chargingStationRepository.findById(stationId)
                 .orElseThrow(() -> new RuntimeException("Station not found"));
-       // Vehicle vehicle = VehicleRepository.findById(Long.valueOf(vehicleId))
-               // .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-        Optional<ChargingSpot> availableSpot = station.getSpots().stream().filter(s -> "AVAILABLE".equals(s.getStatus())).findFirst();
+
+        // guard against null spots
+        Optional<ChargingSpot> availableSpot = (Optional.ofNullable(station.getSpots()).orElse(Collections.emptyList()))
+                .stream()
+                .filter(s -> "AVAILABLE".equals(s.getStatus()))
+                .findFirst();
+
         if (availableSpot.isEmpty()) {
-            throw new RuntimeException("No availble charging spot at this station");
+            throw new RuntimeException("No available charging spot at this station");
         }
         ChargingSpot spot = availableSpot.get();
 
@@ -35,7 +42,6 @@ public class BookingService {
         booking.setStartTime(startTime);
         booking.setEndTime(endTime);
         booking.setStatus("BOOKED");
-       // booking.setVehicle(vehicle);
 
         bookingRepository.save(booking);
 
