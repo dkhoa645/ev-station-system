@@ -9,13 +9,25 @@ import lombok.experimental.FieldDefaults;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChargingSpot {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToOne @JoinColumn(name = "station_id")
-    ChargingStation station;
+    // Tên của chỗ sạc
+    @Column(nullable = false)
+    String name;
 
-    String spotNumber;
-    String status; // available, occupied, maintenance
+    // Trạng thái: AVAILABLE, IN_USE, MAINTENANCE, ...
+    @Column(nullable = false)
+    private String status;
+
+    // Công suất đầu ra của chỗ sạc (kW)
+    @Column(nullable = false)
+    Double powerOutput;
+
+    // Mỗi chỗ sạc thuộc về 1 trạm
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "station_id", nullable = false)
+    ChargingStation station;
 }
 
