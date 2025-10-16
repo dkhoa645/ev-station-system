@@ -11,11 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class VehicleRequest {
-
-    @NotBlank(message = "License plate is required")
-    String licensePlate;
-
-    @NotBlank(message = "Model is required")
-    Long modelId;
-
+    private Long modelId;
+    private String licensePlate;
+    // thêm thông tin gói đăng ký
+    private Long subscriptionPlanId; // bắt buộc chọn gói
 }

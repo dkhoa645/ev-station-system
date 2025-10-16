@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,4 +27,7 @@ public class SubscriptionPlan {
     )
     @Column(name = "description")
     List<String> description;
+
+    @OneToMany(mappedBy = "subscriptionPlan")
+    private List<VehicleSubscription> vehicleSubscriptions = new ArrayList<>();
 }

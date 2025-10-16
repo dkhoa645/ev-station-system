@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "vehicle")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -22,5 +25,8 @@ public class Vehicle {
     VehicleModel model;
     @Enumerated(EnumType.STRING)
     VehicleStatus status;
+    // Một xe chỉ có một subscription
+    @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private VehicleSubscription subscription;
 }
 

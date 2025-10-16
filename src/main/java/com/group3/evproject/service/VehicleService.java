@@ -2,10 +2,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.dto.request.VehicleRequest;
 import com.group3.evproject.dto.response.VehicleResponse;
-import com.group3.evproject.entity.User;
-import com.group3.evproject.entity.Vehicle;
-import com.group3.evproject.entity.VehicleModel;
-import com.group3.evproject.entity.VehicleStatus;
+import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.UserMapper;
@@ -19,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +29,7 @@ public class VehicleService  {
     UserService userService;
     VehicleMapper vehicleMapper;
     VehicleModelService vehicleModelService;
+    private final SubscriptionPlanService subscriptionPlanService;
 
     public List<Vehicle> getAllVehicles() {
         return  vehicleRepository.findAll();
@@ -42,22 +41,42 @@ public class VehicleService  {
         }
 
     public VehicleResponse registerVehicle(HttpServletRequest request, VehicleRequest vehicleRequest) {
+        // Kiểm tra license plate tồn tại
         if(vehicleRepository.existsByLicensePlate(vehicleRequest.getLicensePlate())){
             throw new AppException(ErrorCode.RESOURCES_EXISTS,"Vehicle");
         }
-        VehicleModel vehicleModel = vehicleModelService.getModelById(vehicleRequest.getModelId());
 
+        // Kiểm tra subscription plan
+        if(vehicleRequest.getSubscriptionPlanId() == null){
+            throw new AppException(ErrorCode.SUBSCRIPTION_REQUIRED);
+        }
+        SubscriptionPlan plan = subscriptionPlanService.getById(vehicleRequest.getSubscriptionPlanId());
+
+        VehicleModel vehicleModel = vehicleModelService.getModelById(vehicleRequest.getModelId());
         String username = authenticationService.extractUsernameFromRequest(request);
         User user = userService.getUserByUsername(username);
 
-        return vehicleMapper.vehicleToVehicleResponse(
-                vehicleRepository.save(
-                    Vehicle.builder()
-                        .model(vehicleModel)
-                        .licensePlate(vehicleRequest.getLicensePlate())
-                        .user(user)
-                        .status(VehicleStatus.PENDING)
-                        .build()));
+        // Tạo Vehicle + Subscription cùng lúc
+        Vehicle vehicle = Vehicle.builder()
+                .model(vehicleModel)
+                .licensePlate(vehicleRequest.getLicensePlate())
+                .user(user)
+                .status(VehicleStatus.PENDING)
+                .subscription(
+                        VehicleSubscription.builder()
+                                .subscriptionPlan(plan)
+                                .startDate(LocalDateTime.now())
+                                .endDate(LocalDateTime.now().plusMonths(1))
+                                .status("active")
+                                .build()
+                )
+                .build();
+
+        // Thiết lập quan hệ 2 chiều
+        vehicle.getSubscription().setVehicle(vehicle);
+
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+        return vehicleMapper.vehicleToVehicleResponse(savedVehicle);
     }
     //Vehicle Response
     public List<VehicleResponse> getByUserId(HttpServletRequest request) {

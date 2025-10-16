@@ -4,16 +4,20 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "vehicle_subscription")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleSubscription {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
 
-    @ManyToOne @JoinColumn(name = "vehicle_id")
-    Vehicle vehicle;
+    @OneToOne
+    @JoinColumn(name = "vehicle_id", nullable = false, unique = true)
+    private Vehicle vehicle;
 
     @ManyToOne @JoinColumn(name = "subscription_id")
     SubscriptionPlan subscriptionPlan;

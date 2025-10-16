@@ -17,6 +17,7 @@ public enum ErrorCode {
     EMAIL_NOT_VERIFIED(1010,"Email is not verified" , HttpStatus.BAD_REQUEST),
     EMAIL_VERIFIED(1011,"Username is exist and verified" , HttpStatus.BAD_REQUEST),
     TOKEN_INVALID(1012,"Token is invalid" , HttpStatus.BAD_REQUEST),
+    SUBSCRIPTION_REQUIRED(1013,"Subscription required" , HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {
