@@ -115,15 +115,10 @@ public class AuthenticationService {
             throws JOSEException, ParseException {
 
         var token = request.getToken();
-
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
-
         SignedJWT signedJWT = SignedJWT.parse(token);
-
         Date expityTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-
         var verified = signedJWT.verify(verifier);
-
         return IntrospectResponse.builder()
                 .valid(verified && expityTime.after(new Date()))
                 .build();

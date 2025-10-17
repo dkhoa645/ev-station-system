@@ -52,7 +52,6 @@ public class AuthController {
                 .result(authenticationService.registerUser(request))
                 .build();
     }
-
 //    @GetMapping("/verify")
 //    public ApiResponse<String> verifyEmail(@RequestParam String token) {
 //        String message = authenticationService.verifyEmail(token);
@@ -60,15 +59,15 @@ public class AuthController {
 //                .result(message)
 //                .build();
 //    }
-@GetMapping("/verify")
-public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
-    String message = authenticationService.verifyEmail(token);
-    if (message.contains("success")) {
-        response.sendRedirect("http://localhost:5173/");
-    } else {
-        response.sendRedirect("http://localhost:5173/");
+    @GetMapping("/verify")
+    public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
+        String message = authenticationService.verifyEmail(token);
+        if (message.contains("success")) {
+            response.sendRedirect("http://localhost:5173/");
+        } else {
+            response.sendRedirect("http://localhost:5173/");
+        }
     }
-}
 
 
 }
