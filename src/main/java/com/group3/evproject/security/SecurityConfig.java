@@ -23,7 +23,7 @@ public class SecurityConfig {
             "/auth"
     };
 
-    @Value("${jwt.signer_KEY}")
+    @Value("${jwt.signerKey}")
     private String signerKey;
 
     @Bean
@@ -43,8 +43,8 @@ public class SecurityConfig {
                         .anyRequest().permitAll()
                 )
                 .httpBasic(withDefaults()); // HTTP Basic mặc định
-        http.oauth2ResourceServer(oath2 ->
-                oath2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
+        http.oauth2ResourceServer(oauth2 ->
+                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
                 );
 
         http.csrf(AbstractHttpConfigurer::disable);

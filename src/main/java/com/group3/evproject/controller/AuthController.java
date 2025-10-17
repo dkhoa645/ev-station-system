@@ -60,15 +60,15 @@ public class AuthController {
 //                .result(message)
 //                .build();
 //    }
-@GetMapping("/verify")
-public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
-    String message = authenticationService.verifyEmail(token);
-    if (message.contains("success")) {
-        response.sendRedirect("http://localhost:5173/");
-    } else {
-        response.sendRedirect("http://localhost:5173/");
+    @GetMapping("/verify")
+    public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
+        String message = authenticationService.verifyEmail(token);
+        if (message.contains("success")) {
+            response.sendRedirect("http://localhost:5173/");
+        } else {
+            response.sendRedirect("http://localhost:5173/");
+        }
     }
-}
 
 
 }
