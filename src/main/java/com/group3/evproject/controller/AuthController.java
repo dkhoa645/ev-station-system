@@ -52,7 +52,6 @@ public class AuthController {
                 .result(authenticationService.registerUser(request))
                 .build();
     }
-
 //    @GetMapping("/verify")
 //    public ApiResponse<String> verifyEmail(@RequestParam String token) {
 //        String message = authenticationService.verifyEmail(token);
