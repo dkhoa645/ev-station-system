@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface BookingRepository extends  JpaRepository<Booking, Integer> {
     //lay tat ca booking cua 1 user
-    List<Booking> findByUserId(Integer userId);
+//    List<Booking> findByUserId(Integer userId);
 
     //lay tat ca booking cua 1 tram sac
     List<Booking> findByStationId(Integer stationId);
@@ -16,7 +16,7 @@ public interface BookingRepository extends  JpaRepository<Booking, Integer> {
     List<Booking> findByStatus(String status);
 
     //lay tat ca booking cua 1 vehicle
-    List<Booking> findByVehicleId(Integer vehicleId);
+//    List<Booking> findByVehicleId(Integer vehicleId);
 
     //lay tat ca booking cua 1 spot
     List<Booking> findBySpotId(Integer spotId);
@@ -28,5 +28,5 @@ public interface BookingRepository extends  JpaRepository<Booking, Integer> {
     List<Booking> findBySpotIdAndStatus(Integer spotId, String status);
 
     //kiem tra user co booking dang sac khong
-    List<Booking> findByUserIdAndStatus(Integer userId, String status);
+//    List<Booking> findByUserIdAndStatus(Integer userId, String status);
 }
