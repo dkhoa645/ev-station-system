@@ -1,17 +1,8 @@
 package com.group3.evproject.mapper;
 
-import com.group3.evproject.dto.request.VehicleRequest;
 import com.group3.evproject.dto.response.VehicleResponse;
-import com.group3.evproject.entity.Company;
-import com.group3.evproject.entity.User;
 import com.group3.evproject.entity.Vehicle;
-import com.group3.evproject.repository.UserRepository;
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-
-import java.awt.*;
 
 @Mapper(componentModel = "spring")
 public interface VehicleMapper {

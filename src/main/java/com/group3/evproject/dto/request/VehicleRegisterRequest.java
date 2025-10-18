@@ -1,6 +1,5 @@
 package com.group3.evproject.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VehicleRequest {
+public class VehicleRegisterRequest {
     private Long modelId;
     private String licensePlate;
     // thêm thông tin gói đăng ký

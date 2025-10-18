@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,13 +18,18 @@ public class VehicleSubscription {
 
     @OneToOne
     @JoinColumn(name = "vehicle_id", nullable = false, unique = true)
-    private Vehicle vehicle;
+    Vehicle vehicle;
 
     @ManyToOne @JoinColumn(name = "subscription_id")
     SubscriptionPlan subscriptionPlan;
 
-    java.time.LocalDateTime startDate;
-    java.time.LocalDateTime endDate;
+    @OneToOne(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
+    private VehicleSubscriptionUsage usage;
+
+    LocalDateTime startDate;
+    LocalDateTime endDate;
     String status; // active, expired, cancelled
+    @Column(name = "auto_renew")
+    boolean autoRenew;
 }
 

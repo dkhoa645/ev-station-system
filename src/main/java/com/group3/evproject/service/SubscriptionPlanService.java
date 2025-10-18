@@ -24,7 +24,9 @@ public class SubscriptionPlanService {
         return subscriptionPlanRepository.findAll();
     }
 
-    public SubscriptionPlan createPlan(SubscriptionPlan subscriptionPlan) {
+    public SubscriptionPlan createPlan(SubscriptionPlanRequest subscriptionPlanRequest) {
+        SubscriptionPlan subscriptionPlan = new SubscriptionPlan();
+        mapper.toSubscriptionPlan(subscriptionPlanRequest, subscriptionPlan);
         return subscriptionPlanRepository.save(subscriptionPlan);
     }
 

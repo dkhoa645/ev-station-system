@@ -34,9 +34,9 @@ public class SubscriptionPlanController {
 
     @PostMapping
     public ApiResponse<SubscriptionPlan> createSubscriptionPlan(
-            @RequestBody SubscriptionPlan subscriptionPlan) {
+            @RequestBody SubscriptionPlanRequest subscriptionPlanRequest) {
         return ApiResponse.<SubscriptionPlan>builder()
-                .result(subscriptionPlanService.createPlan(subscriptionPlan))
+                .result(subscriptionPlanService.createPlan(subscriptionPlanRequest))
                 .build();
     }
 //

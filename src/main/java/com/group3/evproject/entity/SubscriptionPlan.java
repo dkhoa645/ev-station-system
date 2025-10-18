@@ -29,5 +29,5 @@ public class SubscriptionPlan {
     List<String> description;
 
     @OneToMany(mappedBy = "subscriptionPlan")
-    private List<VehicleSubscription> vehicleSubscriptions = new ArrayList<>();
+    List<VehicleSubscription> vehicleSubscriptions = new ArrayList<>();
 }

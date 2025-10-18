@@ -1,10 +1,9 @@
 package com.group3.evproject.dto.response;
 
+import com.group3.evproject.entity.SubscriptionPlan;
 import com.group3.evproject.entity.VehicleModel;
-import com.group3.evproject.entity.VehicleStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.ui.Model;
 
 @Data
 @NoArgsConstructor
@@ -15,5 +14,5 @@ public class VehicleResponse {
     Long id;
     String licensePlate;
     VehicleModel model;
-    VehicleStatus status;
+    SubscriptionPlanResponse subscriptionPlanResponse;
 }

@@ -1,5 +1,6 @@
 package com.group3.evproject.controller;
 
+import com.group3.evproject.dto.request.VehicleModelRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.entity.VehicleModel;
 import com.group3.evproject.service.VehicleModelService;
@@ -24,7 +25,7 @@ public class VehicleModelController {
                 .build();
     }
     @PostMapping("/bulk")
-    public ApiResponse<List<VehicleModel>> addVehicleModels(@RequestBody List<VehicleModel> models) {
+    public ApiResponse<List<VehicleModel>> addVehicleModels(@RequestBody List<VehicleModelRequest> models) {
         List<VehicleModel> savedModels = vehicleModelService.saveAllModel(models);
         return ApiResponse.<List<VehicleModel>>builder()
                 .result(savedModels)

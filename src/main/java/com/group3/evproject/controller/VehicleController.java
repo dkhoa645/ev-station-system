@@ -1,6 +1,6 @@
 package com.group3.evproject.controller;
 
-import com.group3.evproject.dto.request.VehicleRequest;
+import com.group3.evproject.dto.request.VehicleRegisterRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.entity.Vehicle;
@@ -29,8 +29,8 @@ public class VehicleController {
     }
 //
     @GetMapping("/{id}")
-    public ApiResponse<Vehicle> getVehicleById(@PathVariable Long id) {
-        return ApiResponse.<Vehicle>builder()
+    public ApiResponse<VehicleResponse> getVehicleById(@PathVariable Long id) {
+        return ApiResponse.<VehicleResponse>builder()
                 .result(vehicleService.getById(id))
                 .build();
     }
@@ -38,15 +38,17 @@ public class VehicleController {
     @GetMapping("/user")
     public ApiResponse<List<VehicleResponse>> getUserVehicle(HttpServletRequest request) {
     return ApiResponse.<List<VehicleResponse>>builder()
-            .result(vehicleService.getByUserId(request))
+            .result(vehicleService.getByUser(request))
             .build();
 }
 
     @PostMapping()
-    public ApiResponse<VehicleResponse> registerVehicle(@RequestBody VehicleRequest vehicleRequest,
-                                                        HttpServletRequest request) {
+    public ApiResponse<VehicleResponse> registerVehicle(
+            @RequestBody VehicleRegisterRequest vehicleRegisterRequest,
+            HttpServletRequest request)
+    {
         return ApiResponse.<VehicleResponse>builder()
-                .result(vehicleService.registerVehicle(request,vehicleRequest))
+                .result(vehicleService.registerVehicle(request, vehicleRegisterRequest))
                 .build();
     }
 
