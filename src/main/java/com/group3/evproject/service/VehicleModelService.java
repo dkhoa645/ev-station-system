@@ -36,4 +36,14 @@ public class VehicleModelService {
     public VehicleModel getModelById(long id) {
         return vehicleModelRepository.findById(id).orElse(null);
     }
+
+    public List<VehicleModel> getByBrandAndName(String brand, String model) {
+        if(brand!=null && model!=null){
+            return vehicleModelRepository.findByBrandAndModelName(brand,model);
+        }
+        else if(brand!=null ){
+            return vehicleModelRepository.findByBrand(brand);
+        }else
+            return vehicleModelRepository.findByModelName(model);
+    }
 }
