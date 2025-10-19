@@ -1,6 +1,7 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.dto.request.SubscriptionPlanRequest;
+import com.group3.evproject.dto.response.SubscriptionPlanResponse;
 import com.group3.evproject.entity.SubscriptionPlan;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,8 +22,12 @@ public class SubscriptionPlanService {
     SubscriptionPlanRepository subscriptionPlanRepository;
     SubscriptionPlanMapper mapper;
 
-    public List<SubscriptionPlan> getAll() {
-        return subscriptionPlanRepository.findAll();
+    public List<SubscriptionPlanResponse> getAll() {
+        List<SubscriptionPlanResponse> subscriptionPlans = new ArrayList<>();
+        for(SubscriptionPlan subscriptionPlan : subscriptionPlanRepository.findAll()) {
+            subscriptionPlans.add(mapper.toSubscriptionPlanResponse(subscriptionPlan));
+        }
+        return subscriptionPlans;
     }
 
     public SubscriptionPlan createPlan(SubscriptionPlanRequest subscriptionPlanRequest) {
