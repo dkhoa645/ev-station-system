@@ -54,26 +54,26 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    @Transactional
-    public UserResponse registerUser(UserCreationRequest userCreationRequest) {
-        User user = userMapper.toUser(userCreationRequest);
-        user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
-
-        Role userRole = roleRepository.findByName("USER");
-        if(user.getRoles() == null) {
-            user.setRoles(new HashSet<>());
-        }
-
-        user.getRoles().add(userRole);
-
-        if(userRepository.existsByUsername(user.getUsername())){
-            throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
-        }
-        if(userRepository.existsByEmail(user.getEmail())){
-            throw new AppException(ErrorCode.RESOURCES_EXISTS,"Email");
-        }
-        return userMapper.toUserResponse(userRepository.save(user));
-    }
+//    @Transactional
+//    public UserResponse registerUser(UserCreationRequest userCreationRequest) {
+//        User user = userMapper.toUser(userCreationRequest);
+//        user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
+//
+//        Role userRole = roleRepository.findByName("USER");
+//        if(user.getRoles() == null) {
+//            user.setRoles(new HashSet<>());
+//        }
+//
+//        user.getRoles().add(userRole);
+//
+//        if(userRepository.existsByUsername(user.getUsername())){
+//            throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
+//        }
+//        if(userRepository.existsByEmail(user.getEmail())){
+//            throw new AppException(ErrorCode.RESOURCES_EXISTS,"Email");
+//        }
+//        return userMapper.toUserResponse(userRepository.save(user));
+//    }
 
     public UserResponse getUserById(@PathVariable Long id) {
         return userMapper.toUserResponse(userRepository.findById(id)

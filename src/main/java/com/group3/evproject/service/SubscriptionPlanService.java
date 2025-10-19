@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,19 +31,21 @@ public class SubscriptionPlanService {
         return subscriptionPlans;
     }
 
+    @Transactional
     public SubscriptionPlan createPlan(SubscriptionPlanRequest subscriptionPlanRequest) {
         SubscriptionPlan subscriptionPlan = new SubscriptionPlan();
         mapper.toSubscriptionPlan(subscriptionPlanRequest, subscriptionPlan);
         return subscriptionPlanRepository.save(subscriptionPlan);
     }
 
+    @Transactional
     public SubscriptionPlan updatePlan(Long id, SubscriptionPlanRequest request) {
         SubscriptionPlan existing = subscriptionPlanRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Subscription"));
         mapper.toSubscriptionPlan(request,existing);
         return subscriptionPlanRepository.save(existing);
     }
-
+    @Transactional
     public void deleteById(Long id) {
         SubscriptionPlan existing = subscriptionPlanRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Subscription"));

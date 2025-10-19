@@ -79,8 +79,6 @@ public class AuthenticationService {
                 .token(token)
                 .authenticated(true)
                 .build();
-
-
     }
 
 
@@ -116,7 +114,6 @@ public class AuthenticationService {
 
     public IntrospectResponse introspect(IntrospectRequest request)
             throws JOSEException, ParseException {
-
         var token = request.getToken();
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
         SignedJWT signedJWT = SignedJWT.parse(token);
@@ -157,6 +154,11 @@ public class AuthenticationService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setVerified(false);
         // 3. Gán role mặc định USER
+        Role userRole = roleRepository.findByName("USER");
+        if (user.getRoles() == null) {
+            user.setRoles(new HashSet<>());
+        }
+        user.getRoles().add(userRole);
 //        Role role = roleRepository.findByName("USER");
 //        user.getRoles().add(role);
         // 4. Sinh token xác minh email

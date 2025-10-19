@@ -12,6 +12,7 @@ import com.group3.evproject.repository.VehicleRepository;
 import com.group3.evproject.repository.VehicleSubscriptionRepository;
 import com.group3.evproject.repository.VehicleSubscriptionUsageRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -46,7 +47,7 @@ public class VehicleService  {
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle")));
         }
 
-
+    @Transactional
     public VehicleResponse registerVehicle(HttpServletRequest request, VehicleRegisterRequest vehicleRegisterRequest) {
         if(vehicleRepository.existsByLicensePlate(vehicleRegisterRequest.getLicensePlate())){
             throw new AppException(ErrorCode.RESOURCES_EXISTS,"Vehicle");
