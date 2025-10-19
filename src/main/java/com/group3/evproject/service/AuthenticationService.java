@@ -33,10 +33,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.UUID;
-
+import java.util.*;
 
 
 @Slf4j
@@ -72,7 +69,7 @@ public class AuthenticationService {
         boolean isUserRole = user.getRoles().stream()
                 .anyMatch(role -> role.getName().equals("USER"));
 
-        if (isUserRole && !user.isVerified()) {
+        if (!user.isVerified()) {
             throw new AppException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
@@ -91,12 +88,18 @@ public class AuthenticationService {
 //        Tao header voi thuat toan
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 //            Tao Claimset cho vao Payload
+        Map<String, Object> userInfo = new HashMap<>();
+        User user = userRepository.findByUsername(username).orElse(null);
+        userInfo.put("email", user.getEmail());
+        userInfo.put("name", user.getName());
+        userInfo.put("password", user.getPassword());
+
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
                 .issuer("backend-dev")
                 .issueTime(new Date())
                 .expirationTime(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
-                .claim("customClaim", "Custom")
+                .claim("user", userInfo)
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);
