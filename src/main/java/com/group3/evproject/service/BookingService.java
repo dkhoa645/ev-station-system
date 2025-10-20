@@ -72,7 +72,6 @@ public class BookingService {
 
         return bookingRepository.save(booking);
     }
-
     // Update booking
     public Booking updateBooking(Long id, Booking updatedBooking) {
         Booking booking = getBookingById(id);
