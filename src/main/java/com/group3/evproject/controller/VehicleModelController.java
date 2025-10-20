@@ -18,12 +18,23 @@ import java.util.List;
 public class VehicleModelController {
     VehicleModelService vehicleModelService;
 
-    @GetMapping()
+    @GetMapping("/all")
     public ApiResponse<List<VehicleModel>> getVehicleModel() {
         return ApiResponse.<List<VehicleModel>>builder()
                 .result(vehicleModelService.getAllModel())
                 .build();
     }
+
+    @GetMapping()
+    public ApiResponse<List<VehicleModel>> searchVehicles(
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String model) {
+        List<VehicleModel> vehicles = vehicleModelService.getByBrandAndName(brand,model);
+        return ApiResponse.<List<VehicleModel>>builder()
+                .result(vehicles)
+                .build();
+    }
+
     @PostMapping("/bulk")
     public ApiResponse<List<VehicleModel>> addVehicleModels(@RequestBody List<VehicleModelRequest> models) {
         List<VehicleModel> savedModels = vehicleModelService.saveAllModel(models);

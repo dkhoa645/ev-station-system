@@ -2,6 +2,7 @@ package com.group3.evproject.controller;
 
 import com.group3.evproject.dto.request.SubscriptionPlanRequest;
 import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.dto.response.SubscriptionPlanResponse;
 import com.group3.evproject.entity.SubscriptionPlan;
 import com.group3.evproject.service.SubscriptionPlanService;
 import lombok.AccessLevel;
@@ -19,8 +20,8 @@ public class SubscriptionPlanController {
     SubscriptionPlanService subscriptionPlanService;
 
     @GetMapping
-    public ApiResponse<List<SubscriptionPlan>> getAllSubscriptionPlans() {
-        return ApiResponse.<List<SubscriptionPlan>>builder()
+    public ApiResponse<List<SubscriptionPlanResponse>> getAllSubscriptionPlans() {
+        return ApiResponse.<List<SubscriptionPlanResponse>>builder()
                 .result(subscriptionPlanService.getAll())
                 .build();
     }
