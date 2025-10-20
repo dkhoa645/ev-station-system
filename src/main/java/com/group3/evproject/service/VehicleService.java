@@ -108,5 +108,28 @@ public class VehicleService  {
         return responses;
     }
 
+    @Transactional
+    public String deleteByUserAndId(Long id, HttpServletRequest request) {
+        Vehicle existVehicle = vehicleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
 
+        String username = authenticationService.extractUsernameFromRequest(request);
+        User user = userService.getUserByUsername(username);
+        List<Vehicle> list = vehicleRepository.findByUser(user);
+
+        for(Vehicle vehicle : list){
+            if(vehicle.getId().equals(existVehicle.getId())){
+                vehicleRepository.delete(vehicle);
+                String message = "Vehicle has been deleted";
+                return message;
+            }
+        }
+        throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle");
+    }
+
+
+//    @Transactional
+//    public VehicleResponse updateUserVehicle(Long id, HttpServletRequest request) {
+//        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));;
+//        List<VehicleResponse> vehicleResponseList = getByUser(request);
+//    }
 }
