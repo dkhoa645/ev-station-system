@@ -1,4 +1,3 @@
-// java
 package com.group3.evproject.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,13 +12,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class BookingRequest {
+
     @Schema(description = "ID of the user making the booking", example = "1")
     @NotNull
-    private Integer userId;
+    private Long userId;
 
     @Schema(description = "ID of the charging station", example = "1")
     @NotNull
     private Integer stationId;
+
+    @Schema(description = "Optional ID of a specific charging spot", example = "1")
+    private Integer spotId; // optional - server can pick available if null
 
     @Schema(description = "Start time of the booking in ISO 8601 format", example = "2023-10-01T10:00:00")
     @NotNull

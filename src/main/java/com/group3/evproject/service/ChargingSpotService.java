@@ -14,11 +14,11 @@ public class ChargingSpotService {
         return chargingSpotRepository.findAll();
     }
 
-    public ChargingSpot getSpotById(Integer id) {
+    public ChargingSpot getSpotById(Long id) {
         return chargingSpotRepository.findById(id).orElseThrow(() -> new RuntimeException("Charging Spot does not found with id" + id));
     }
 
-    public List<ChargingSpot> getSpotsByStationId(Integer stationId) {
+    public List<ChargingSpot> getSpotsByStationId(Long stationId) {
         return chargingSpotRepository.findByStationId(stationId);
     }
 
@@ -30,7 +30,7 @@ public class ChargingSpotService {
         return chargingSpotRepository.save(spot);
     }
 
-    public ChargingSpot updateSpot(ChargingSpot updatedSpot, Integer id) {
+    public ChargingSpot updateSpot(ChargingSpot updatedSpot, Long id) {
         ChargingSpot existing = chargingSpotRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Charging Spot does not found with id" + id));
         existing.setName(updatedSpot.getName());
@@ -40,7 +40,7 @@ public class ChargingSpotService {
         return chargingSpotRepository.save(existing);
     }
 
-    public void deleteSpot(Integer id) {
+    public void deleteSpot(Long id) {
         if(!chargingSpotRepository.existsById(id)) {
             throw new RuntimeException("Charging Spot does not found with id" + id);
         }

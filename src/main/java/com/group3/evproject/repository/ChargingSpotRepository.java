@@ -1,9 +1,13 @@
 package com.group3.evproject.repository;
+
 import com.group3.evproject.entity.ChargingSpot;
+import com.group3.evproject.entity.ChargingStation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
+import java.util.Optional;
 
-public interface ChargingSpotRepository extends JpaRepository<ChargingSpot, Integer> {
-    List<ChargingSpot> findByStationId(Integer stationId);
+public interface ChargingSpotRepository extends JpaRepository<ChargingSpot, Long> {
+    List<ChargingSpot> findByStationId(Long stationId);
     List<ChargingSpot> findByStatusIgnoreCase(String status);
+    Optional<ChargingSpot> findFirstByStationAndAvailableTrue(ChargingStation station);
 }

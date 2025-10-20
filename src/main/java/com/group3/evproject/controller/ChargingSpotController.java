@@ -18,12 +18,12 @@ public class ChargingSpotController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ChargingSpot> getSpotById(@PathVariable Integer id) {
+    public ResponseEntity<ChargingSpot> getSpotById(@PathVariable Long id) {
         return ResponseEntity.ok(chargingSpotService.getSpotById(id));
     }
 
     @GetMapping("/station/{stationId}")
-    public ResponseEntity<List<ChargingSpot>> getSpotsByStationId(@PathVariable Integer stationId) {
+    public ResponseEntity<List<ChargingSpot>> getSpotsByStationId(@PathVariable Long stationId) {
         return ResponseEntity.ok(chargingSpotService.getSpotsByStationId(stationId));
     }
 
@@ -38,12 +38,12 @@ public class ChargingSpotController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ChargingSpot> updateSpot(@RequestBody ChargingSpot updatedSpot, @PathVariable Integer id) {
+    public ResponseEntity<ChargingSpot> updateSpot(@RequestBody ChargingSpot updatedSpot, @PathVariable Long id) {
         return ResponseEntity.ok(chargingSpotService.updateSpot(updatedSpot, id));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSpot(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteSpot(@PathVariable Long id) {
         chargingSpotService.deleteSpot(id);
         return ResponseEntity.noContent().build();
     }

@@ -8,36 +8,49 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "booking")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Booking {
+public class Booking extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "station_id", nullable = false)
-    ChargingStation station;
+    @JoinColumn(name = "station_id")
+    private ChargingStation station;
 
-//    @ManyToOne
-//    @JoinColumn(name = "vehicle_id", nullable = false)
-//    Vehicle vehicle;
-
-    @ManyToOne
-    @JoinColumn(name = "spot_id", nullable = false)
-    ChargingSpot spot;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "spot_id")
+    private ChargingSpot spot;
 
     @Column(name = "start_time", nullable = false)
     LocalDateTime startTime;
 
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time")
     LocalDateTime endTime;
 
-    @Column(name = "status", nullable = false)
-    String status; // "BOOKED", "CANCELLED", "COMPLETED"
-}
+    @Column(name = "updated_at")
+    LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20, nullable = false)
+    BookingStatus status = BookingStatus.PENDING;
+
+    @Column(name = "total_cost")
+    Double totalCost;
+
+    public enum BookingStatus {
+        PENDING,
+        CONFIRMED,
+        COMPLETED,
+        CANCELLED
+    }
+}
