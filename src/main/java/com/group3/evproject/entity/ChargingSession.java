@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class ChargingSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
 
     @ManyToOne
     @JoinColumn(name = "booking_id", nullable = false)
