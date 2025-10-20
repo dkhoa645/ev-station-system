@@ -1,4 +1,5 @@
 package com.group3.evproject.dto.response;
+
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -9,12 +10,14 @@ import java.time.LocalDateTime;
 @Builder
 public class BookingResponse {
     private Integer bookingId;
-    private Integer userId;
+    private Long userId;
     private String userName;
-    private Integer stationId;
+    private Long stationId;
     private String stationName;
-    private Integer spotId;
+    private Long spotId;
     private String spotName;
+    private Long vehicleId;
+    private String vehicleLicensePlate;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String status;

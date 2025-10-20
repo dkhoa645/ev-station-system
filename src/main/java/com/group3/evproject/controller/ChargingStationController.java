@@ -19,7 +19,7 @@ public class ChargingStationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ChargingStation> getChargingStationById(@PathVariable Integer id) {
+    public ResponseEntity<ChargingStation> getChargingStationById(@PathVariable Long id) {
         ChargingStation station = chargingStationService.getChargingStationById(id);
         return ResponseEntity.ok(station);
     }
@@ -31,13 +31,13 @@ public class ChargingStationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ChargingStation> updateChargingStation(@PathVariable Integer id, @RequestBody ChargingStation updatedStation) {
+    public ResponseEntity<ChargingStation> updateChargingStation(@PathVariable Long id, @RequestBody ChargingStation updatedStation) {
         ChargingStation station = chargingStationService.updateChargingStation(id, updatedStation);
         return ResponseEntity.ok(station);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteChargingStation(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteChargingStation(@PathVariable Long id) {
         chargingStationService.deleteChargingStation(id);
         return ResponseEntity.noContent().build();
     }

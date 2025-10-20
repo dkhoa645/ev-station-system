@@ -13,7 +13,7 @@ import java.util.List;
 public class ChargingStation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    private Long id;
 
     @Column(nullable = false)
     String name;

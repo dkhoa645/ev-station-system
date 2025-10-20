@@ -15,7 +15,7 @@ public class ChargingStationService {
         return chargingStationRepository.findAll();
     }
 
-    public ChargingStation getChargingStationById(Integer id) {
+    public ChargingStation getChargingStationById(Long id) {
         ChargingStation station = chargingStationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Charging station not found with id: " + id));
         if (station.getSpots() != null && !station.getSpots().isEmpty()) {
@@ -28,7 +28,7 @@ public class ChargingStationService {
         return chargingStationRepository.save(chargingStation);
     }
 
-    public ChargingStation updateChargingStation(Integer id, ChargingStation updatedStation) {
+    public ChargingStation updateChargingStation(Long id, ChargingStation updatedStation) {
         Optional<ChargingStation> existing = chargingStationRepository.findById(id);
         if (existing.isPresent()) {
             ChargingStation station = existing.get();
@@ -55,7 +55,7 @@ public class ChargingStationService {
         }
     }
 
-    public void deleteChargingStation(Integer id) {
+    public void deleteChargingStation(Long id) {
         if (!chargingStationRepository.existsById(id)) {
             throw new RuntimeException("Charging station not found with id: " + id);
         }

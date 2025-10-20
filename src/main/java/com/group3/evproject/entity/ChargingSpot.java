@@ -2,32 +2,30 @@ package com.group3.evproject.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 @Entity
 @Table(name = "charging_spot")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ChargingSpot {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    private Long id;
 
-    // Tên của chỗ sạc
-    @Column(nullable = false)
-    String name;
+    private String name;
 
-    // Trạng thái: AVAILABLE, IN_USE, MAINTENANCE, ...
-    @Column(nullable = false)
-    private String status;
+    @Column(name = "power_output")
+    private Double powerOutput;
 
-    // Công suất đầu ra của chỗ sạc (kW)
-    @Column(nullable = false)
-    Double powerOutput;
+    private String status;  // e.g. "AVAILABLE", "OCCUPIED", "MAINTENANCE"
 
-    // Mỗi chỗ sạc thuộc về 1 trạm
+    private boolean available = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "station_id", nullable = false)
-    ChargingStation station;
+    @JoinColumn(name = "station_id")
+    private ChargingStation station;
 }
-
