@@ -25,6 +25,9 @@ public class ChargingSpot {
     @Column(nullable = false)
     private String status = "Available";  // e.g. "AVAILABLE", "OCCUPIED", "MAINTENANCE"
 
+    @Column(nullable = false)
+    private boolean available = true;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id", nullable = false)
     private ChargingStation station;

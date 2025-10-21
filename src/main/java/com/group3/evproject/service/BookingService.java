@@ -19,11 +19,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final ChargingStationRepository chargingStationRepository;
     private final ChargingSpotRepository chargingSpotRepository;
-    private final UserService userService;
     private final AuthenticationService authenticationService;
-
-    // lay user tu token
-    User user = authenticationService.extractUsernameFromRequest();
 
     // Lấy tất cả booking
     public List<Booking> findAllBookings() {
