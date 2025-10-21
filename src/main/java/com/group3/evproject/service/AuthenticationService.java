@@ -191,12 +191,30 @@ public class AuthenticationService {
     public String extractUsernameFromRequest(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new AppException(ErrorCode.TOKEN_INVALID); // hoặc TOKEN_MISSING
+            throw new AppException(ErrorCode.TOKEN_INVALID);
         }
         String token = authHeader.substring(7);
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             return signedJWT.getJWTClaimsSet().getSubject();
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.TOKEN_INVALID);
+        }
+    }
+    public User getUserFromRequest(String accessToken){
+        try {
+            if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+                throw new AppException(ErrorCode.TOKEN_INVALID);
+            }
+            String token = accessToken.substring(7);
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+            if (!signedJWT.verify(verifier)) {
+                throw new AppException(ErrorCode.TOKEN_INVALID);
+            }
+            String username = signedJWT.getJWTClaimsSet().getSubject();
+            return userRepository.findByUsername(username)
+                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
         } catch (Exception e) {
             throw new AppException(ErrorCode.TOKEN_INVALID);
         }
