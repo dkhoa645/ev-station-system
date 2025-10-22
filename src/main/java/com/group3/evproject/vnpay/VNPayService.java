@@ -1,18 +1,24 @@
-package com.white.apidoc.payment.vnpay;
+package com.group3.evproject.vnpay;
 
-import com.white.apidoc.core.config.payment.VNPAYConfig;
-import com.white.apidoc.util.VNPayUtil;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import com.group3.evproject.vnpay.VNPayUtil;
+
+import lombok.AccessLevel;
+
 @Service
 @RequiredArgsConstructor
-public class PaymentService {
-    private final VNPAYConfig vnPayConfig;
-    public PaymentDTO.VNPayResponse createVnPayPayment(HttpServletRequest request) {
+@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
+public class VNPayService {
+    VNPayConfig vnPayConfig;
+    public VNPayDTO createVnPayPayment(HttpServletRequest request) {
         long amount = Integer.parseInt(request.getParameter("amount")) * 100L;
         String bankCode = request.getParameter("bankCode");
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
@@ -27,9 +33,10 @@ public class PaymentService {
         String vnpSecureHash = VNPayUtil.hmacSHA512(vnPayConfig.getSecretKey(), hashData);
         queryUrl += "&vnp_SecureHash=" + vnpSecureHash;
         String paymentUrl = vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
-        return PaymentDTO.VNPayResponse.builder()
-                .code("ok")
-                .message("success")
-                .paymentUrl(paymentUrl).build();
+        return VNPayDTO.builder()
+        .code("ok")
+        .message("success")
+        .paymentUrl(paymentUrl)
+        .build();
     }
 }

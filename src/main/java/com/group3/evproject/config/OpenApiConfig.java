@@ -1,4 +1,4 @@
-package com.group3.evproject.security;
+package com.group3.evproject.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
