@@ -40,12 +40,10 @@ public class PaymentController {
             return ApiResponse.<String>builder()
             .result("Success")
             .build();
-            // return new ApiResponse<>(HttpStatus.OK, "Success", new VNPayDTO("00", "Success", ""));
         } else {
             return ApiResponse.<String>builder()
             .result("Failed")
             .build();
-            // return ApiResponse<>(HttpStatus.BAD_REQUEST, "Failed", null);
         }
     }
 }
