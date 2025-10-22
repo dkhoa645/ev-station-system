@@ -2,10 +2,13 @@ package com.group3.evproject.controller;
 
 import com.group3.evproject.dto.request.BookingRequest;
 import com.group3.evproject.entity.Booking;
+import com.group3.evproject.entity.User;
+import com.group3.evproject.service.AuthenticationService;
 import com.group3.evproject.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final AuthenticationService authenticationService;
 
     @GetMapping
     public ResponseEntity<List<Booking>> getAllBookings() {
@@ -39,14 +43,19 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Booking> createBooking(
-            @RequestBody BookingRequest bookingRequest
+            @RequestBody BookingRequest bookingRequest,
+            @RequestHeader("Authorization") String accessToken
     ) {
-        Long userId = bookingRequest.getUserId();
+        // lay user tu token
+        User user = authenticationService.getUserFromRequest(accessToken);
+
+        //du lieu dau vao
         Long stationId = bookingRequest.getStationId().longValue(); // stationId trong DTO là Integer
         LocalDate startDate = bookingRequest.getStartTime().toLocalDate();
         LocalDate endDate = bookingRequest.getEndTime().toLocalDate();
 
-        Booking booking = bookingService.createBooking(stationId, startDate, endDate, userId);
+        //bookingService xu ly booking
+        Booking booking = bookingService.createBooking(stationId, startDate, endDate, user.getId());
 
         return ResponseEntity.ok(booking);
     }

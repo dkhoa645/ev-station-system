@@ -19,7 +19,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final ChargingStationRepository chargingStationRepository;
     private final ChargingSpotRepository chargingSpotRepository;
-
+    private final AuthenticationService authenticationService;
 
     // Lấy tất cả booking
     public List<Booking> findAllBookings() {

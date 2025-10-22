@@ -29,7 +29,6 @@ public class ChargingStation {
     Double latitude;
     Double longitude;
 
-    // Một trạm có nhiều chỗ sạc (spots)
-    @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<ChargingSpot> spots;
 }
