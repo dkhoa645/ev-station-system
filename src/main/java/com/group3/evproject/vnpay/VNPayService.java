@@ -18,9 +18,9 @@ import lombok.AccessLevel;
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
 public class VNPayService {
     VNPayConfig vnPayConfig;
-    public VNPayDTO createVnPayPayment(HttpServletRequest request) {
-        long amount = Integer.parseInt(request.getParameter("amount")) * 100L;
-        String bankCode = request.getParameter("bankCode");
+    public VNPayDTO createVnPayPayment(Long amountInput,String bankCodeInput,HttpServletRequest request) {
+        long amount = amountInput * 100L;
+        String bankCode = bankCodeInput;
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
         if (bankCode != null && !bankCode.isEmpty()) {

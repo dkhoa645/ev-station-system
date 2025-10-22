@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,9 +24,12 @@ import lombok.AccessLevel;
 public class PaymentController {
     VNPayService paymentService;
     @GetMapping("/vn-pay")
-    public ApiResponse<VNPayDTO> pay(HttpServletRequest request) {
+    public ApiResponse<VNPayDTO> pay(
+            @RequestParam Long amount,
+            @RequestParam(required = false) String bankCode,
+            HttpServletRequest request) {
         return ApiResponse.<VNPayDTO>builder()
-        .result(paymentService.createVnPayPayment(request))
+        .result(paymentService.createVnPayPayment(amount,bankCode,request))
         .build();
         // return ApiResponse<>(HttpStatus.OK, "Success", paymentService.createVnPayPayment(request));
     }
