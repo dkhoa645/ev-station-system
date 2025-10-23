@@ -20,16 +20,19 @@ public class VehicleSubscription {
     @JoinColumn(name = "vehicle_id", nullable = false, unique = true)
     Vehicle vehicle;
 
-    @ManyToOne @JoinColumn(name = "subscription_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_id")
     SubscriptionPlan subscriptionPlan;
 
     @OneToOne(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
     private VehicleSubscriptionUsage usage;
-
     LocalDateTime startDate;
     LocalDateTime endDate;
-    String status; // active, expired, cancelled
+    @Enumerated(EnumType.STRING)
+    private VehicleSubscriptionStatusEnum status; // active, expired, cancelled
     @Column(name = "auto_renew")
     boolean autoRenew;
+    @OneToMany(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
+    private List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 }
 

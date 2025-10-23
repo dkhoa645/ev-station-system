@@ -14,5 +14,6 @@ public class VehicleResponse {
     Long id;
     String licensePlate;
     VehicleModel model;
-    SubscriptionPlanResponse subscriptionPlanResponse;
+    VehicleSubscriptionResponse vehicleSubscriptionResponse;
+    Long paymentTransactionId;
 }

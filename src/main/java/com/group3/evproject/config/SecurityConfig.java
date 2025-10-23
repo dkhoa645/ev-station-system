@@ -1,4 +1,4 @@
-package com.group3.evproject.security;
+package com.group3.evproject.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

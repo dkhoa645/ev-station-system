@@ -1,5 +1,6 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,12 +24,13 @@ public class ChargingSpot {
     Double powerOutput;
 
     @Column(nullable = false)
-    String status = "Available";  // e.g. "AVAILABLE", "OCCUPIED", "MAINTENANCE"
+    String status = "AVAILABLE";
 
     @Column(nullable = false)
     boolean available = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id", nullable = false)
+    @JsonBackReference
     ChargingStation station;
 }

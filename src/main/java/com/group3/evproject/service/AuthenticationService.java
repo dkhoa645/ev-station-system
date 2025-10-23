@@ -88,6 +88,7 @@ public class AuthenticationService {
 //            Tao Claimset cho vao Payload
         Map<String, Object> userInfo = new HashMap<>();
         User user = userRepository.findByUsername(username).orElse(null);
+        userInfo.put("id", user.getId());
         userInfo.put("email", user.getEmail());
         userInfo.put("name", user.getName());
         userInfo.put("password", user.getPassword());

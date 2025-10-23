@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SubscriptionPlanResponse {
+    Long id;
     String name;
     BigDecimal price;
     BigDecimal limitValue;

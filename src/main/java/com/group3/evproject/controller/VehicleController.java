@@ -57,10 +57,24 @@ public class VehicleController {
 //
 //    }
 //
-//    @DeleteMapping
-//    public ApiResponse<Vehicle> deleteVehicleById(@RequestParam int id) {
+    @DeleteMapping("/{id}")
+    public ApiResponse<String> deleteVehicleById(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+        String message = vehicleService.deleteByUserAndId(id,request);
+        return ApiResponse.<String>builder()
+                        .result(message)
+                        .build();
+    }
 //
+//    @PutMapping("/{id}")
+//    public ApiResponse<VehicleResponse> updateVehicleById(
+//            @PathVariable Long id,
+//            HttpServletRequest request,
+//            @RequestBody VehicleRegisterRequest vehicleRegisterRequest) {
+//        return ApiResponse.<VehicleResponse>builder()
+//                .result(vehicleService.updateUserVehicle(id,request, vehicleRegisterRequest))
+//                .build();
 //    }
-
 
 }

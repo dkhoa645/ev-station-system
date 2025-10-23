@@ -4,6 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum VehicleSubscriptionStatusEnum {
+    PENDING,
     ACTIVE,
-    EXPIRED
+    EXPIRED,
+    CANCELED
 }

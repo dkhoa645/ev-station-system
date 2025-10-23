@@ -59,7 +59,7 @@ public class AuthController {
 //                .result(message)
 //                .build();
 //    }
-    @GetMapping("/verify")
+    @GetMapping("/verifySuccess")
     public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
         String message = authenticationService.verifyEmail(token);
         if (message.contains("success")) {

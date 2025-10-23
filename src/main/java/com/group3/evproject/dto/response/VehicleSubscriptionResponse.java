@@ -1,9 +1,8 @@
 package com.group3.evproject.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.group3.evproject.entity.VehicleSubscriptionStatusEnum;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
@@ -11,9 +10,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleSubscriptionResponse {
-    String planName;
-    String status;
+    Long id;
+    VehicleSubscriptionStatusEnum status;
     String startDate;
     String endDate;
+    SubscriptionPlanResponse subscriptionPlanResponse;
 }
