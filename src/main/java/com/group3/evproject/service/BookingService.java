@@ -82,7 +82,7 @@ public class BookingService {
                 .station(station)
                 .spot(null) // Chưa chọn spot cụ thể
                 .bookingTime(now) // Thời điểm đặt
-                .timeToCharge(timeToCharge) // Thời gian dự kiến sạc
+             //   .startTime() // Thời gian dự kiến sạc
                 .status(Booking.BookingStatus.PENDING)
                 .totalCost(0.0)
                 .updatedAt(now)
