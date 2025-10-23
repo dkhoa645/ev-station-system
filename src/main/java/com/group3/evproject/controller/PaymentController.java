@@ -40,12 +40,10 @@ public class PaymentController {
             String ref = request.getParameter("vnp_TxnRef");
             if (status.equals("00")) {
                 String result = paymentTransactionService.processSuccessfulPayment(ref);
-                response.sendRedirect("http://localhost:5173/success");
                 return ApiResponse.<String>builder()
                         .result(result)
                         .build();
             } else {
-                response.sendRedirect("http://localhost:5173/success");
                 return ApiResponse.<String>builder()
                         .result("Failed")
                         .build();
