@@ -33,4 +33,13 @@ public class ChargingSpot {
     @JoinColumn(name = "station_id", nullable = false)
     @JsonBackReference
     ChargingStation station;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "spot_type", nullable = false)
+    SpotType spotType;
+
+    public enum SpotType {
+        WALK_IN,
+        BOOKING
+    }
 }
