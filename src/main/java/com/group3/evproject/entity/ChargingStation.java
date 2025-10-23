@@ -22,13 +22,16 @@ public class ChargingStation {
     String location;
 
     @Column(nullable = false)
-    String status;
+    String status = "AVAILABLE";
+
+    @Column(nullable = false)
+    Integer bookingAvailable = 0;
 
     Double powerCapacity;
     Integer availableSpots;
     Double latitude;
     Double longitude;
 
-    @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<ChargingSpot> spots;
 }

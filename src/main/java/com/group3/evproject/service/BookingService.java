@@ -53,17 +53,17 @@ public class BookingService {
         ChargingStation station = chargingStationRepository.findById(stationId)
                 .orElseThrow(() -> new RuntimeException("No station found for station id: " + stationId));
 
-        ChargingSpot availableSpot = chargingSpotRepository
-                .findFirstByStationAndAvailableTrue(station)
-                .orElseThrow(() -> new RuntimeException("No available spots at this station"));
+        if (station.getBookingAvailabel() == null || station.getBookingAvailabel() <= 0) {
+            throw new RuntimeException("No booking slots available for station for this station");
+        }
 
-        availableSpot.setAvailable(false);
-        chargingSpotRepository.save(availableSpot);
+        station.setBookingAvailabel(station.getBookingAvailabel() - 1);
+        chargingStationRepository.save(station);
 
         Booking booking = Booking.builder()
                 .user(user)
                 .station(station)
-                .spot(availableSpot)
+                .spot(null)
                 .startTime(startDate.atStartOfDay())
                 .endTime(endDate.atStartOfDay())
                 .status(Booking.BookingStatus.PENDING)
@@ -97,11 +97,54 @@ public class BookingService {
         booking.setStatus(Booking.BookingStatus.CANCELLED);
         booking.setUpdatedAt(LocalDateTime.now());
 
-        if (booking.getSpot() != null) {
-            booking.getSpot().setAvailable(true);
-            chargingSpotRepository.save(booking.getSpot());
+        ChargingStation station = booking.getStation();
+        if (station != null && station.getBookingAvailabel() != null) {
+            station.setBookingAvailabel(station.getBookingAvailabel() + 1);
+            chargingStationRepository.save(station);
+        }
+        return bookingRepository.save(booking);
+    }
+
+    //user den tram moi gan spot
+    public Booking startCharging(Long bookingId, Long spotId) {
+        Booking booking = getBookingById(bookingId);
+        ChargingSpot spot = chargingSpotRepository.findById(spotId)
+                .orElseThrow(() -> new RuntimeException("No spot found with id: " + spotId));
+
+        if (!spot.getStation().getId().equals(booking.getStation().getId())) {
+            throw new RuntimeException("Spot does not belong to the same station");
         }
 
+        // Cập nhật trạng thái spot
+        spot.setStatus("CHARGING");
+        chargingSpotRepository.save(spot);
+
+        booking.setSpot(spot);
+        booking.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking.setUpdatedAt(LocalDateTime.now());
+
+        return bookingRepository.save(booking);
+    }
+
+    //ket thuc sac - tra lai booking
+    public Booking endCharging(Long bookingId) {
+        Booking booking = getBookingById(bookingId);
+        ChargingSpot spot = booking.getSpot();
+
+        if (spot != null) {
+            spot.setStatus("AVAILABLE");
+            chargingSpotRepository.save(spot);
+        }
+
+        // Trả lại slot booking cho station
+        ChargingStation station = booking.getStation();
+        if (station != null && station.getBookingAvailabel() != null) {
+            station.setBookingAvailabel(station.getBookingAvailabel() + 1);
+            chargingStationRepository.save(station);
+        }
+
+        booking.setStatus(Booking.BookingStatus.COMPLETED);
+        booking.setUpdatedAt(LocalDateTime.now());
         return bookingRepository.save(booking);
     }
 

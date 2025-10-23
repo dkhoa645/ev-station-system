@@ -32,9 +32,9 @@ public class ChargingSpotController {
         return ResponseEntity.ok(chargingSpotService.getSpotsByStatus(status));
     }
 
-    @PostMapping
-    public ResponseEntity<ChargingSpot> createSpot(@RequestBody ChargingSpot chargingSpot) {
-        return ResponseEntity.ok(chargingSpotService.createSpot(chargingSpot));
+    @PostMapping("/create/{stationId}")
+    public ResponseEntity<ChargingSpot> createSpot(@PathVariable Long stationId) {
+        return ResponseEntity.ok(chargingSpotService.createSpot(stationId));
     }
 
     @PutMapping("/{id}")

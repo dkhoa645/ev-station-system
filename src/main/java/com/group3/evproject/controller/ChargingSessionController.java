@@ -19,7 +19,7 @@ public class ChargingSessionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ChargingSession> getChargingSessionById(@PathVariable Integer id) {
+    public ResponseEntity<ChargingSession> getChargingSessionById(@PathVariable Long id) {
         return ResponseEntity.ok(chargingSessionService.getSessionById(id));
     }
 
@@ -30,17 +30,17 @@ public class ChargingSessionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ChargingSession> updateChargingSession(@RequestBody ChargingSession session, @PathVariable Integer id) {
+    public ResponseEntity<ChargingSession> updateChargingSession(@RequestBody ChargingSession session, @PathVariable Long id) {
         return ResponseEntity.ok(chargingSessionService.updateSession(session, id));
     }
 
     @GetMapping("/by-booking/{bookingId}")
-    public ResponseEntity<List<ChargingSession>> getSessionsByBooking(@PathVariable Integer bookingId) {
+    public ResponseEntity<List<ChargingSession>> getSessionsByBooking(@PathVariable Long bookingId) {
         return ResponseEntity.ok(chargingSessionService.getSessionsByBooking(bookingId));
     }
 
     @GetMapping("/by-station/{stationId}")
-    public ResponseEntity<List<ChargingSession>> getSessionsByStation(@PathVariable Integer stationId) {
+    public ResponseEntity<List<ChargingSession>> getSessionsByStation(@PathVariable Long stationId) {
         return ResponseEntity.ok(chargingSessionService.getSessionsByStation(stationId));
     }
 
