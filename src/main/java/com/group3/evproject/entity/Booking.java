@@ -51,6 +51,7 @@ public class Booking extends BaseEntity {
         PENDING,
         CONFIRMED,
         COMPLETED,
-        CANCELLED
+        CANCELLED,
+        CHARGING
     }
 }

@@ -3,7 +3,6 @@ package com.group3.evproject.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -39,7 +38,26 @@ public class ChargingSession {
     @Column(name = "total_cost")
     Double totalCost;
 
+    @Column(name = "duration_minutes")
+    Integer durationMinutes;
+
+    @Column(name = "battery_start")
+    private Double batteryStart;
+
+    @Column(name = "battery_end")
+    private Double batteryEnd;
+
+    @Column(name = "charging_duration")
+    private Double chargingDuration;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    String status; // "IN_PROGRESS", "COMPLETED", "CANCELLED"
+    SessionStatus status = SessionStatus.IN_PROGRESS;
+
+    public enum SessionStatus {
+        IN_PROGRESS,
+        COMPLETED,
+        CANCELLED
+    }
 }
 
