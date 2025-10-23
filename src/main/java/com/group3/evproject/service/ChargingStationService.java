@@ -11,21 +11,11 @@ public class ChargingStationService {
     private final ChargingStationRepository chargingStationRepository;
 
     public List<ChargingStation> getAllChargingStations() {
-        List<ChargingStation> stations = chargingStationRepository.findAll();
-        stations.forEach(station -> {
-            if (station.getSpots() != null) {
-                station.getSpots().size();
-            }
-        });
-        return stations;
+        return chargingStationRepository.findAll();
     }
 
     public ChargingStation getChargingStationById(Long id) {
-       ChargingStation station = chargingStationRepository.findById(id).orElseThrow(() -> new RuntimeException("Charging station not found with id: " + id));
-       if (station.getSpots() != null) {
-           station.getSpots().size();
-       }
-       return station;
+       return chargingStationRepository.findById(id).orElseThrow(() -> new RuntimeException("Charging station not found with id: " + id));
     }
 
     public ChargingStation createChargingStation(ChargingStation chargingStation) {
