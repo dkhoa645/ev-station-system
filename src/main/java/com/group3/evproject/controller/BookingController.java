@@ -6,6 +6,7 @@ import com.group3.evproject.entity.Booking;
 import com.group3.evproject.entity.User;
 import com.group3.evproject.service.AuthenticationService;
 import com.group3.evproject.service.BookingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +43,7 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Booking> createBooking(
-            @RequestBody BookingRequest bookingRequest,
+            @Valid @RequestBody BookingRequest bookingRequest,
             @RequestHeader("Authorization") String accessToken
     ) {
         // lay user tu token
