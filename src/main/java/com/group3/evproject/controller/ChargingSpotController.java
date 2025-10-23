@@ -29,12 +29,17 @@ public class ChargingSpotController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<ChargingSpot>> getSpotsByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(chargingSpotService.getSpotsByStatus(status));
+        return ResponseEntity.ok(chargingSpotService.getSpotsByStatus(status.toUpperCase()));
     }
 
     @PostMapping("/create/{stationId}")
     public ResponseEntity<ChargingSpot> createSpot(@PathVariable Long stationId) {
-        return ResponseEntity.ok(chargingSpotService.createSpot(stationId));
+        try {
+            ChargingSpot newSpot = chargingSpotService.createSpot(stationId);
+            return ResponseEntity.ok(newSpot);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @PutMapping("/{id}")

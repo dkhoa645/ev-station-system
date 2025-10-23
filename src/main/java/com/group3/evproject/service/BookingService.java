@@ -53,11 +53,11 @@ public class BookingService {
         ChargingStation station = chargingStationRepository.findById(stationId)
                 .orElseThrow(() -> new RuntimeException("No station found for station id: " + stationId));
 
-        if (station.getBookingAvailabel() == null || station.getBookingAvailabel() <= 0) {
+        if (station.getBookingAvailable() == null || station.getBookingAvailable() <= 0) {
             throw new RuntimeException("No booking slots available for station for this station");
         }
 
-        station.setBookingAvailabel(station.getBookingAvailabel() - 1);
+        station.setBookingAvailable(station.getBookingAvailable() - 1);
         chargingStationRepository.save(station);
 
         Booking booking = Booking.builder()
@@ -98,8 +98,8 @@ public class BookingService {
         booking.setUpdatedAt(LocalDateTime.now());
 
         ChargingStation station = booking.getStation();
-        if (station != null && station.getBookingAvailabel() != null) {
-            station.setBookingAvailabel(station.getBookingAvailabel() + 1);
+        if (station != null && station.getBookingAvailable() != null) {
+            station.setBookingAvailable(station.getBookingAvailable() + 1);
             chargingStationRepository.save(station);
         }
         return bookingRepository.save(booking);
@@ -138,8 +138,8 @@ public class BookingService {
 
         // Trả lại slot booking cho station
         ChargingStation station = booking.getStation();
-        if (station != null && station.getBookingAvailabel() != null) {
-            station.setBookingAvailabel(station.getBookingAvailabel() + 1);
+        if (station != null && station.getBookingAvailable() != null) {
+            station.setBookingAvailable(station.getBookingAvailable() + 1);
             chargingStationRepository.save(station);
         }
 
