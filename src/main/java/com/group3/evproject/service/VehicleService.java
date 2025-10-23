@@ -121,10 +121,10 @@ public class VehicleService  {
             VehicleSubscription vs = vehicle.getSubscription();
             SubscriptionPlan sp = vs.getSubscriptionPlan();
             VehicleSubscriptionResponse vsr = vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vs);
-
             vsr.setSubscriptionPlanResponse(
                     subscriptionPlanMapper.toSubscriptionPlanResponse(sp));
             response.setVehicleSubscriptionResponse(vsr);
+            responses.add(response);
         }
         return responses;
     }
