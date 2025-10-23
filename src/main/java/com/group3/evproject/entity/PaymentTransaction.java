@@ -18,11 +18,10 @@ public class PaymentTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     //  Mỗi payment thuộc về 1 gói đăng ký xe
-    @OneToOne
-    @JoinColumn(name = "vehicle_subscription_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_subscription_id")
     private VehicleSubscription vehicleSubscription;
     // Số tiền thanh toán
-    @Column(nullable = false)
     private BigDecimal amount;
     //  Cổng hoặc phương thức thanh toán (VD: VNPAY, MOMO, CREDIT_CARD)
     private String paymentMethod;

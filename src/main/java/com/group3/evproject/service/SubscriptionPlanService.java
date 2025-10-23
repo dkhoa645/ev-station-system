@@ -23,12 +23,21 @@ public class SubscriptionPlanService {
     SubscriptionPlanRepository subscriptionPlanRepository;
     SubscriptionPlanMapper mapper;
 
+    public SubscriptionPlan savePlan(SubscriptionPlan sp){
+        return subscriptionPlanRepository.save(sp);
+    }
+
     public List<SubscriptionPlanResponse> getAll() {
         List<SubscriptionPlanResponse> subscriptionPlans = new ArrayList<>();
         for(SubscriptionPlan subscriptionPlan : subscriptionPlanRepository.findAll()) {
             subscriptionPlans.add(mapper.toSubscriptionPlanResponse(subscriptionPlan));
         }
         return subscriptionPlans;
+    }
+
+    public SubscriptionPlan findById(Long id){
+        return subscriptionPlanRepository.findById(id)
+                .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Subscription plan"));
     }
 
     @Transactional

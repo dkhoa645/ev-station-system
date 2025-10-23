@@ -31,21 +31,23 @@ public class PaymentController {
         return ApiResponse.<VNPayDTO>builder()
         .result(paymentService.createVnPayPayment(paymentTransactionId,request))
         .build();
-        // return ApiResponse<>(HttpStatus.OK, "Success", paymentService.createVnPayPayment(request));
     }
     @GetMapping("/vn-pay-callback")
     public ApiResponse<String> payCallbackHandler(HttpServletRequest request) {
+        try{
         String status = request.getParameter("vnp_ResponseCode");
         String ref = request.getParameter("vnp_TxnRef");
         if (status.equals("00")) {
-            paymentTransactionService.updateTransaction(ref);
+            String result = paymentTransactionService.processSuccessfulPayment(ref);
             return ApiResponse.<String>builder()
-            .result("Success")
+            .result(result)
             .build();
         } else {
             return ApiResponse.<String>builder()
             .result("Failed")
             .build();
+        } } catch (Exception e) {
+            return ApiResponse.<String>builder().result("Error").build();
         }
     }
 }

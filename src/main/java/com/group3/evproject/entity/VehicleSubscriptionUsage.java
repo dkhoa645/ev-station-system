@@ -14,12 +14,11 @@ import java.time.LocalDateTime;
 public class VehicleSubscriptionUsage {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "vehicle_subscription_id", unique = true)
     private VehicleSubscription vehicleSubscription;
     @Column(name = "limit_kwh",precision = 10, scale = 2)
     BigDecimal limitKwh;
     @Column(name = "used_kwh",precision = 10, scale = 2)
     BigDecimal usedKwh ;
-    LocalDateTime resetDate;
 }
