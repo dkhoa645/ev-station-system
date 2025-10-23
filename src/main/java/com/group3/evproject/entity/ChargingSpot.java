@@ -16,16 +16,19 @@ public class ChargingSpot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(nullable = false, unique = true)
+    private String spotName;
 
     @Column(name = "power_output")
-    private Double powerOutput;
+    Double powerOutput;
 
-    private String status;  // e.g. "AVAILABLE", "OCCUPIED", "MAINTENANCE"
+    @Column(nullable = false)
+    String status = "Available";  // e.g. "AVAILABLE", "OCCUPIED", "MAINTENANCE"
 
-    private boolean available = true;
+    @Column(nullable = false)
+    boolean available = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "station_id")
-    private ChargingStation station;
+    @JoinColumn(name = "station_id", nullable = false)
+    ChargingStation station;
 }

@@ -1,6 +1,8 @@
 package com.group3.evproject.service;
 import com.group3.evproject.entity.ChargingSpot;
+import com.group3.evproject.entity.ChargingStation;
 import com.group3.evproject.repository.ChargingSpotRepository;
+import com.group3.evproject.repository.ChargingStationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChargingSpotService {
     private final ChargingSpotRepository chargingSpotRepository;
+    private final ChargingStationRepository chargingStationRepository;
 
     public List<ChargingSpot> getAllSpots(){
         return chargingSpotRepository.findAll();
@@ -26,17 +29,32 @@ public class ChargingSpotService {
         return chargingSpotRepository.findByStatusIgnoreCase(status);
     }
 
-    public ChargingSpot createSpot(ChargingSpot spot) {
-        return chargingSpotRepository.save(spot);
+    public ChargingSpot createSpot(Long stationId) {
+        ChargingStation station = chargingStationRepository.findById(stationId)
+                .orElseThrow(() -> new RuntimeException("Charging Station not found with id: " + stationId));
+
+        int spotCount = chargingSpotRepository.findByStationId(stationId).size() + 1;
+        String spotName = station.getName().replaceAll("\\s+", "") + "-SP" + String.format("%02d", spotCount);
+
+        ChargingSpot newSpot = ChargingSpot.builder()
+                .spotName(spotName)
+                .powerOutput(station.getPowerCapacity())
+                .status("AVAILABLE")
+                .station(station)
+                .build();
+        return chargingSpotRepository.save(newSpot);
     }
 
     public ChargingSpot updateSpot(ChargingSpot updatedSpot, Long id) {
         ChargingSpot existing = chargingSpotRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Charging Spot does not found with id" + id));
-        existing.setName(updatedSpot.getName());
-        existing.setPowerOutput(updatedSpot.getPowerOutput());
-        existing.setStatus(updatedSpot.getStatus());
-        existing.setStation(updatedSpot.getStation());
+                .orElseThrow(() -> new RuntimeException("Charging Spot not found with id: " + id));
+
+        if (updatedSpot.getStatus() != null) {
+            existing.setStatus(updatedSpot.getStatus());
+        }
+        if (updatedSpot.getPowerOutput() != null) {
+            existing.setPowerOutput(updatedSpot.getPowerOutput());
+        }
         return chargingSpotRepository.save(existing);
     }
 
