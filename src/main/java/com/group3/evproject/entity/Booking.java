@@ -32,7 +32,7 @@ public class Booking extends BaseEntity {
     private ChargingSpot spot;
 
     @Column(name = "start_time")
-    LocalDateTime startTime;
+    LocalDateTime timeToCharge;
 
     @Column(nullable = false)
     LocalDateTime bookingTime;
