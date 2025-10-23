@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VNPayDTO {
-
         public String code;
         public String message;
         public String paymentUrl;

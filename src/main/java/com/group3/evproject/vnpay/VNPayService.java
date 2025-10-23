@@ -1,6 +1,8 @@
 package com.group3.evproject.vnpay;
 
 
+import com.group3.evproject.entity.PaymentTransaction;
+import com.group3.evproject.service.PaymentTransactionService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,11 +20,14 @@ import lombok.AccessLevel;
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
 public class VNPayService {
     VNPayConfig vnPayConfig;
-    public VNPayDTO createVnPayPayment(Long amountInput,String bankCodeInput,HttpServletRequest request) {
-        long amount = amountInput * 100L;
-        String bankCode = bankCodeInput;
+    PaymentTransactionService paymentTransactionService;
+    public VNPayDTO createVnPayPayment(Long paymentTransactionId,HttpServletRequest request) {
+        PaymentTransaction paymentTransaction = paymentTransactionService.findById(paymentTransactionId);
+        long amount = paymentTransaction.getAmount().longValue() * 100L;
+        String bankCode = paymentTransaction.getBankCode();
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
+        vnpParamsMap.put("vnp_TxnRef",  paymentTransaction.getVnpTxnRef());
         if (bankCode != null && !bankCode.isEmpty()) {
             vnpParamsMap.put("vnp_BankCode", bankCode);
         }

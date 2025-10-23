@@ -1,18 +1,18 @@
-package com.group3.evproject.vnpay;
+package com.group3.evproject.controller;
 
 
+import com.group3.evproject.service.PaymentTransactionService;
+import com.group3.evproject.vnpay.VNPayDTO;
+import com.group3.evproject.vnpay.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.group3.evproject.dto.response.ApiResponse;
 
 import lombok.AccessLevel;
@@ -23,20 +23,22 @@ import lombok.AccessLevel;
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
 public class PaymentController {
     VNPayService paymentService;
+    PaymentTransactionService paymentTransactionService;
     @GetMapping("/vn-pay")
     public ApiResponse<VNPayDTO> pay(
-            @RequestParam Long amount,
-            @RequestParam(required = false) String bankCode,
+            Long paymentTransactionId,
             HttpServletRequest request) {
         return ApiResponse.<VNPayDTO>builder()
-        .result(paymentService.createVnPayPayment(amount,bankCode,request))
+        .result(paymentService.createVnPayPayment(paymentTransactionId,request))
         .build();
         // return ApiResponse<>(HttpStatus.OK, "Success", paymentService.createVnPayPayment(request));
     }
     @GetMapping("/vn-pay-callback")
     public ApiResponse<String> payCallbackHandler(HttpServletRequest request) {
         String status = request.getParameter("vnp_ResponseCode");
+        String ref = request.getParameter("vnp_TxnRef");
         if (status.equals("00")) {
+            paymentTransactionService.updateTransaction(ref);
             return ApiResponse.<String>builder()
             .result("Success")
             .build();
