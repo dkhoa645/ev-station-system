@@ -41,24 +41,24 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getBookingByStation(stationId));
     }
 
-    @PostMapping
-    public ResponseEntity<Booking> createBooking(
-            @RequestBody BookingRequest bookingRequest,
-            @RequestHeader("Authorization") String accessToken
-    ) {
-        // lay user tu token
-        User user = authenticationService.getUserFromRequest(accessToken);
-
-        //du lieu dau vao
-        Long stationId = bookingRequest.getStationId().longValue(); // stationId trong DTO là Integer
-        LocalDate startDate = bookingRequest.getStartTime().toLocalDate();
-        LocalDate endDate = bookingRequest.getEndTime().toLocalDate();
-
-        //bookingService xu ly booking
-        Booking booking = bookingService.createBooking(stationId, startDate, endDate, user.getId());
-
-        return ResponseEntity.ok(booking);
-    }
+//    @PostMapping
+//    public ResponseEntity<Booking> createBooking(
+//            @RequestBody BookingRequest bookingRequest,
+//            @RequestHeader("Authorization") String accessToken
+//    ) {
+//        // lay user tu token
+//        User user = authenticationService.getUserFromRequest(accessToken);
+//
+//        //du lieu dau vao
+//        Long stationId = bookingRequest.getStationId().longValue(); // stationId trong DTO là Integer
+//        LocalDate startDate = bookingRequest.getStartTime().toLocalDate();
+//        LocalDate endDate = bookingRequest.getEndTime().toLocalDate();
+//
+//        //bookingService xu ly booking
+//        Booking booking = bookingService.createBooking(stationId, startDate, endDate, user.getId());
+//
+//        return ResponseEntity.ok(booking);
+//    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Booking> updateBooking(
