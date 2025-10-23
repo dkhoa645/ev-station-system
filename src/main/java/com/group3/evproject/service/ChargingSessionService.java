@@ -82,5 +82,59 @@ public class ChargingSessionService {
         return chargingSessionRepository.save(session);
     }
 
+    public ChargingSession startChargingSession(Long bookingId, Long spotId, double batteryStart, double totalBatteryCapacity) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
+        ChargingSpot spot = chargingSpotRepository.findById(spotId).orElseThrow(() -> new RuntimeException("Spot not found with id: " + spotId));
 
+        //update status cua spot + booking
+        spot.setAvailable(false);
+        spot.setStatus("CHARGING");
+        chargingSpotRepository.save(spot);
+
+        booking.setStatus(Booking.BookingStatus.CHARGING);
+        bookingRepository.save(booking);
+
+        //tao moi session
+        ChargingSession session = ChargingSession.builder()
+                .booking(booking)
+                .station(booking.getStation())
+                .spot(spot)
+                .startTime(LocalDateTime.now())
+                .batteryStart(batteryStart)
+                .status(ChargingSession.SessionStatus.IN_PROGRESS)
+                .totalCost(0.0)
+                .build();
+        return chargingSessionRepository.save(session);
+    }
+
+    public ChargingSession endChargingSession(Long sessionId, double batteryEnd, double totalBatteryCapacity, double priceKwh){
+        ChargingSession session = chargingSessionRepository.findById(sessionId).orElseThrow(() -> new RuntimeException("Charging session not found with id: " + sessionId));
+        session.setEndTime(LocalDateTime.now());
+
+        long durationMinutes = java.time.Duration.between(LocalDateTime.now(), session.getEndTime()).toMinutes();
+        double durationHours = durationMinutes / 60.0;
+
+        //tinh luong dien va chi phi
+        double energyUsed = ((batteryEnd - session.getBatteryStart())/10.0) * totalBatteryCapacity;
+        double totalCost = energyUsed * priceKwh;
+
+        session.setBatteryEnd(batteryEnd);
+        session.setEnergyUsed(energyUsed);
+        session.setTotalCost(totalCost);
+        session.setStatus(ChargingSession.SessionStatus.COMPLETED);
+
+        // reset tram
+        ChargingSpot spot = session.getSpot();
+        spot.setAvailable(true);
+        spot.setStatus("AVAILABLE");
+        chargingSpotRepository.save(spot);
+
+        Booking booking = session.getBooking();
+        booking.setStatus(Booking.BookingStatus.COMPLETED);
+        bookingRepository.save(booking);
+
+        return chargingSessionRepository.save(session);
+
+
+    }
 }
