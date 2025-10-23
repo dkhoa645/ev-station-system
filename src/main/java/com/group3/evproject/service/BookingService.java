@@ -57,7 +57,14 @@ public class BookingService {
             throw new RuntimeException("No booking slots available for station for this station");
         }
 
+        //giam slot
         station.setBookingAvailable(station.getBookingAvailable() - 1);
+
+        //giam availableSpot
+        if (station.getBookingAvailable() != null && station.getBookingAvailable() > 0) {
+            station.setAvailableSpots(station.getAvailableSpots() - 1);
+        }
+
         chargingStationRepository.save(station);
 
         Booking booking = Booking.builder()
@@ -100,6 +107,7 @@ public class BookingService {
         ChargingStation station = booking.getStation();
         if (station != null && station.getBookingAvailable() != null) {
             station.setBookingAvailable(station.getBookingAvailable() + 1);
+            station.setAvailableSpots(station.getAvailableSpots() + 1);
             chargingStationRepository.save(station);
         }
         return bookingRepository.save(booking);
@@ -129,17 +137,26 @@ public class BookingService {
     //ket thuc sac - tra lai booking
     public Booking endCharging(Long bookingId) {
         Booking booking = getBookingById(bookingId);
-        ChargingSpot spot = booking.getSpot();
+        if (booking.getStatus() == Booking.BookingStatus.CHARGING) {
+            throw new RuntimeException("Cannot end charging for a booking that is not in CHARGING status.");
+        }
 
+        ChargingSpot spot = booking.getSpot();
         if (spot != null) {
             spot.setStatus("AVAILABLE");
+            spot.setAvailable(true);
             chargingSpotRepository.save(spot);
         }
 
         // Trả lại slot booking cho station
         ChargingStation station = booking.getStation();
-        if (station != null && station.getBookingAvailable() != null) {
-            station.setBookingAvailable(station.getBookingAvailable() + 1);
+        if (station != null) {
+            if (station.getBookingAvailable() != null && booking.getStartTime() != null) {
+                station.setBookingAvailable(station.getBookingAvailable() + 1);
+            }
+            if (station.getBookingAvailable() != null ) {
+                station.setAvailableSpots(station.getAvailableSpots() + 1);
+            }
             chargingStationRepository.save(station);
         }
 
@@ -151,7 +168,21 @@ public class BookingService {
     // Confirm booking
     public Booking confirmBooking(Long id) {
         Booking booking = getBookingById(id);
+        if (booking.getStatus() != Booking.BookingStatus.PENDING) {
+            throw new RuntimeException("Only pending bookings can be confirmed.");
+        }
         booking.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking.setUpdatedAt(LocalDateTime.now());
+        return bookingRepository.save(booking);
+    }
+
+    public Booking completeBooking(Long id) {
+        Booking booking = getBookingById(id);
+        if (booking.getStatus() != Booking.BookingStatus.CONFIRMED
+                && booking.getStatus() != Booking.BookingStatus.CHARGING) {
+            throw new RuntimeException("Only confirmed or charging bookings can be completed.");
+        }
+        booking.setStatus(Booking.BookingStatus.COMPLETED);
         booking.setUpdatedAt(LocalDateTime.now());
         return bookingRepository.save(booking);
     }
