@@ -50,7 +50,7 @@ public class BookingController {
 //        User user = authenticationService.getUserFromRequest(accessToken);
 //
 //        //du lieu dau vao
-//        Long stationId = bookingRequest.getStationId().longValue(); // stationId trong DTO là Integer
+//        Long stationId = bookingRequest.getStationId().longValue();
 //        LocalDate startDate = bookingRequest.getStartTime().toLocalDate();
 //        LocalDate endDate = bookingRequest.getEndTime().toLocalDate();
 //

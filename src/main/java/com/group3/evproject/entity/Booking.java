@@ -37,9 +37,6 @@ public class Booking extends BaseEntity {
     @Column(nullable = false)
     LocalDateTime bookingTime;
 
-    @Column(nullable = false)
-    LocalDateTime timeToCharge;
-
     @Column(name = "end_time")
     LocalDateTime endTime;
 
