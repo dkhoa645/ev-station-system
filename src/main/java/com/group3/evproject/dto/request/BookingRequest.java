@@ -11,23 +11,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Information sent when users book charging slots")
+@Schema(description = "Thông tin khi người dùng đặt lịch sạc (booking request)")
 public class BookingRequest {
 
-    @Schema(description = "ID of the user making the booking", example = "1", required = true)
-    @NotNull(message = "station is required")
-    private Integer userId;
-
-    @Schema
-    @NotNull
+    @Schema(description = "ID của trạm sạc mà người dùng muốn đặt", example = "1", required = true)
+    @NotNull(message = "stationId is required")
     private Integer stationId;
 
-    @Schema(description = "Start time of the booking in ISO 8601 format", example = "2023-10-01T10:00:00", required = true)
-    @NotNull(message = "startTime is required")
+    @Schema(description = "Thời điểm bắt đầu sạc (user muốn bắt đầu sạc)",example = "2025-10-25T19:00:00", required = true)
+    @NotNull(message = "timeToCharge is required")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime startTime;
+    private LocalDateTime timeToCharge;
 
-    @Schema(description = "End time of the booking in ISO 8601 format", example = "2023-10-01T12:00:00",required = true)
+    @Schema(description = "Thời điểm kết thúc sạc dự kiến",example = "2025-10-25T21:00:00", required = true)
     @NotNull(message = "endTime is required")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endTime;

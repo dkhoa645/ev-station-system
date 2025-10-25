@@ -29,7 +29,7 @@ public class ChargingSpotService {
         return chargingSpotRepository.findByStatusIgnoreCase(status);
     }
 
-    public ChargingSpot createSpot(Long stationId) {
+    public ChargingSpot createSpot(Long stationId, ChargingSpot.SpotType spotType) {
         ChargingStation station = chargingStationRepository.findById(stationId)
                 .orElseThrow(() -> new RuntimeException("Charging Station not found with id: " + stationId));
 
@@ -40,6 +40,8 @@ public class ChargingSpotService {
                 .spotName(spotName)
                 .powerOutput(station.getPowerCapacity())
                 .status("AVAILABLE")
+                .available(true)
+                .spotType(spotType)
                 .station(station)
                 .build();
         return chargingSpotRepository.save(newSpot);

@@ -1,16 +1,16 @@
 package com.group3.evproject.controller;
 
 import com.group3.evproject.dto.request.BookingRequest;
+import com.group3.evproject.dto.response.BookingResponse;
 import com.group3.evproject.entity.Booking;
 import com.group3.evproject.entity.User;
 import com.group3.evproject.service.AuthenticationService;
 import com.group3.evproject.service.BookingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -43,20 +43,27 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<Booking> createBooking(
-            @RequestBody BookingRequest bookingRequest,
+            @Valid @RequestBody BookingRequest bookingRequest,
             @RequestHeader("Authorization") String accessToken
     ) {
         // lay user tu token
         User user = authenticationService.getUserFromRequest(accessToken);
 
         //du lieu dau vao
-        Long stationId = bookingRequest.getStationId().longValue(); // stationId trong DTO là Integer
-        LocalDate startDate = bookingRequest.getStartTime().toLocalDate();
-        LocalDate endDate = bookingRequest.getEndTime().toLocalDate();
+        Long stationId = bookingRequest.getStationId().longValue();
+        LocalDateTime timeToCharge = bookingRequest.getTimeToCharge();
+        LocalDateTime endTime = bookingRequest.getEndTime();
 
         //bookingService xu ly booking
-        Booking booking = bookingService.createBooking(stationId, startDate, endDate, user.getId());
-
+        Booking booking = bookingService.createBooking(stationId, timeToCharge, endTime, user.getId());
+        BookingResponse response = BookingResponse.builder()
+                .bookingId(booking.getId())
+                .stationName(booking.getStation().getName())
+                .bookingTime(booking.getBookingTime())
+                .timeToCharge(booking.getTimeToCharge())
+                .endTime(booking.getEndTime())
+                .status(booking.getStatus().name())
+                .build();
         return ResponseEntity.ok(booking);
     }
 

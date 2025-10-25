@@ -14,18 +14,16 @@ public class ChargingStationController {
 
     @GetMapping
     public ResponseEntity<List<ChargingStation>> getAllChargingStations() {
-        List<ChargingStation> stations = chargingStationService.getAllChargingStations();
-        return ResponseEntity.ok(stations);
+        return ResponseEntity.ok(chargingStationService.getAllChargingStations());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ChargingStation> getChargingStationById(@PathVariable Long id) {
-        ChargingStation station = chargingStationService.getChargingStationById(id);
-        return ResponseEntity.ok(station);
+        return ResponseEntity.ok(chargingStationService.getChargingStationById(id));
     }
 
     @PostMapping
-    public ResponseEntity<ChargingStation> createChargingStation(ChargingStation chargingStation) {
+    public ResponseEntity<ChargingStation> createChargingStation(@RequestBody ChargingStation chargingStation) {
         ChargingStation createdStation = chargingStationService.createChargingStation(chargingStation);
         return ResponseEntity.ok(createdStation);
     }
@@ -34,6 +32,14 @@ public class ChargingStationController {
     public ResponseEntity<ChargingStation> updateChargingStation(@PathVariable Long id, @RequestBody ChargingStation updatedStation) {
         ChargingStation station = chargingStationService.updateChargingStation(id, updatedStation);
         return ResponseEntity.ok(station);
+    }
+
+    @PutMapping("/{id}/update-booking-slots")
+    public ResponseEntity<ChargingStation> updatedBookingAvailable(@PathVariable Long id, @RequestParam Integer bookingSlots) {
+        ChargingStation station = chargingStationService.getChargingStationById(id);
+        station.setBookingAvailable(bookingSlots);
+        ChargingStation updated = chargingStationService.createChargingStation(station);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")

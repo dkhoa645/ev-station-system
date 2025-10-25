@@ -31,8 +31,11 @@ public class Booking extends BaseEntity {
     @JoinColumn(name = "spot_id")
     private ChargingSpot spot;
 
-    @Column(name = "start_time", nullable = false)
-    LocalDateTime startTime;
+    @Column(name = "start_time")
+    LocalDateTime timeToCharge;
+
+    @Column(nullable = false)
+    LocalDateTime bookingTime;
 
     @Column(name = "end_time")
     LocalDateTime endTime;
@@ -53,5 +56,9 @@ public class Booking extends BaseEntity {
         COMPLETED,
         CANCELLED,
         CHARGING
+    }
+    @PrePersist
+    protected  void onCreate() {
+        this.bookingTime = LocalDateTime.now();
     }
 }
