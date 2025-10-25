@@ -28,7 +28,6 @@ public class VNPayService {
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
         vnpParamsMap.put("vnp_TxnRef",  paymentTransaction.getVnpTxnRef());
-        vnpParamsMap.put("vnp_ReturnUrl", "http://localhost:5173/success");
         if (bankCode != null && !bankCode.isEmpty()) {
             vnpParamsMap.put("vnp_BankCode", bankCode);
         }
