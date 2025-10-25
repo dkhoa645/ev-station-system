@@ -20,6 +20,7 @@ public class BookingService {
     private final ChargingStationRepository chargingStationRepository;
     private final ChargingSpotRepository chargingSpotRepository;
     private final AuthenticationService authenticationService;
+    private final VehicleRepository vehicleRepository;
 
     // Lấy tất cả booking
     public List<Booking> findAllBookings() {
@@ -46,9 +47,12 @@ public class BookingService {
         return bookingRepository.findByStation(station);
     }
 
-    public Booking createBooking(Long stationId, LocalDateTime timeToCharge, LocalDateTime endTime, Long userId) {
+    public Booking createBooking(Long stationId, LocalDateTime timeToCharge, LocalDateTime endTime, Long userId, Long vehicleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
 
         ChargingStation station = chargingStationRepository.findById(stationId)
                 .orElseThrow(() -> new RuntimeException("Station not found"));
@@ -77,6 +81,7 @@ public class BookingService {
         Booking booking = Booking.builder()
                 .user(user)
                 .station(station)
+                .vehicle(vehicle)
                 .spot(null)
                 .bookingTime(now)
                 .timeToCharge(timeToCharge)
