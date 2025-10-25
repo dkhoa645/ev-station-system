@@ -24,8 +24,6 @@ public class VehicleSubscription {
     @JoinColumn(name = "subscription_id")
     SubscriptionPlan subscriptionPlan;
 
-    @OneToOne(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
-    private VehicleSubscriptionUsage usage;
     LocalDateTime startDate;
     LocalDateTime endDate;
     @Enumerated(EnumType.STRING)

@@ -12,7 +12,6 @@ import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.SubscriptionPlanRepository;
 import com.group3.evproject.repository.VehicleRepository;
 import com.group3.evproject.repository.VehicleSubscriptionRepository;
-import com.group3.evproject.repository.VehicleSubscriptionUsageRepository;
 import com.group3.evproject.vnpay.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -21,8 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

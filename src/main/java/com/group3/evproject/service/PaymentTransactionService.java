@@ -20,7 +20,7 @@ import java.time.ZoneId;
 public class PaymentTransactionService {
     PaymentTransactionRepository paymentTransactionRepository;
     VehicleSubscriptionService vehicleSubscriptionService;
-    VehicleSubscriptionUsageService vehicleSubscriptionUsageService;
+
     SubscriptionPlanService subscriptionPlanService;
 
     public PaymentTransaction savePayment(PaymentTransaction paymentTransaction){
@@ -52,12 +52,7 @@ public class PaymentTransactionService {
 
         SubscriptionPlan subscriptionPlan =vehicleSubscription.getSubscriptionPlan();
         if(subscriptionPlan == null) throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Subscription plan");
-//                Tao VehicleUsage
-        VehicleSubscriptionUsage vehicleSubscriptionUsage = VehicleSubscriptionUsage.builder()
-                .vehicleSubscription(vehicleSubscription)
-                .limitKwh(subscriptionPlan.getLimitValue())
-                .usedKwh(BigDecimal.ZERO)
-                .build();
+
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
         savePayment(paymentTransaction);
         return "Success";
