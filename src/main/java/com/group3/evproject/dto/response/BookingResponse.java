@@ -16,6 +16,9 @@ public class BookingResponse {
     @Schema(description = "ID của lượt đặt chỗ", example = "101")
     private Long bookingId;
 
+    @Schema(description = "ID của xe được đặt chỗ", example = "202")
+    private Long vehicleId;
+
     @Schema(description = "Tên trạm sạc", example = "Trạm sạc VinFast Nha Trang Center")
     private String stationName;
 

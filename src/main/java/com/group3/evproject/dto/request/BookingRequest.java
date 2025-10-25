@@ -16,7 +16,11 @@ public class BookingRequest {
 
     @Schema(description = "ID của trạm sạc mà người dùng muốn đặt", example = "1", required = true)
     @NotNull(message = "stationId is required")
-    private Integer stationId;
+    private Long stationId;
+
+    @Schema(description = "ID của xe sẽ được sạc", example = "2", required = true)
+    @NotNull(message = "vehicleId is required")
+    private Long vehicleId;
 
     @Schema(description = "Thời điểm bắt đầu sạc (user muốn bắt đầu sạc)",example = "2025-10-25T19:00:00", required = true)
     @NotNull(message = "timeToCharge is required")

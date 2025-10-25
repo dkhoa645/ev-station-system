@@ -6,6 +6,7 @@ import com.group3.evproject.entity.Booking;
 import com.group3.evproject.entity.User;
 import com.group3.evproject.service.AuthenticationService;
 import com.group3.evproject.service.BookingService;
+import com.group3.evproject.service.VehicleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -53,11 +54,13 @@ public class BookingController {
         Long stationId = bookingRequest.getStationId().longValue();
         LocalDateTime timeToCharge = bookingRequest.getTimeToCharge();
         LocalDateTime endTime = bookingRequest.getEndTime();
+        Long vehicleId = bookingRequest.getVehicleId();
 
         //bookingService xu ly booking
-        Booking booking = bookingService.createBooking(stationId, timeToCharge, endTime, user.getId());
+        Booking booking = bookingService.createBooking(stationId, timeToCharge, endTime, user.getId(), vehicleId);
         BookingResponse response = BookingResponse.builder()
                 .bookingId(booking.getId())
+                .vehicleId(booking.getVehicle().getId())
                 .stationName(booking.getStation().getName())
                 .bookingTime(booking.getBookingTime())
                 .timeToCharge(booking.getTimeToCharge())
