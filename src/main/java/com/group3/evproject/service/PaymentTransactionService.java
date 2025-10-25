@@ -43,7 +43,6 @@ public class PaymentTransactionService {
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));;
         paymentTransaction.setStatus(PaymentStatusEnum.SUCCESS);
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
-        paymentTransaction.setPaidAt(now);
 
         VehicleSubscription vehicleSubscription = paymentTransaction.getVehicleSubscription();
         if(vehicleSubscription == null) throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle subscription");
