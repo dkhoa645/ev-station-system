@@ -41,9 +41,9 @@ public class PaymentTransactionService {
 //        Tìm transaction có mã giao dịch ref
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));;
-        paymentTransaction.setStatus(PaymentStatusEnum.SUCCESS);
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
-
+        paymentTransaction.setPaidAt(now);
+        paymentTransaction.setStatus(PaymentStatusEnum.SUCCESS);
         VehicleSubscription vehicleSubscription = paymentTransaction.getVehicleSubscription();
         if(vehicleSubscription == null) throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle subscription");
         vehicleSubscription.setStartDate(now);
