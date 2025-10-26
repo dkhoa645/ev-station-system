@@ -28,10 +28,14 @@ public class Booking extends BaseEntity {
     private ChargingStation station;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id",nullable = false)
+    Vehicle vehicle;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "spot_id")
     private ChargingSpot spot;
 
-    @Column(name = "start_time")
+    @Column(name = "time_to_charge", nullable = true)
     LocalDateTime timeToCharge;
 
     @Column(nullable = false)
@@ -60,5 +64,8 @@ public class Booking extends BaseEntity {
     @PrePersist
     protected  void onCreate() {
         this.bookingTime = LocalDateTime.now();
+        if (this.timeToCharge == null) {
+            this.timeToCharge = this.bookingTime;
+        }
     }
 }
