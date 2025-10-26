@@ -35,7 +35,6 @@ public class VehicleService  {
     SubscriptionPlanRepository subscriptionPlanRepository;
     VehicleSubscriptionRepository vehicleSubscriptionRepository;
     SubscriptionPlanService subscriptionPlanService;
-    VehicleSubscriptionUsageRepository vehicleSubscriptionUsageRepository;
     SubscriptionPlanMapper subscriptionPlanMapper;
     VehicleSubscriptionMapper vehicleSubscriptionMapper;
     PaymentTransactionService paymentTransactionService;

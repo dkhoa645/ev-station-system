@@ -26,10 +26,9 @@ public class VehicleModelService {
 
     @Transactional
     public List<VehicleModel> saveAllModel(List<VehicleModelRequest> models) {
-        List<VehicleModel> savedModels = new ArrayList<>();
-        for(VehicleModelRequest vehicleModelRequest : models){
-            savedModels.add(vehicleModelMapper.toVehicleModel(vehicleModelRequest));
-        }
+        List<VehicleModel> savedModels = models.stream()
+                .map(vehicleModelMapper::toVehicleModel)
+                .toList();
         return vehicleModelRepository.saveAll(savedModels);
     }
 
@@ -45,5 +44,9 @@ public class VehicleModelService {
             return vehicleModelRepository.findByBrand(brand);
         }else
             return vehicleModelRepository.findByModelName(model);
+    }
+
+    public VehicleModel saveModel(VehicleModelRequest vmr) {
+        return vehicleModelMapper.toVehicleModel(vmr);
     }
 }

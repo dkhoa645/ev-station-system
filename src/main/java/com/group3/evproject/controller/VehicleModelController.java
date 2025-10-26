@@ -42,4 +42,11 @@ public class VehicleModelController {
                 .result(savedModels)
                 .build();
     }
+
+    @PostMapping()
+    public ApiResponse<VehicleModel> addVehicleModel(@RequestBody VehicleModelRequest vmr){
+        return ApiResponse.<VehicleModel>builder()
+                .result(vehicleModelService.saveModel(vmr))
+                .build();
+    }
 }

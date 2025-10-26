@@ -16,4 +16,5 @@ public class VehicleModelRequest {
     String modelName;
     String connector;
     Double batteryCapacity;
+    String url;
 }

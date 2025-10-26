@@ -22,4 +22,6 @@ public class VehicleModel {
     String connector;
     @Column(name = "battery_capacity")
     Double batteryCapacity;
+    @Column(name = "img_url")
+    String url;
 }
