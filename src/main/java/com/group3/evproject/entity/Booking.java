@@ -38,8 +38,9 @@ public class Booking extends BaseEntity {
     @Column(name = "time_to_charge", nullable = true)
     LocalDateTime timeToCharge;
 
-    @Column(nullable = false)
-    LocalDateTime bookingTime;
+    // Thời điểm hệ thống ghi nhận booking
+    @Column(name = "start_time", nullable = false)
+    LocalDateTime startTime;
 
     @Column(name = "end_time")
     LocalDateTime endTime;
@@ -62,10 +63,18 @@ public class Booking extends BaseEntity {
         CHARGING
     }
     @PrePersist
-    protected  void onCreate() {
-        this.bookingTime = LocalDateTime.now();
+    protected void onCreate() {
+        // Gán thời gian hiện tại cho startTime nếu chưa có
+        if (this.startTime == null) {
+            this.startTime = LocalDateTime.now();
+        }
+        // Nếu người dùng không truyền timeToCharge, thì mặc định = startTime
         if (this.timeToCharge == null) {
-            this.timeToCharge = this.bookingTime;
+            this.timeToCharge = this.startTime;
+        }
+        // Trạng thái mặc định
+        if (this.status == null) {
+            this.status = BookingStatus.PENDING;
         }
     }
 }
