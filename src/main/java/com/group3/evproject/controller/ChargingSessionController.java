@@ -44,14 +44,14 @@ public class ChargingSessionController {
     }
 
     @PostMapping("/start")
-    public ResponseEntity<ChargingSession> startCharingSession(@RequestParam Long bookingId, @RequestParam Long stationId, @RequestParam double batteryStart, @RequestParam double totalBatteryCapacity, @RequestParam(required = false) double pricePerKwh) {
+    public ResponseEntity<ChargingSession> startChargingSession(@RequestParam Long bookingId, @RequestParam Long stationId, @RequestParam double batteryStart, @RequestParam double totalBatteryCapacity, @RequestParam(required = false) double pricePerKwh) {
         return ResponseEntity.ok(
                 chargingSessionService.startChargingSession(bookingId, stationId, totalBatteryCapacity, pricePerKwh)
         );
     }
 
     @PostMapping("/end")
-    public ResponseEntity<ChargingSession> endCharingSession(@PathVariable Long id, @RequestParam double batteryEnd, @RequestParam double totalBatteryCapacity, @RequestParam double pricePerKwh) {
+    public ResponseEntity<ChargingSession> endChargingSession(@PathVariable Long id, @RequestParam double batteryEnd, @RequestParam double totalBatteryCapacity, @RequestParam double pricePerKwh) {
         return ResponseEntity.ok(
                 chargingSessionService.endChargingSession(id, batteryEnd, totalBatteryCapacity, pricePerKwh)
         );

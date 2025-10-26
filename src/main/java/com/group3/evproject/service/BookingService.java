@@ -48,20 +48,25 @@ public class BookingService {
     }
 
     public Booking createBooking(Long stationId, LocalDateTime timeToCharge, LocalDateTime endTime, Long userId, Long vehicleId) {
+
+        //lay thong tin user
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        //lay thong tin vehicle
         Vehicle vehicle = vehicleRepository.findById(vehicleId)
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
 
+        //lay thong tin station
         ChargingStation station = chargingStationRepository.findById(stationId)
                 .orElseThrow(() -> new RuntimeException("Station not found"));
 
+        //check tra slot kha dung
         if (station.getBookingAvailable() == null || station.getBookingAvailable() <= 0) {
             throw new RuntimeException("No booking slots available for this station");
         }
 
-        //Kiểm tra thời gian hợp lệ
+        //check tra time hợp lệ
         LocalDateTime now = LocalDateTime.now();
         if (timeToCharge.isBefore(now)) {
             throw new RuntimeException("Charging time must be in the future");
@@ -70,6 +75,10 @@ public class BookingService {
             throw new RuntimeException("End time must be after charging start time");
         }
 
+        //tim cho sac trong
+        ChargingSpot spot = chargingSpotRepository.findFirstByStationAndAvailableTrue(station)
+                .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
+
         //Giảm slot khả dụng
         station.setBookingAvailable(station.getBookingAvailable() - 1);
         if (station.getAvailableSpots() != null && station.getAvailableSpots() > 0) {
@@ -77,20 +86,18 @@ public class BookingService {
         }
         chargingStationRepository.save(station);
 
-        // 🧾 Tạo booking mới
+        //Tạo booking mới
         Booking booking = Booking.builder()
                 .user(user)
                 .station(station)
                 .vehicle(vehicle)
-                .spot(null)
-                .bookingTime(now)
+                .spot(spot)
                 .timeToCharge(timeToCharge)
                 .endTime(endTime)
                 .status(Booking.BookingStatus.PENDING)
                 .totalCost(0.0)
                 .updatedAt(now)
                 .build();
-
         return bookingRepository.save(booking);
     }
 
@@ -144,11 +151,21 @@ public class BookingService {
     //user den tram moi gan spot
     public Booking startCharging(Long bookingId, Long spotId) {
         Booking booking = getBookingById(bookingId);
+
+        //kiem tra trang thai booking co hop le khong
+        if (booking.getStatus() != Booking.BookingStatus.CONFIRMED &&
+        booking.getStatus() != Booking.BookingStatus.PENDING) {
+            throw  new RuntimeException("Cannot start charging for a booking that is not CONFIRMED or PENDING.");
+        }
+
         ChargingSpot spot = chargingSpotRepository.findById(spotId)
                 .orElseThrow(() -> new RuntimeException("No spot found with id: " + spotId));
+
+        //khong dc start truoc thoi gian booking
         if (LocalDateTime.now().isBefore(booking.getTimeToCharge())) {
             throw new RuntimeException("Cannot start charging before your booked time");
         }
+
         if (!spot.getStation().getId().equals(booking.getStation().getId())) {
             throw new RuntimeException("Spot does not belong to the same station");
         }
@@ -158,17 +175,18 @@ public class BookingService {
         spot.setAvailable(false);
         chargingSpotRepository.save(spot);
 
+        //cap nhat booking
         booking.setSpot(spot);
-        booking.setStatus(Booking.BookingStatus.CONFIRMED);
+        booking.setStatus(Booking.BookingStatus.CHARGING);
         booking.setUpdatedAt(LocalDateTime.now());
 
         return bookingRepository.save(booking);
     }
 
-    //ket thuc sac - tra lai booking
+    //ket thuc sac
     public Booking endCharging(Long bookingId) {
         Booking booking = getBookingById(bookingId);
-        if (booking.getStatus() == Booking.BookingStatus.CHARGING) {
+        if (booking.getStatus() != Booking.BookingStatus.CHARGING) {
             throw new RuntimeException("Cannot end charging for a booking that is not in CHARGING status.");
         }
 
@@ -182,7 +200,7 @@ public class BookingService {
         // Trả lại slot booking cho station
         ChargingStation station = booking.getStation();
         if (station != null) {
-            if (station.getBookingAvailable() != null && booking.getTimeToCharge() != null) {
+            if (station.getBookingAvailable() != null) {
                 station.setBookingAvailable(station.getBookingAvailable() + 1);
             }
             if (station.getBookingAvailable() != null ) {
@@ -191,8 +209,10 @@ public class BookingService {
             chargingStationRepository.save(station);
         }
 
+        //cap nhat booking
         booking.setStatus(Booking.BookingStatus.COMPLETED);
         booking.setUpdatedAt(LocalDateTime.now());
+
         return bookingRepository.save(booking);
     }
 
