@@ -3,6 +3,8 @@ package com.group3.evproject.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -13,30 +15,34 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    //  Mỗi payment thuộc về 1 gói đăng ký xe
+    Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_subscription_id")
-    private VehicleSubscription vehicleSubscription;
-    // Số tiền thanh toán
-    private BigDecimal amount;
-    //  Cổng hoặc phương thức thanh toán (VD: VNPAY, MOMO, CREDIT_CARD)
-    private String paymentMethod;
-    // Mã giao dịch duy nhất (vnp_TxnRef)
+    VehicleSubscription vehicleSubscription;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+    @Column(nullable = false, precision = 10, scale = 2)
+    BigDecimal amount;
+    String paymentMethod;
     @Column(unique = true, nullable = false)
-    private String vnpTxnRef;
-    // Trạng thái giao dịch (FAILED, SUCCESS)
+    String vnpTxnRef;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentStatusEnum status;
-    //  Thời điểm thanh toán thành công (nếu có)
-    private LocalDateTime paidAt;
-    //  Thông tin mô tả ngắn (tùy chọn)
-    private String orderInfo;
-    //  Mã ngân hàng (VNPAY callback)
-    private String bankCode = "VNBANK";
+    PaymentTransactionEnum status;
+
+    LocalDateTime createdAt = LocalDateTime.now();
+    LocalDateTime paidAt;
+
+    String orderInfo;
+
+    String bankCode = "VNBANK";
 
 }

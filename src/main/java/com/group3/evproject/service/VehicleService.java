@@ -93,7 +93,7 @@ public class VehicleService  {
                 .amount(subscriptionPlan.getPrice())
                 .paymentMethod("VNPAY")
                 .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-                .status(PaymentStatusEnum.FAILED)
+                .status(PaymentTransactionEnum.FAILED)
                 .paidAt(null)
                 .bankCode("VNBANK")
                 .build());

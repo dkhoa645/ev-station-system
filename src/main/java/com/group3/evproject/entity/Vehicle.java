@@ -17,14 +17,13 @@ public class Vehicle {
     Long id;
     @ManyToOne @JoinColumn(name = "user_id")
     User user;
-    @ManyToOne @JoinColumn(name = "company_id")
-    Company company;
     @Column(name = "license_plate")
     String licensePlate;
     @ManyToOne @JoinColumn(name = "model_id")
     VehicleModel model;
-    // Một xe chỉ có một subscription
     @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
-    private VehicleSubscription subscription;
+    VehicleSubscription subscription;
+    @OneToMany(mappedBy = "vehicle",cascade = CascadeType.ALL)
+    List<Payment> payments;
 }
 

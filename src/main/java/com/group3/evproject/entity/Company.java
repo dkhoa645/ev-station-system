@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Entity
 @Table(name = "company")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -14,4 +16,6 @@ public class Company {
     String name;
     String address;
     String contactEmail;
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
+    List<User> user;
 }

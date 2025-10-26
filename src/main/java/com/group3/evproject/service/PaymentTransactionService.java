@@ -4,13 +4,11 @@ import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.repository.PaymentTransactionRepository;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -43,7 +41,7 @@ public class PaymentTransactionService {
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));;
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         paymentTransaction.setPaidAt(now);
-        paymentTransaction.setStatus(PaymentStatusEnum.SUCCESS);
+        paymentTransaction.setStatus(PaymentTransactionEnum.SUCCESS);
         VehicleSubscription vehicleSubscription = paymentTransaction.getVehicleSubscription();
         if(vehicleSubscription == null) throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle subscription");
         vehicleSubscription.setStartDate(now);

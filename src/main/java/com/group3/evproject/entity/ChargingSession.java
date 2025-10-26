@@ -59,5 +59,8 @@ public class ChargingSession {
         COMPLETED,
         CANCELLED
     }
+
+    @OneToOne(mappedBy = "chargingSession")
+    private Invoice invoice;
 }
 

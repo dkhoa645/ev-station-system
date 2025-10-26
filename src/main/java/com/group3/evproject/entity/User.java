@@ -44,4 +44,8 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Vehicle> vehicles;
+
+    @ManyToOne()
+    @JoinColumn(name = "company_id",nullable = true)
+    Company company;
 }
