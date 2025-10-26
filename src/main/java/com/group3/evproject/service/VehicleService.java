@@ -42,7 +42,7 @@ public class VehicleService  {
 
     public List<VehicleResponse> getAllVehicles() {
           return vehicleRepository.findAll().stream()
-                .map(v -> vehicleMapper.vehicleToVehicleResponse(v))
+                .map(vehicleMapper::vehicleToVehicleResponse)
                 .collect(Collectors.toList());
     }
 
@@ -72,7 +72,7 @@ public class VehicleService  {
                         .licensePlate(vehicleRegisterRequest.getLicensePlate())
                         .user(user)
                         .build());
-//        Tìm gói từ request
+//          Tìm gói từ request
         SubscriptionPlan subscriptionPlan = subscriptionPlanRepository
                 .findById(vehicleRegisterRequest.getSubscriptionPlanId())
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Subcription Plan"));

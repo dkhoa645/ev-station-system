@@ -27,7 +27,8 @@ public class PaymentTransaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    User user;
+
     @Column(nullable = false, precision = 10, scale = 2)
     BigDecimal amount;
     String paymentMethod;
