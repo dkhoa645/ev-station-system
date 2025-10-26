@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "payment")
@@ -25,5 +27,7 @@ public class Payment {
     PaymentStatusEnum status;
     LocalDateTime createdAt;
     LocalDateTime paidAt;
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
+    List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 
 }

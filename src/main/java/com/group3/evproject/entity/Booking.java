@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "booking")
@@ -68,4 +70,6 @@ public class Booking extends BaseEntity {
             this.timeToCharge = this.bookingTime;
         }
     }
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 }

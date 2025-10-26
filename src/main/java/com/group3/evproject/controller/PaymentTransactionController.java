@@ -1,6 +1,7 @@
 package com.group3.evproject.controller;
 
 
+import com.group3.evproject.dto.response.PaymentTransactionResponse;
 import com.group3.evproject.service.PaymentTransactionService;
 import com.group3.evproject.vnpay.VNPayDTO;
 import com.group3.evproject.vnpay.VNPayService;
@@ -9,22 +10,44 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.group3.evproject.dto.response.ApiResponse;
 
 import lombok.AccessLevel;
 
 @RestController
-@RequestMapping("payment")
+@RequestMapping("paymentTransaction")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
 public class PaymentTransactionController {
     VNPayService paymentService;
     PaymentTransactionService paymentTransactionService;
-    @GetMapping("/vn-pay")
+
+    @PostMapping("/subscription/{id}")
+    public ApiResponse<PaymentTransactionResponse> createSubscription(
+                @PathVariable Long id){
+        return ApiResponse.<PaymentTransactionResponse>builder()
+                .result(paymentTransactionService.createSubscription(id))
+                .build();
+    }
+    @PostMapping("/booking/{id}")
+    public ApiResponse<PaymentTransactionResponse> createBooking(
+            @PathVariable Long id){
+        return ApiResponse.<PaymentTransactionResponse>builder()
+                .result(paymentTransactionService.createSubscription(id))
+                .build();
+    }
+    @PostMapping("/payment/{id}")
+    public ApiResponse<PaymentTransactionResponse> createPayment(
+            @PathVariable Long id){
+        return ApiResponse.<PaymentTransactionResponse>builder()
+                .result(paymentTransactionService.createSubscription(id))
+                .build();
+    }
+
+
+    @PostMapping("/vn-pay")
     public ApiResponse<VNPayDTO> pay(
             Long paymentTransactionId,
             HttpServletRequest request) {

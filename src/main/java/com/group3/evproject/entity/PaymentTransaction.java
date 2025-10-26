@@ -24,6 +24,13 @@ public class PaymentTransaction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_subscription_id")
     VehicleSubscription vehicleSubscription;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id")
+    Booking booking;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    Payment payment;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

@@ -27,10 +27,10 @@ public class VehicleSubscription {
     LocalDateTime startDate;
     LocalDateTime endDate;
     @Enumerated(EnumType.STRING)
-    private VehicleSubscriptionStatusEnum status; // active, expired, cancelled
+    VehicleSubscriptionStatusEnum status; // active, expired, cancelled
     @Column(name = "auto_renew")
     boolean autoRenew;
     @OneToMany(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
-    private List<PaymentTransaction> paymentTransactions = new ArrayList<>();
+    List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 }
 

@@ -1,5 +1,6 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.dto.response.PaymentTransactionResponse;
 import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
@@ -35,6 +36,7 @@ public class PaymentTransactionService {
     }
 
 
+
     public String processSuccessfulPayment(String ref) {
 //        Tìm transaction có mã giao dịch ref
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
@@ -54,6 +56,9 @@ public class PaymentTransactionService {
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
         savePayment(paymentTransaction);
         return "Success";
+    }
+
+    public PaymentTransactionResponse createSubscription(Long id) {
     }
 
 //@Transactional
