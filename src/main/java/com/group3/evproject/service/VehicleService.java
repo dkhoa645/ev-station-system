@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +40,10 @@ public class VehicleService  {
     VehicleSubscriptionMapper vehicleSubscriptionMapper;
     PaymentTransactionService paymentTransactionService;
 
-    public List<Vehicle> getAllVehicles() {
-        return  vehicleRepository.findAll();
+    public List<VehicleResponse> getAllVehicles() {
+          return vehicleRepository.findAll().stream()
+                .map(v -> vehicleMapper.vehicleToVehicleResponse(v))
+                .collect(Collectors.toList());
     }
 
     public VehicleResponse getById(Long id) {

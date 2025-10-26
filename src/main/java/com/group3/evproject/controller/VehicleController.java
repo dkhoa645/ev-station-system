@@ -22,8 +22,8 @@ public class VehicleController {
     VehicleService vehicleService;
 
     @GetMapping
-    public ApiResponse<List<Vehicle>> getVehicles() {
-        return ApiResponse.<List<Vehicle>>builder()
+    public ApiResponse<List<VehicleResponse>> getVehicles() {
+        return ApiResponse.<List<VehicleResponse>>builder()
                 .result(vehicleService.getAllVehicles())
                 .build();
     }
