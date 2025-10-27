@@ -37,6 +37,7 @@ public class Booking extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "spot_id")
+    @JsonIgnore
     private ChargingSpot spot;
 
     @Column(name = "time_to_charge", nullable = true)
