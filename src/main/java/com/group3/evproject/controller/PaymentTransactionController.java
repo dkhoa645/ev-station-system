@@ -16,6 +16,8 @@ import com.group3.evproject.dto.response.ApiResponse;
 
 import lombok.AccessLevel;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("paymentTransaction")
 @RequiredArgsConstructor
@@ -43,18 +45,25 @@ public class PaymentTransactionController {
     }
 
     @GetMapping("/vn-pay-callback")
-    public ApiResponse<String> payCallbackHandler(HttpServletResponse response, HttpServletRequest request) {
+    public void payCallbackHandler(HttpServletResponse response, HttpServletRequest request) throws IOException {
             String status = request.getParameter("vnp_ResponseCode");
             String ref = request.getParameter("vnp_TxnRef");
             if (status.equals("00")) {
                 String result = paymentTransactionService.processSuccessfulPayment(ref);
-                return ApiResponse.<String>builder()
-                        .result(result)
-                        .build();
+                if (result.equals("Success")) {
+                    response.sendRedirect("http://localhost:5173/");
+                }
             } else {
-                return ApiResponse.<String>builder()
-                        .result("Failed")
-                        .build();
+                response.sendRedirect("http://localhost:5173/");
             }
     }
+
+//    public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
+//        String message = authenticationService.verifyEmail(token);
+//        if (message.contains("success")) {
+//            response.sendRedirect("http://localhost:5173/");
+//        } else {
+//            response.sendRedirect("http://localhost:5173/");
+//        }
+//    }
 }
