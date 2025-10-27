@@ -16,13 +16,10 @@ import java.util.List;
 public class Payment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    LocalDateTime startDate;
-    LocalDateTime endDate;
     BigDecimal totalEnergy;
     BigDecimal totalCost;
     @Enumerated(EnumType.STRING)
     PaymentStatusEnum status;
-    LocalDateTime createdAt;
     LocalDateTime paidAt;
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     List<Invoice> invoices ;

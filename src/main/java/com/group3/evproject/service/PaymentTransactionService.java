@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -87,11 +88,15 @@ public class PaymentTransactionService {
         vehicleSubscription.setEndDate(now.plusMonths(1));
         vehicleSubscription.setStatus(VehicleSubscriptionStatusEnum.ACTIVE);
 //        Tạo Payment tổng
-//        Payment payment = paymentService.save(
-//                Payment.builder()
-//                        .startDate(now)
-//
-//                        .build());
+        Payment payment = paymentService.save(
+                Payment.builder()
+                        .totalEnergy(BigDecimal.ZERO)
+                        .totalCost(BigDecimal.ZERO)
+                        .status(PaymentStatusEnum.UNPAID)
+                        .invoices(new ArrayList<>())
+                        .paymentTransactions(new ArrayList<>())
+                        .vehicleSubscription(vehicleSubscription)
+                        .build());
 
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
         return "Success";
