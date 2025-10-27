@@ -87,16 +87,16 @@ public class VehicleService  {
                         .autoRenew(false)
                         .build());
 //        3.Tạo Transaction
-        PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(
-                PaymentTransaction.builder()
-                .vehicleSubscription(vehicleSubscription)
-                .amount(subscriptionPlan.getPrice())
-                .paymentMethod("VNPAY")
-                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-                .status(PaymentTransactionEnum.FAILED)
-                .paidAt(null)
-                .bankCode("VNBANK")
-                .build());
+//        PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(
+//                PaymentTransaction.builder()
+//                .vehicleSubscription(vehicleSubscription)
+//                .amount(subscriptionPlan.getPrice())
+//                .paymentMethod("VNPAY")
+//                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
+//                .status(PaymentTransactionEnum.FAILED)
+//                .paidAt(null)
+//                .bankCode("VNBANK")
+//                .build());
 //        4.Tạo Response
         VehicleSubscriptionResponse vehicleSubscriptionResponse =
                 vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription);
@@ -105,7 +105,7 @@ public class VehicleService  {
 
         VehicleResponse vehicleResponse = vehicleMapper.vehicleToVehicleResponse(vehicle);
         vehicleResponse.setVehicleSubscriptionResponse(vehicleSubscriptionResponse);
-        vehicleResponse.setPaymentTransactionId(paymentTransaction.getId());
+
         return vehicleResponse;
     }
 

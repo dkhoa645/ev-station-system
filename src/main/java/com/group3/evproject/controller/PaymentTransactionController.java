@@ -24,25 +24,13 @@ public class PaymentTransactionController {
     VNPayService paymentService;
     PaymentTransactionService paymentTransactionService;
 
+
     @PostMapping("/subscription/{id}")
-    public ApiResponse<PaymentTransactionResponse> createSubscription(
-                @PathVariable Long id){
+    public ApiResponse<PaymentTransactionResponse> create(
+            @PathVariable Long id,
+            HttpServletRequest request) {
         return ApiResponse.<PaymentTransactionResponse>builder()
-                .result(paymentTransactionService.createSubscription(id))
-                .build();
-    }
-    @PostMapping("/booking/{id}")
-    public ApiResponse<PaymentTransactionResponse> createBooking(
-            @PathVariable Long id){
-        return ApiResponse.<PaymentTransactionResponse>builder()
-                .result(paymentTransactionService.createSubscription(id))
-                .build();
-    }
-    @PostMapping("/payment/{id}")
-    public ApiResponse<PaymentTransactionResponse> createPayment(
-            @PathVariable Long id){
-        return ApiResponse.<PaymentTransactionResponse>builder()
-                .result(paymentTransactionService.createSubscription(id))
+                .result(paymentTransactionService.createSubscriptionPayment(id, request))
                 .build();
     }
 
@@ -52,12 +40,12 @@ public class PaymentTransactionController {
             Long paymentTransactionId,
             HttpServletRequest request) {
         return ApiResponse.<VNPayDTO>builder()
-        .result(paymentService.createVnPayPayment(paymentTransactionId,request))
-        .build();
+                .result(paymentService.createVnPayPayment(paymentTransactionId, request))
+                .build();
     }
+
     @GetMapping("/vn-pay-callback")
-    public ApiResponse<String>  payCallbackHandler(HttpServletResponse response, HttpServletRequest request) {
-        try{
+    public ApiResponse<String> payCallbackHandler(HttpServletResponse response, HttpServletRequest request) {
             String status = request.getParameter("vnp_ResponseCode");
             String ref = request.getParameter("vnp_TxnRef");
             if (status.equals("00")) {
@@ -69,8 +57,6 @@ public class PaymentTransactionController {
                 return ApiResponse.<String>builder()
                         .result("Failed")
                         .build();
-            } } catch (Exception e) {
-            return ApiResponse.<String>builder().result("Error").build();
-        }
+            }
     }
 }

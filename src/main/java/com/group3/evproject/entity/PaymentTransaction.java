@@ -21,7 +21,7 @@ public class PaymentTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_subscription_id")
     VehicleSubscription vehicleSubscription;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,27 +30,19 @@ public class PaymentTransaction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id")
     Payment payment;
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     User user;
-
     @Column(nullable = false, precision = 10, scale = 2)
     BigDecimal amount;
     String paymentMethod;
     @Column(unique = true, nullable = false)
     String vnpTxnRef;
-
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     PaymentTransactionEnum status;
-
-    LocalDateTime createdAt = LocalDateTime.now();
+    LocalDateTime createdAt;
     LocalDateTime paidAt;
-
-    String orderInfo;
-
     String bankCode = "VNBANK";
 
 }

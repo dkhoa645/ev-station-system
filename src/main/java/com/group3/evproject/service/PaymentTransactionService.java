@@ -1,10 +1,15 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
 import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
+import com.group3.evproject.mapper.PaymentTransactionMapper;
 import com.group3.evproject.repository.PaymentTransactionRepository;
+import com.group3.evproject.vnpay.VNPayUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,7 +23,9 @@ import java.time.ZoneId;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PaymentTransactionService {
     PaymentTransactionRepository paymentTransactionRepository;
+    PaymentTransactionMapper paymentTransactionMapper;
     VehicleSubscriptionService vehicleSubscriptionService;
+
 
     SubscriptionPlanService subscriptionPlanService;
 
@@ -36,7 +43,7 @@ public class PaymentTransactionService {
     }
 
 
-
+    @Transactional
     public String processSuccessfulPayment(String ref) {
 //        Tìm transaction có mã giao dịch ref
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
@@ -44,22 +51,55 @@ public class PaymentTransactionService {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         paymentTransaction.setPaidAt(now);
         paymentTransaction.setStatus(PaymentTransactionEnum.SUCCESS);
+        //            Set gói
         VehicleSubscription vehicleSubscription = paymentTransaction.getVehicleSubscription();
         if(vehicleSubscription == null) throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle subscription");
         vehicleSubscription.setStartDate(now);
         vehicleSubscription.setEndDate(now.plusMonths(1));
         vehicleSubscription.setStatus(VehicleSubscriptionStatusEnum.ACTIVE);
 
-        SubscriptionPlan subscriptionPlan =vehicleSubscription.getSubscriptionPlan();
-        if(subscriptionPlan == null) throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Subscription plan");
-
-        vehicleSubscriptionService.saveVehicle(vehicleSubscription);
         savePayment(paymentTransaction);
         return "Success";
     }
 
-    public PaymentTransactionResponse createSubscription(Long id) {
+
+
+//            PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(
+//                    PaymentTransaction.builder()
+//                            .vehicleSubscription(vehicleSubscription)
+//                            .amount(subscriptionPlan.getPrice())
+//                            .paymentMethod("VNPAY")
+//                            .vnpTxnRef(VNPayUtil.getRandomNumber(8))
+//                            .status(PaymentTransactionEnum.FAILED)
+//                            .paidAt(null)
+//                            .bankCode("VNBANK")
+//                            .build());
+    
+//
+//    public PaymentTransactionResponse createBookingPayment(Long id) {
+//    }
+
+    @Transactional
+    public PaymentTransactionResponse createSubscriptionPayment(Long id, HttpServletRequest request) {
+        VehicleSubscription vehicleSubscription = vehicleSubscriptionService.findById(id);
+        SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
+        PaymentTransaction paymentTransaction = PaymentTransaction.builder()
+                            .vehicleSubscription(vehicleSubscription)
+                            .amount(subscriptionPlan.getPrice())
+                            .paymentMethod("VNPAY")
+                            .vnpTxnRef(VNPayUtil.getRandomNumber(8))
+                            .status(PaymentTransactionEnum.PENDING).createdAt(LocalDateTime.now())
+                            .paidAt(null)
+                            .bankCode("VNBANK")
+                                .user(vehicleSubscriptionService.isFromUser(request,id))
+                            .build();
+        vehicleSubscription.getPaymentTransactions().add(paymentTransaction);
+        paymentTransactionRepository.save(paymentTransaction);
+        return paymentTransactionMapper.toResponse(paymentTransaction);
     }
+
+//    public PaymentTransactionResponse createPayment(Long id) {
+//    }
 
 //@Transactional
 //public String processSuccessfulPayment(String vnpTxnRef) {

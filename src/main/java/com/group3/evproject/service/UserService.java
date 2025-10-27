@@ -37,7 +37,8 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElse(null);
+        return userRepository.findByUsername(username)
+                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS));
     }
 
 

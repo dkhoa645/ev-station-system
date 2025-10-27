@@ -47,6 +47,6 @@ public class VehicleModelService {
     }
 
     public VehicleModel saveModel(VehicleModelRequest vmr) {
-        return vehicleModelMapper.toVehicleModel(vmr);
+         return vehicleModelRepository.save(vehicleModelMapper.toVehicleModel(vmr));
     }
 }

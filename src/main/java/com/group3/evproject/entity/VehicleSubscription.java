@@ -17,11 +17,11 @@ public class VehicleSubscription {
     Long id;
 
     @OneToOne
-    @JoinColumn(name = "vehicle_id", nullable = false, unique = true)
+    @JoinColumn(name = "vehicle_id",  unique = true)
     Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subscription_id")
+    @JoinColumn(name = "subscription_id", nullable = true)
     SubscriptionPlan subscriptionPlan;
 
     LocalDateTime startDate;
