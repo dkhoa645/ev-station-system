@@ -149,8 +149,13 @@ public class BookingService {
     }
 
     //user den tram moi gan spot
-    public Booking startCharging(Long bookingId, Long spotId) {
+    public Booking startCharging(Long bookingId, Long userId) {
         Booking booking = getBookingById(bookingId);
+
+        //kiem tra nguoi dung co quyen start booking nay khong
+        if (!booking.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Your are not allow to start this booking");
+        }
 
         //kiem tra trang thai booking co hop le khong
         if (booking.getStatus() != Booking.BookingStatus.CONFIRMED &&
@@ -158,16 +163,11 @@ public class BookingService {
             throw  new RuntimeException("Cannot start charging for a booking that is not CONFIRMED or PENDING.");
         }
 
-        ChargingSpot spot = chargingSpotRepository.findById(spotId)
-                .orElseThrow(() -> new RuntimeException("No spot found with id: " + spotId));
+        ChargingSpot spot = booking.getSpot();
 
         //khong dc start truoc thoi gian booking
         if (LocalDateTime.now().isBefore(booking.getTimeToCharge())) {
             throw new RuntimeException("Cannot start charging before your booked time");
-        }
-
-        if (!spot.getStation().getId().equals(booking.getStation().getId())) {
-            throw new RuntimeException("Spot does not belong to the same station");
         }
 
         // Cập nhật trạng thái spot
