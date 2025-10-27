@@ -24,7 +24,7 @@ public class BookingResponse {
 
     @Schema(description = "Thời gian người dùng thực hiện booking")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime bookingTime;
+    private LocalDateTime startTime;
 
     @Schema(description = "Thời điểm bắt đầu sạc")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

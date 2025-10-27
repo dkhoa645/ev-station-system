@@ -7,6 +7,7 @@ import com.group3.evproject.entity.User;
 import com.group3.evproject.service.AuthenticationService;
 import com.group3.evproject.service.BookingService;
 import com.group3.evproject.service.VehicleService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -43,31 +44,27 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<Booking> createBooking(
+    public ResponseEntity<BookingResponse> createBooking(
             @Valid @RequestBody BookingRequest bookingRequest,
             @RequestHeader("Authorization") String accessToken
     ) {
         // lay user tu token
         User user = authenticationService.getUserFromRequest(accessToken);
 
-        //du lieu dau vao
-        Long stationId = bookingRequest.getStationId().longValue();
-        LocalDateTime timeToCharge = bookingRequest.getTimeToCharge();
-        LocalDateTime endTime = bookingRequest.getEndTime();
-        Long vehicleId = bookingRequest.getVehicleId();
+        //goi service de tao booking
+        Booking booking = bookingService.createBooking(bookingRequest.getStationId(), bookingRequest.getTimeToCharge(), bookingRequest.getEndTime(), user.getId(), bookingRequest.getVehicleId());
 
-        //bookingService xu ly booking
-        Booking booking = bookingService.createBooking(stationId, timeToCharge, endTime, user.getId(), vehicleId);
-        BookingResponse response = BookingResponse.builder()
+        //build response tra ve client
+        BookingResponse bookingResponse = BookingResponse.builder()
                 .bookingId(booking.getId())
                 .vehicleId(booking.getVehicle().getId())
                 .stationName(booking.getStation().getName())
-                .bookingTime(booking.getBookingTime())
+                .startTime(booking.getStartTime())
                 .timeToCharge(booking.getTimeToCharge())
                 .endTime(booking.getEndTime())
                 .status(booking.getStatus().name())
                 .build();
-        return ResponseEntity.ok(booking);
+        return ResponseEntity.ok(bookingResponse);
     }
 
     @PutMapping("/{id}")
@@ -78,17 +75,37 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.updateBooking(id, updatedBooking));
     }
 
-    @PutMapping("/{id}/start")
-    public ResponseEntity<Booking> startCharging(
+    @Operation(summary = "Bắt đầu quá trình sạc cho booking")
+    @PostMapping("/{id}/start")
+    public ResponseEntity<String> startCharging(
             @PathVariable Long id,
-            @RequestParam Long spotId
-    ){
-        return ResponseEntity.ok(bookingService.startCharging(id, spotId));
+            @RequestHeader("Authorization") String accessToken
+    ) {
+        User user = authenticationService.getUserFromRequest(accessToken);
+        bookingService.startCharging(id, user.getId());
+        return ResponseEntity.ok("Charging started successfully.");
     }
 
-    @PutMapping("/{id}/cancel")
-    public ResponseEntity<Booking> cancelBooking(@PathVariable Long id) {
-        return ResponseEntity.ok(bookingService.cancelBooking(id));
+    @Operation(summary = "Kết thúc quá trình sạc cho booking")
+    @PostMapping("/{id}/end")
+    public ResponseEntity<String> endCharging(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String accessToken
+    ) {
+        User user = authenticationService.getUserFromRequest(accessToken);
+        bookingService.endCharging(id);
+        return ResponseEntity.ok("Charging ended successfully.");
+    }
+
+    @Operation(summary = "Hủy đặt chỗ sạc (cancel booking)")
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<String> cancelBooking(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String accessToken
+    ) {
+        User user = authenticationService.getUserFromRequest(accessToken);
+        bookingService.cancelBooking(id);
+        return ResponseEntity.ok("Booking cancelled successfully.");
     }
 
     @PutMapping("/{id}/confirm")
