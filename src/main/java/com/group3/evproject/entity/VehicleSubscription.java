@@ -21,7 +21,7 @@ public class VehicleSubscription {
     Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subscription_id", nullable = true)
+    @JoinColumn(name = "subscription_id", nullable = false)
     SubscriptionPlan subscriptionPlan;
 
     LocalDateTime startDate;
@@ -31,6 +31,6 @@ public class VehicleSubscription {
     @Column(name = "auto_renew")
     boolean autoRenew;
     @OneToMany(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
-    List<PaymentTransaction> paymentTransactions = new ArrayList<>();
+    List<PaymentTransaction> paymentTransactions ;
 }
 

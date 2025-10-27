@@ -24,7 +24,6 @@ public class PaymentTransactionController {
     VNPayService paymentService;
     PaymentTransactionService paymentTransactionService;
 
-
     @PostMapping("/subscription/{id}")
     public ApiResponse<PaymentTransactionResponse> create(
             @PathVariable Long id,
@@ -33,7 +32,6 @@ public class PaymentTransactionController {
                 .result(paymentTransactionService.createSubscriptionPayment(id, request))
                 .build();
     }
-
 
     @PostMapping("/vn-pay")
     public ApiResponse<VNPayDTO> pay(

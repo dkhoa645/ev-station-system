@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,13 +54,19 @@ public class PaymentTransactionService {
         paymentTransaction.setPaidAt(now);
         paymentTransaction.setStatus(PaymentTransactionEnum.SUCCESS);
         //            Set gói
+
         VehicleSubscription vehicleSubscription = paymentTransaction.getVehicleSubscription();
-        if(vehicleSubscription == null) throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle subscription");
+        if (vehicleSubscription == null) {
+            throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "Vehicle subscription not found");
+        }
+
+        // 4️⃣ Cập nhật thông tin gói thuê
         vehicleSubscription.setStartDate(now);
         vehicleSubscription.setEndDate(now.plusMonths(1));
         vehicleSubscription.setStatus(VehicleSubscriptionStatusEnum.ACTIVE);
 
-        savePayment(paymentTransaction);
+        vehicleSubscriptionService.saveVehicle(vehicleSubscription);
+//        paymentTransactionRepository.save(paymentTransaction);
         return "Success";
     }
 
@@ -83,7 +91,7 @@ public class PaymentTransactionService {
     public PaymentTransactionResponse createSubscriptionPayment(Long id, HttpServletRequest request) {
         VehicleSubscription vehicleSubscription = vehicleSubscriptionService.findById(id);
         SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
-        PaymentTransaction paymentTransaction = PaymentTransaction.builder()
+        PaymentTransaction paymentTransaction = savePayment(PaymentTransaction.builder()
                             .vehicleSubscription(vehicleSubscription)
                             .amount(subscriptionPlan.getPrice())
                             .paymentMethod("VNPAY")
@@ -92,8 +100,16 @@ public class PaymentTransactionService {
                             .paidAt(null)
                             .bankCode("VNBANK")
                                 .user(vehicleSubscriptionService.isFromUser(request,id))
-                            .build();
-        vehicleSubscription.getPaymentTransactions().add(paymentTransaction);
+                            .build());
+        List<PaymentTransaction> list = vehicleSubscription.getPaymentTransactions();
+        if(list!=null) {
+            vehicleSubscription.getPaymentTransactions().add(paymentTransaction);
+        }else{
+            list = new ArrayList<>();
+            list.add(paymentTransaction);
+            vehicleSubscription.setPaymentTransactions(list);
+        }
+
         paymentTransactionRepository.save(paymentTransaction);
         return paymentTransactionMapper.toResponse(paymentTransaction);
     }

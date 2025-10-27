@@ -25,8 +25,9 @@ public class Invoice {
     @OneToOne()
     @JoinColumn(name="session_id")
     ChargingSession chargingSession;
-
-
+    @ManyToOne()
+    @JoinColumn(name="payment_id")
+    Payment payment;
 
 
 }

@@ -28,6 +28,9 @@ public class Payment {
     LocalDateTime createdAt;
     LocalDateTime paidAt;
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
-    List<PaymentTransaction> paymentTransactions = new ArrayList<>();
+    List<Invoice> invoices ;
+
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
+    List<PaymentTransaction> paymentTransactions;
 
 }
