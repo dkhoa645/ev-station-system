@@ -6,6 +6,7 @@ import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentTransactionMapper;
+import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.PaymentTransactionRepository;
 import com.group3.evproject.vnpay.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +28,8 @@ public class PaymentTransactionService {
     PaymentTransactionRepository paymentTransactionRepository;
     PaymentTransactionMapper paymentTransactionMapper;
     VehicleSubscriptionService vehicleSubscriptionService;
-
+    VehicleSubscriptionMapper vehicleSubscriptionMapper;
+    PaymentService paymentService;
 
     SubscriptionPlanService subscriptionPlanService;
 
@@ -44,29 +46,54 @@ public class PaymentTransactionService {
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
     }
 
+    @Transactional
+    public PaymentTransactionResponse createSubscriptionPayment(Long id, HttpServletRequest request) {
+        VehicleSubscription vehicleSubscription = vehicleSubscriptionService.findById(id);
+        SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
+        PaymentTransaction paymentTransaction = savePayment(PaymentTransaction.builder()
+                .vehicleSubscription(vehicleSubscription)
+                .amount(subscriptionPlan.getPrice())
+                .paymentMethod("VNPAY")
+                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
+                .status(PaymentTransactionEnum.PENDING).createdAt(LocalDateTime.now())
+                .paidAt(null)
+                .bankCode("VNBANK")
+                .user(vehicleSubscriptionService.isFromUser(request,id))
+                .build());
+        vehicleSubscription.getPaymentTransactions().add(paymentTransaction);
+        vehicleSubscriptionService.saveVehicle(vehicleSubscription);
+
+        PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
+        response.setVehicleSubscriptionResponse(vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription));
+        return response;
+    }
+
 
     @Transactional
     public String processSuccessfulPayment(String ref) {
 //        Tìm transaction có mã giao dịch ref
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
-                .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));;
+                .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         paymentTransaction.setPaidAt(now);
         paymentTransaction.setStatus(PaymentTransactionEnum.SUCCESS);
         //            Set gói
-
         VehicleSubscription vehicleSubscription = paymentTransaction.getVehicleSubscription();
         if (vehicleSubscription == null) {
             throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "Vehicle subscription not found");
         }
-
-        // 4️⃣ Cập nhật thông tin gói thuê
+        // 4. Cập nhật thông tin gói
         vehicleSubscription.setStartDate(now);
         vehicleSubscription.setEndDate(now.plusMonths(1));
         vehicleSubscription.setStatus(VehicleSubscriptionStatusEnum.ACTIVE);
+//        Tạo Payment tổng
+//        Payment payment = paymentService.save(
+//                Payment.builder()
+//                        .startDate(now)
+//
+//                        .build());
 
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
-//        paymentTransactionRepository.save(paymentTransaction);
         return "Success";
     }
 
@@ -87,32 +114,6 @@ public class PaymentTransactionService {
 //    public PaymentTransactionResponse createBookingPayment(Long id) {
 //    }
 
-    @Transactional
-    public PaymentTransactionResponse createSubscriptionPayment(Long id, HttpServletRequest request) {
-        VehicleSubscription vehicleSubscription = vehicleSubscriptionService.findById(id);
-        SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
-        PaymentTransaction paymentTransaction = savePayment(PaymentTransaction.builder()
-                            .vehicleSubscription(vehicleSubscription)
-                            .amount(subscriptionPlan.getPrice())
-                            .paymentMethod("VNPAY")
-                            .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-                            .status(PaymentTransactionEnum.PENDING).createdAt(LocalDateTime.now())
-                            .paidAt(null)
-                            .bankCode("VNBANK")
-                                .user(vehicleSubscriptionService.isFromUser(request,id))
-                            .build());
-        List<PaymentTransaction> list = vehicleSubscription.getPaymentTransactions();
-        if(list!=null) {
-            vehicleSubscription.getPaymentTransactions().add(paymentTransaction);
-        }else{
-            list = new ArrayList<>();
-            list.add(paymentTransaction);
-            vehicleSubscription.setPaymentTransactions(list);
-        }
-
-        paymentTransactionRepository.save(paymentTransaction);
-        return paymentTransactionMapper.toResponse(paymentTransaction);
-    }
 
 //    public PaymentTransactionResponse createPayment(Long id) {
 //    }

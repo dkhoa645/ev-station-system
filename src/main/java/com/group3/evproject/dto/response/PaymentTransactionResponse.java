@@ -20,4 +20,5 @@ public class PaymentTransactionResponse {
     PaymentTransactionEnum status;
     LocalDateTime createdAt;
     LocalDateTime paidAt;
+    VehicleSubscriptionResponse vehicleSubscriptionResponse;
 }

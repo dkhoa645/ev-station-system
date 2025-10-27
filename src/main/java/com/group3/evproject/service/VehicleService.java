@@ -33,12 +33,10 @@ public class VehicleService  {
     UserService userService;
     VehicleMapper vehicleMapper;
     VehicleModelService vehicleModelService;
-    SubscriptionPlanRepository subscriptionPlanRepository;
-    VehicleSubscriptionRepository vehicleSubscriptionRepository;
     SubscriptionPlanService subscriptionPlanService;
+    VehicleSubscriptionService vehicleSubscriptionService;
     SubscriptionPlanMapper subscriptionPlanMapper;
     VehicleSubscriptionMapper vehicleSubscriptionMapper;
-    PaymentTransactionService paymentTransactionService;
 
     public List<VehicleResponse> getAllVehicles() {
           return vehicleRepository.findAll().stream()
@@ -73,11 +71,10 @@ public class VehicleService  {
                         .user(user)
                         .build());
 //          Tìm gói từ request
-        SubscriptionPlan subscriptionPlan = subscriptionPlanRepository
-                .findById(vehicleRegisterRequest.getSubscriptionPlanId())
-                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Subcription Plan"));
+        SubscriptionPlan subscriptionPlan = subscriptionPlanService
+                .findById(vehicleRegisterRequest.getSubscriptionPlanId());
 //        2.Tạo Vehicle Subscription, save nên có id
-        VehicleSubscription vehicleSubscription =vehicleSubscriptionRepository.save(
+        VehicleSubscription vehicleSubscription =vehicleSubscriptionService.saveVehicle(
                 VehicleSubscription.builder()
                         .vehicle(vehicle)
                         .subscriptionPlan(subscriptionPlan)
@@ -85,18 +82,8 @@ public class VehicleService  {
                         .endDate(null)
                         .status(VehicleSubscriptionStatusEnum.PENDING)
                         .autoRenew(false)
+                        .paymentTransactions(new ArrayList<>())
                         .build());
-//        3.Tạo Transaction
-//        PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(
-//                PaymentTransaction.builder()
-//                .vehicleSubscription(vehicleSubscription)
-//                .amount(subscriptionPlan.getPrice())
-//                .paymentMethod("VNPAY")
-//                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-//                .status(PaymentTransactionEnum.FAILED)
-//                .paidAt(null)
-//                .bankCode("VNBANK")
-//                .build());
 //        4.Tạo Response
         VehicleSubscriptionResponse vehicleSubscriptionResponse =
                 vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription);

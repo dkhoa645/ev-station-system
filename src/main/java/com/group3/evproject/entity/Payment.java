@@ -18,9 +18,9 @@ public class Payment {
     Long id;
     LocalDateTime startDate;
     LocalDateTime endDate;
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "vehicle_id", nullable = false)
-    private Vehicle vehicle;
+    Vehicle vehicle;
     BigDecimal totalEnergy;
     BigDecimal totalCost;
     @Enumerated(EnumType.STRING)
@@ -29,7 +29,6 @@ public class Payment {
     LocalDateTime paidAt;
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     List<Invoice> invoices ;
-
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     List<PaymentTransaction> paymentTransactions;
 
