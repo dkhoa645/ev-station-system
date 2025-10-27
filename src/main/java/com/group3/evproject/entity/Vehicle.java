@@ -23,7 +23,6 @@ public class Vehicle {
     VehicleModel model;
     @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
     VehicleSubscription subscription;
-    @OneToMany(mappedBy = "vehicle",cascade = CascadeType.ALL)
-    List<Payment> payments;
+
 }
 

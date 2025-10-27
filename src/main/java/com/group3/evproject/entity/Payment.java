@@ -19,8 +19,6 @@ public class Payment {
     LocalDateTime startDate;
     LocalDateTime endDate;
     @OneToOne
-    @JoinColumn(name = "vehicle_id", nullable = false)
-    Vehicle vehicle;
     BigDecimal totalEnergy;
     BigDecimal totalCost;
     @Enumerated(EnumType.STRING)
@@ -31,5 +29,9 @@ public class Payment {
     List<Invoice> invoices ;
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     List<PaymentTransaction> paymentTransactions;
+
+    @OneToOne(fetch = FetchType.LAZY)   // 1 Payment chỉ gắn với 1 Subscription
+    @JoinColumn(name = "vehicle_subscription_id", nullable = false)
+    VehicleSubscription vehicleSubscription;
 
 }
