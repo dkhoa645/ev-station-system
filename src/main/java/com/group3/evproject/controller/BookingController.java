@@ -75,29 +75,6 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.updateBooking(id, updatedBooking));
     }
 
-    @Operation(summary = "Bắt đầu quá trình sạc cho booking")
-    @PostMapping("/{id}/start")
-    public ResponseEntity<String> startCharging(
-            @PathVariable Long id,
-            @RequestHeader("Authorization") String accessToken
-    ) {
-        User user = authenticationService.getUserFromRequest(accessToken);
-        bookingService.startCharging(id, user.getId());
-        return ResponseEntity.ok("Charging started successfully.");
-    }
-
-    @Operation(summary = "Kết thúc quá trình sạc cho booking")
-    @PostMapping("/{id}/end")
-    public ResponseEntity<String> endCharging(
-            @PathVariable Long id,
-            @RequestHeader("Authorization") String accessToken
-    ) {
-        User user = authenticationService.getUserFromRequest(accessToken);
-        bookingService.endCharging(id);
-        return ResponseEntity.ok("Charging ended successfully.");
-    }
-
-    @Operation(summary = "Hủy đặt chỗ sạc (cancel booking)")
     @PostMapping("/{id}/cancel")
     public ResponseEntity<String> cancelBooking(
             @PathVariable Long id,
