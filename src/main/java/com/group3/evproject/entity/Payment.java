@@ -18,7 +18,6 @@ public class Payment {
     Long id;
     LocalDateTime startDate;
     LocalDateTime endDate;
-    @OneToOne
     BigDecimal totalEnergy;
     BigDecimal totalCost;
     @Enumerated(EnumType.STRING)
