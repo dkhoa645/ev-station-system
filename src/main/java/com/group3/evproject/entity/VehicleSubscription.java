@@ -1,11 +1,11 @@
 package com.group3.evproject.entity;
 
+import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,7 +27,7 @@ public class VehicleSubscription {
     LocalDateTime startDate;
     LocalDateTime endDate;
     @Enumerated(EnumType.STRING)
-    VehicleSubscriptionStatusEnum status; // active, expired, cancelled
+    VehicleSubscriptionStatus status; // active, expired, cancelled
     @Column(name = "auto_renew")
     boolean autoRenew;
     @OneToMany(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)

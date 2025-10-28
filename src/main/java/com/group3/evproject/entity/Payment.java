@@ -1,12 +1,12 @@
 package com.group3.evproject.entity;
 
+import com.group3.evproject.Enum.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,7 +19,7 @@ public class Payment {
     BigDecimal totalEnergy;
     BigDecimal totalCost;
     @Enumerated(EnumType.STRING)
-    PaymentStatusEnum status;
+    PaymentStatus status;
     LocalDateTime paidAt;
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     List<Invoice> invoices ;

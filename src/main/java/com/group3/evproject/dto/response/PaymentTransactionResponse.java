@@ -1,7 +1,6 @@
 package com.group3.evproject.dto.response;
 
-import com.group3.evproject.entity.PaymentTransactionEnum;
-import jakarta.persistence.Column;
+import com.group3.evproject.Enum.PaymentTransaction;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -17,7 +16,7 @@ public class PaymentTransactionResponse {
     Long id;
     BigDecimal amount;
     String paymentMethod;
-    PaymentTransactionEnum status;
+    PaymentTransaction status;
     LocalDateTime createdAt;
     LocalDateTime paidAt;
     VehicleSubscriptionResponse vehicleSubscriptionResponse;

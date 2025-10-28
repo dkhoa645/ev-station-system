@@ -40,7 +40,7 @@ public class PaymentTransaction {
     String vnpTxnRef;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    PaymentTransactionEnum status;
+    com.group3.evproject.Enum.PaymentTransaction status;
     LocalDateTime createdAt;
     LocalDateTime paidAt;
     String bankCode = "VNBANK";

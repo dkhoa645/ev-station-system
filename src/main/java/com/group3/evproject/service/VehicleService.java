@@ -1,5 +1,6 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.request.VehicleRegisterRequest;
 import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.dto.response.VehicleSubscriptionResponse;
@@ -9,10 +10,7 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.SubscriptionPlanMapper;
 import com.group3.evproject.mapper.VehicleMapper;
 import com.group3.evproject.mapper.VehicleSubscriptionMapper;
-import com.group3.evproject.repository.SubscriptionPlanRepository;
 import com.group3.evproject.repository.VehicleRepository;
-import com.group3.evproject.repository.VehicleSubscriptionRepository;
-import com.group3.evproject.vnpay.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -86,7 +83,7 @@ public class VehicleService  {
                         .subscriptionPlan(subscriptionPlan)
                         .startDate(null)
                         .endDate(null)
-                        .status(VehicleSubscriptionStatusEnum.PENDING)
+                        .status(VehicleSubscriptionStatus.PENDING)
                         .autoRenew(false)
                         .paymentTransactions(new ArrayList<>())
                         .build());

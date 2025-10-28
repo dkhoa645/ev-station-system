@@ -7,7 +7,6 @@ import com.group3.evproject.dto.response.AuthenticationResponse;
 import com.group3.evproject.dto.response.IntrospectResponse;
 import com.group3.evproject.dto.response.UserResponse;
 import com.group3.evproject.entity.Role;
-import com.group3.evproject.entity.RoleEnum;
 import com.group3.evproject.entity.User;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;

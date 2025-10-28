@@ -1,6 +1,8 @@
 package com.group3.evproject.service;
 
-import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.Enum.PaymentStatus;
+import com.group3.evproject.Enum.PaymentTransaction;
+import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
 import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
@@ -20,7 +22,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,15 +35,15 @@ public class PaymentTransactionService {
 
     SubscriptionPlanService subscriptionPlanService;
 
-    public PaymentTransaction savePayment(PaymentTransaction paymentTransaction){
+    public com.group3.evproject.entity.PaymentTransaction savePayment(com.group3.evproject.entity.PaymentTransaction paymentTransaction){
         return paymentTransactionRepository.save(paymentTransaction);
     }
 
-    public PaymentTransaction findById(Long id){
+    public com.group3.evproject.entity.PaymentTransaction findById(Long id){
         return paymentTransactionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Transaction "));
     }
-    public PaymentTransaction findByRef(String ref){
+    public com.group3.evproject.entity.PaymentTransaction findByRef(String ref){
         return paymentTransactionRepository.findByVnpTxnRef(ref)
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
     }
@@ -51,12 +52,12 @@ public class PaymentTransactionService {
     public PaymentTransactionResponse createSubscriptionPayment(Long id, HttpServletRequest request) {
         VehicleSubscription vehicleSubscription = vehicleSubscriptionService.findById(id);
         SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
-        PaymentTransaction paymentTransaction = savePayment(PaymentTransaction.builder()
+        com.group3.evproject.entity.PaymentTransaction paymentTransaction = savePayment(com.group3.evproject.entity.PaymentTransaction.builder()
                 .vehicleSubscription(vehicleSubscription)
                 .amount(subscriptionPlan.getPrice())
                 .paymentMethod("VNPAY")
                 .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-                .status(PaymentTransactionEnum.PENDING).createdAt(LocalDateTime.now())
+                .status(PaymentTransaction.PENDING).createdAt(LocalDateTime.now())
                 .paidAt(null)
                 .bankCode("VNBANK")
                 .user(vehicleSubscriptionService.isFromUser(request,id))
@@ -73,11 +74,11 @@ public class PaymentTransactionService {
     @Transactional
     public String processSuccessfulPayment(String ref) {
 //        Tìm transaction có mã giao dịch ref
-        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
+        com.group3.evproject.entity.PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         paymentTransaction.setPaidAt(now);
-        paymentTransaction.setStatus(PaymentTransactionEnum.SUCCESS);
+        paymentTransaction.setStatus(PaymentTransaction.SUCCESS);
         //            Set gói
         VehicleSubscription vehicleSubscription = paymentTransaction.getVehicleSubscription();
         if (vehicleSubscription == null) {
@@ -86,13 +87,13 @@ public class PaymentTransactionService {
         // 4. Cập nhật thông tin gói
         vehicleSubscription.setStartDate(now);
         vehicleSubscription.setEndDate(now.plusMonths(1));
-        vehicleSubscription.setStatus(VehicleSubscriptionStatusEnum.ACTIVE);
+        vehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
 //        Tạo Payment tổng
         Payment payment = paymentService.save(
                 Payment.builder()
                         .totalEnergy(BigDecimal.ZERO)
                         .totalCost(BigDecimal.ZERO)
-                        .status(PaymentStatusEnum.UNPAID)
+                        .status(PaymentStatus.UNPAID)
                         .invoices(new ArrayList<>())
                         .paymentTransactions(new ArrayList<>())
                         .vehicleSubscription(vehicleSubscription)
