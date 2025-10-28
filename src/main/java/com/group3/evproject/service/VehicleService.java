@@ -2,6 +2,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.request.VehicleRegisterRequest;
+import com.group3.evproject.dto.response.SubscriptionPlanResponse;
 import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.dto.response.VehicleSubscriptionResponse;
 import com.group3.evproject.entity.*;
@@ -50,10 +51,16 @@ public class VehicleService  {
     public VehicleResponse getById(Long id) {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
-        VehicleResponse response = vehicleMapper.vehicleToVehicleResponse(vehicle);
-        response.setVehicleSubscriptionResponse(
-                vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicle.getSubscription()));
+        VehicleSubscription vehicleSubscription = vehicle.getSubscription();
+        SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
 
+        VehicleSubscriptionResponse vehicleSubscriptionResponse =
+                vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription);
+        vehicleSubscriptionResponse.setSubscriptionPlanResponse(
+                subscriptionPlanMapper.toSubscriptionPlanResponse(subscriptionPlan));
+        VehicleResponse response =
+                vehicleMapper.vehicleToVehicleResponse(vehicle);
+        response.setVehicleSubscriptionResponse(vehicleSubscriptionResponse);
         return  response;
         }
 
