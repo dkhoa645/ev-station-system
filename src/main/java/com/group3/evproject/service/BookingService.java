@@ -1,11 +1,13 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.dto.request.BookingRequest;
 import com.group3.evproject.entity.*;
 import com.group3.evproject.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +23,7 @@ public class BookingService {
     private final ChargingSpotRepository chargingSpotRepository;
     private final AuthenticationService authenticationService;
     private final VehicleRepository vehicleRepository;
+    private static final double fee = 10000;
 
     // Lấy tất cả booking
     public List<Booking> findAllBookings() {
@@ -79,12 +82,16 @@ public class BookingService {
         ChargingSpot spot = chargingSpotRepository.findFirstByStationAndAvailableTrue(station)
                 .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
 
-        //Giảm slot khả dụng
+        //Giảm slot
         station.setBookingAvailable(station.getBookingAvailable() - 1);
         if (station.getAvailableSpots() != null && station.getAvailableSpots() > 0) {
             station.setAvailableSpots(station.getAvailableSpots() - 1);
         }
         chargingStationRepository.save(station);
+
+        //phí sạc xe
+        double hours = Duration.between(timeToCharge, endTime).toMinutes()/60.0;
+        double reservationFee = hours * fee;
 
         //Tạo booking mới
         Booking booking = Booking.builder()
@@ -96,7 +103,6 @@ public class BookingService {
                 .endTime(endTime)
                 .status(Booking.BookingStatus.PENDING)
                 .totalCost(0.0)
-                .updatedAt(now)
                 .build();
         return bookingRepository.save(booking);
     }
@@ -114,20 +120,18 @@ public class BookingService {
         if (updatedBooking.getTotalCost() != null) {
             booking.setTotalCost(updatedBooking.getTotalCost());
         }
-        booking.setUpdatedAt(LocalDateTime.now());
-
         return bookingRepository.save(booking);
     }
 
     // Cancel booking
     public Booking cancelBooking(Long id) {
         Booking booking = getBookingById(id);
+
         if (booking.getStatus() == Booking.BookingStatus.COMPLETED || booking.getStatus() == Booking.BookingStatus.CANCELLED){
             throw  new RuntimeException("Booking is already completed or cancelled");
         }
 
         booking.setStatus(Booking.BookingStatus.CANCELLED);
-        booking.setUpdatedAt(LocalDateTime.now());
 
         ChargingStation station = booking.getStation();
         ChargingSpot spot = booking.getSpot();
@@ -155,7 +159,6 @@ public class BookingService {
             throw new RuntimeException("Only pending bookings can be confirmed.");
         }
         booking.setStatus(Booking.BookingStatus.CONFIRMED);
-        booking.setUpdatedAt(LocalDateTime.now());
         return bookingRepository.save(booking);
     }
 
@@ -166,7 +169,6 @@ public class BookingService {
             throw new RuntimeException("Only confirmed or charging bookings can be completed.");
         }
         booking.setStatus(Booking.BookingStatus.COMPLETED);
-        booking.setUpdatedAt(LocalDateTime.now());
         return bookingRepository.save(booking);
     }
 
@@ -178,9 +180,7 @@ public class BookingService {
             booking.getSpot().setAvailable(true);
             chargingSpotRepository.save(booking.getSpot());
         }
-
         bookingRepository.delete(booking);
     }
-
 }
 
