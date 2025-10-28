@@ -31,4 +31,5 @@ public class BookingRequest {
     @NotNull(message = "endTime is required")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endTime;
+
 }

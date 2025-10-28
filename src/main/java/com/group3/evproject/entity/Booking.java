@@ -44,14 +44,14 @@ public class Booking extends BaseEntity {
     LocalDateTime timeToCharge;
 
     // Thời điểm hệ thống ghi nhận booking
-    @Column(name = "start_time", nullable = false)
+    @Column(name = "start_time")
     LocalDateTime startTime;
+
+    @Column(name = "reservation_fee")
+    Double reservationFee;
 
     @Column(name = "end_time")
     LocalDateTime endTime;
-
-    @Column(name = "updated_at")
-    LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
