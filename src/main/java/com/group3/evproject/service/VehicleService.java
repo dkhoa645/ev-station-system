@@ -48,8 +48,13 @@ public class VehicleService  {
     }
 
     public VehicleResponse getById(Long id) {
-        return  vehicleMapper.vehicleToVehicleResponse(vehicleRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle")));
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
+        VehicleResponse response = vehicleMapper.vehicleToVehicleResponse(vehicle);
+        response.setVehicleSubscriptionResponse(
+                vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicle.getSubscription()));
+
+        return  response;
         }
 
     @Transactional
