@@ -39,9 +39,15 @@ public class VehicleService  {
     VehicleSubscriptionMapper vehicleSubscriptionMapper;
 
     public List<VehicleResponse> getAllVehicles() {
-          return vehicleRepository.findAll().stream()
-                .map(vehicleMapper::vehicleToVehicleResponse)
-                .collect(Collectors.toList());
+        List<Vehicle> vehicles = vehicleRepository.findAll();
+        List<VehicleResponse> list = new ArrayList<>();
+        for (Vehicle vehicle : vehicles) {
+            VehicleResponse vehicleResponse = vehicleMapper.vehicleToVehicleResponse(vehicle);
+            vehicleResponse.setVehicleSubscriptionResponse(
+                    vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicle.getSubscription()));
+            list.add(vehicleResponse);
+        }
+        return list;
     }
 
     public VehicleResponse getById(Long id) {
