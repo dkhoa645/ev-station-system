@@ -19,8 +19,10 @@ public class Vehicle {
     User user;
     @Column(name = "license_plate")
     String licensePlate;
+
     @ManyToOne @JoinColumn(name = "model_id")
     VehicleModel model;
+
     @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
     VehicleSubscription subscription;
 
