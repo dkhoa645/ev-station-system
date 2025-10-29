@@ -49,4 +49,9 @@ public class VehicleModelService {
     public VehicleModel saveModel(VehicleModelRequest vmr) {
          return vehicleModelRepository.save(vehicleModelMapper.toVehicleModel(vmr));
     }
+
+    public String deleteModelById(Long id) {
+        vehicleModelRepository.deleteById(id);
+        return "Success";
+    }
 }

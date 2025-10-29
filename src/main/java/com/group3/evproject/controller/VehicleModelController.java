@@ -7,6 +7,7 @@ import com.group3.evproject.service.VehicleModelService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,6 +48,13 @@ public class VehicleModelController {
     public ApiResponse<VehicleModel> addVehicleModel(@RequestBody VehicleModelRequest vmr){
         return ApiResponse.<VehicleModel>builder()
                 .result(vehicleModelService.saveModel(vmr))
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<String>  deleteVehicleModel(@PathVariable Long id){
+        return ApiResponse.<String>builder()
+                .result(vehicleModelService.deleteModelById(id))
                 .build();
     }
 }
