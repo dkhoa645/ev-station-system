@@ -25,8 +25,8 @@ public class ChargingSpotService {
         return chargingSpotRepository.findByStationId(stationId);
     }
 
-    public List<ChargingSpot> getSpotsByStatus(String status) {
-        return chargingSpotRepository.findByStatusIgnoreCase(status);
+    public List<ChargingSpot> getSpotsByStatus(ChargingSpot.SpotStatus status) {
+        return chargingSpotRepository.findByStatus(status);
     }
 
     public ChargingSpot createSpot(Long stationId, ChargingSpot.SpotType spotType) {

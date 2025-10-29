@@ -79,7 +79,7 @@ public class BookingService {
         }
 
         //tim cho sac trong
-        ChargingSpot spot = chargingSpotRepository.findFirstByStationAndAvailableTrue(station)
+        ChargingSpot spot = chargingSpotRepository.findFirstByStationAndStatus(station,ChargingSpot.SpotStatus.AVAILABLE)
                 .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
 
         //Giảm slot

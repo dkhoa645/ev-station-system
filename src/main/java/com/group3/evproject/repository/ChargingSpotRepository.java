@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface ChargingSpotRepository extends JpaRepository<ChargingSpot, Long> {
     List<ChargingSpot> findByStationId(Long stationId);
-    List<ChargingSpot> findByStatusIgnoreCase(String status);
-    Optional<ChargingSpot> findFirstByStationAndAvailableTrue(ChargingStation station);
+    List<ChargingSpot> findByStatus(ChargingSpot.SpotStatus status);
+    Optional<ChargingSpot> findFirstByStationAndStatus(ChargingStation station, ChargingSpot.SpotStatus status);
 }
