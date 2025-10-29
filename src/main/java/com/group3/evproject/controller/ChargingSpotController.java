@@ -28,8 +28,8 @@ public class ChargingSpotController {
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<ChargingSpot>> getSpotsByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(chargingSpotService.getSpotsByStatus(status.toUpperCase()));
+    public ResponseEntity<List<ChargingSpot>> getSpotsByStatus(@PathVariable ChargingSpot.SpotStatus status) {
+        return ResponseEntity.ok(chargingSpotService.getSpotsByStatus(status));
     }
 
     @PostMapping("/create/{stationId}")

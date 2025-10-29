@@ -11,7 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class ChargingSpot {
 
     @Id
@@ -22,25 +21,31 @@ public class ChargingSpot {
     private String spotName;
 
     @Column(name = "power_output")
-    Double powerOutput;
+    private Double powerOutput;
 
+    //Enum trạng thái thực tế của điểm sạc
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    String status = "AVAILABLE";
-
-    @Column(nullable = false)
-    boolean available = true;
+    private SpotStatus status = SpotStatus.AVAILABLE;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id", nullable = false)
     @JsonBackReference
-    ChargingStation station;
+    private ChargingStation station;
 
+    //Loại điểm sạc (đặt trước hay tự do)
     @Enumerated(EnumType.STRING)
     @Column(name = "spot_type", nullable = false)
-    SpotType spotType;
+    private SpotType spotType;
 
     public enum SpotType {
-        WALK_IN,
-        BOOKING
+        WALK_IN, // không cần đặt trước
+        BOOKING  // chỉ dành cho người đã đặt
+    }
+
+    public enum SpotStatus {
+        AVAILABLE,  // sẵn sàng
+        OCCUPIED,   // đang được sử dụng
+        MAINTENANCE // đang bảo trì
     }
 }
