@@ -1,29 +1,40 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "charging_session")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChargingSession {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "booking_id", nullable = false)
+    // Nếu Booking có thể null (trong trường hợp Walk-in), nên cho phép nullable = true
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id")
+    @JsonBackReference
     Booking booking;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id", nullable = false)
+    @JsonBackReference
     ChargingStation station;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "spot_id", nullable = false)
+    @JsonBackReference
     ChargingSpot spot;
 
     @Column(name = "energy_used")
@@ -42,13 +53,13 @@ public class ChargingSession {
     Integer durationMinutes;
 
     @Column(name = "battery_start")
-    private Double batteryStart;
+    Double batteryStart;
 
     @Column(name = "battery_end")
-    private Double batteryEnd;
+    Double batteryEnd;
 
     @Column(name = "charging_duration")
-    private Double chargingDuration;
+    Double chargingDuration;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -60,4 +71,3 @@ public class ChargingSession {
         CANCELLED
     }
 }
-

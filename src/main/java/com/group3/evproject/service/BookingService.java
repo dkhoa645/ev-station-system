@@ -136,8 +136,8 @@ public class BookingService {
         ChargingStation station = booking.getStation();
         ChargingSpot spot = booking.getSpot();
         if (spot != null) {
-            spot.setStatus("AVAILABLE");
-            spot.setAvailable(true);
+            spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
+            spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
             chargingSpotRepository.save(spot);
         }
         if (station != null) {
@@ -177,7 +177,7 @@ public class BookingService {
         Booking booking = getBookingById(id);
 
         if (booking.getSpot() != null) {
-            booking.getSpot().setAvailable(true);
+            booking.getSpot().setStatus(ChargingSpot.SpotStatus.AVAILABLE);
             chargingSpotRepository.save(booking.getSpot());
         }
         bookingRepository.delete(booking);

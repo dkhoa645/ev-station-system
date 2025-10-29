@@ -39,8 +39,7 @@ public class ChargingSpotService {
         ChargingSpot newSpot = ChargingSpot.builder()
                 .spotName(spotName)
                 .powerOutput(station.getPowerCapacity())
-                .status("AVAILABLE")
-                .available(true)
+                .status(ChargingSpot.SpotStatus.AVAILABLE)
                 .spotType(spotType)
                 .station(station)
                 .build();
