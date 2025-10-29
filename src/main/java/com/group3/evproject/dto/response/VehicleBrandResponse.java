@@ -6,9 +6,9 @@ import lombok.experimental.FieldDefaults;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 public class VehicleBrandResponse {
+    Long id;
     String name;
 }

@@ -1,7 +1,10 @@
 package com.group3.evproject.controller;
 
+import com.group3.evproject.dto.request.VehicleBrandRequest;
 import com.group3.evproject.dto.request.VehicleModelRequest;
 import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.dto.response.VehicleModelResponse;
+import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.entity.VehicleModel;
 import com.group3.evproject.service.VehicleBrandService;
 import com.group3.evproject.service.VehicleModelService;
@@ -22,8 +25,8 @@ public class VehicleModelController {
 
 
     @GetMapping("/all")
-    public ApiResponse<List<VehicleModel>> getVehicleModel() {
-        return ApiResponse.<List<VehicleModel>>builder()
+    public ApiResponse<List<VehicleModelResponse>> getVehicleModel() {
+        return ApiResponse.<List<VehicleModelResponse>>builder()
                 .result(vehicleModelService.getAllModel())
                 .build();
     }
@@ -47,6 +50,15 @@ public class VehicleModelController {
     public ApiResponse<String> deleteVehicleModel(@PathVariable Long id) {
         return ApiResponse.<String>builder()
                 .result(vehicleModelService.deleteById(id))
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<VehicleModelResponse> update(
+            @PathVariable Long id,
+            @RequestBody VehicleModelRequest vehicleModelRequest) {
+        return ApiResponse.<VehicleModelResponse>builder()
+                .result(vehicleModelService.updateModel(id,vehicleModelRequest))
                 .build();
     }
 

@@ -1,6 +1,8 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.dto.request.VehicleModelRequest;
+import com.group3.evproject.dto.response.VehicleModelResponse;
+import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.entity.VehicleBrand;
 import com.group3.evproject.entity.VehicleModel;
 import com.group3.evproject.mapper.VehicleModelMapper;
@@ -12,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,8 +24,13 @@ public class VehicleModelService {
     VehicleModelMapper vehicleModelMapper;
     VehicleBrandService vehicleBrandService;
 
-    public List<VehicleModel> getAllModel() {
-        return vehicleModelRepository.findAll();
+    public List<VehicleModelResponse> getAllModel() {
+        List<VehicleModelResponse>response = vehicleModelRepository.findAll().stream()
+                .map(vehicleModelMapper :: toVehicleModelResponse)
+                .collect(Collectors.toList());
+
+
+        return response;
     }
 
     @Transactional
@@ -61,5 +69,16 @@ public class VehicleModelService {
     public String deleteModelById(Long id) {
         vehicleModelRepository.deleteById(id);
         return "Success";
+    }
+
+
+    public VehicleModelResponse updateModel(Long id, VehicleModelRequest vehicleModelRequest) {
+            VehicleModel vehicleModel = vehicleModelMapper.toVehicleModel(vehicleModelRequest);
+            vehicleModel.setId(id);
+
+            VehicleBrand vehicleBrand = vehicleBrandService.findById(id);
+            vehicleModel.setBrand(vehicleBrand);
+            vehicleModelRepository.save(vehicleModel);
+            return vehicleModelMapper.toVehicleModelResponse(vehicleModel);
     }
 }
