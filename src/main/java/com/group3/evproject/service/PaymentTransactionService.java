@@ -100,9 +100,9 @@ public class PaymentTransactionService {
                             .vehicleSubscription(checkVehicleSubscription)
                             .build());
             vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
+        } else if (checkBooking != null) {
+            
         }
-
-
 
 
         return "Success";

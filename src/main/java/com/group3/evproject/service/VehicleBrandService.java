@@ -33,7 +33,7 @@ public class VehicleBrandService {
 
     public VehicleBrand findById(long id) {
         return vehicleBranchRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_EXISTS,"Branch"));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Branch"));
     }
 
     public VehicleBrand createbrand(VehicleBrandRequest vehicleBrandRequest) {

@@ -31,11 +31,18 @@ public class VehicleModelController {
                 .build();
     }
 
-    @GetMapping("brand/{id}")
-    public ApiResponse<List<VehicleModel>> getVehicleModelByBranch(
+    @GetMapping("by-brand")
+    public ApiResponse<List<VehicleModelResponse>> getVehicleModelByBranch(
             @RequestParam long id) {
-        return ApiResponse.<List<VehicleModel>>builder()
-                .result(vehicleModelService.getModelByBranch(id))
+        return ApiResponse.<List<VehicleModelResponse>>builder()
+                .result(vehicleModelService.getModelByBrand(id))
+                .build();
+    }
+
+    @GetMapping
+    public ApiResponse<VehicleModelResponse> getVehicleModelById(@RequestParam long id) {
+        return ApiResponse.<VehicleModelResponse>builder()
+                .result(vehicleModelService.getById(id))
                 .build();
     }
 

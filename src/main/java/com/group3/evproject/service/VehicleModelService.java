@@ -5,6 +5,8 @@ import com.group3.evproject.dto.response.VehicleModelResponse;
 import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.entity.VehicleBrand;
 import com.group3.evproject.entity.VehicleModel;
+import com.group3.evproject.exception.AppException;
+import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.VehicleModelMapper;
 import com.group3.evproject.repository.VehicleModelRepository;
 import jakarta.transaction.Transactional;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,11 +57,13 @@ public class VehicleModelService {
          return vehicleModelRepository.save(vehicleModel);
     }
 
-    public List<VehicleModel> getModelByBranch(long id) {
+    public List<VehicleModelResponse> getModelByBrand(long id) {
         VehicleBrand vehicleBrand = vehicleBrandService.findById(id);
         List<VehicleModel> vehicleModels = vehicleModelRepository.findByBrand(vehicleBrand);
-
-        return vehicleModels;
+        List<VehicleModelResponse> response = vehicleModels.stream()
+                .map(vehicleModelMapper::toVehicleModelResponse)
+                .collect(Collectors.toList());
+        return response;
     }
 
     public String deleteById(Long id) {
@@ -80,5 +85,11 @@ public class VehicleModelService {
             vehicleModel.setBrand(vehicleBrand);
             vehicleModelRepository.save(vehicleModel);
             return vehicleModelMapper.toVehicleModelResponse(vehicleModel);
+    }
+
+    public VehicleModelResponse getById(long id) {
+        VehicleModel vehicleModel = vehicleModelRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Model"));
+        return vehicleModelMapper.toVehicleModelResponse(vehicleModel);
     }
 }
