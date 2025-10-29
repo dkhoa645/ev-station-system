@@ -28,9 +28,12 @@ public class ChargingSessionController {
     public ResponseEntity<ChargingSession> endSession(
             @PathVariable Long sessionId,
             @RequestParam double batteryEnd,
-            @RequestParam double energyUsed) {
+            @RequestParam double energyUsed,
+            @RequestParam int durationMinutes,
+            @RequestParam double totalCost) {
 
-        ChargingSession session = chargingSessionService.endSession(sessionId, batteryEnd, energyUsed);
+        ChargingSession session = chargingSessionService.endSession(
+                sessionId, batteryEnd, energyUsed, durationMinutes, totalCost);
         return ResponseEntity.ok(session);
     }
 
