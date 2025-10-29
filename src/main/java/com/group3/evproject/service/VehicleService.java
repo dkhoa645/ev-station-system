@@ -1,6 +1,8 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.request.VehicleRegisterRequest;
+import com.group3.evproject.dto.response.SubscriptionPlanResponse;
 import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.dto.response.VehicleSubscriptionResponse;
 import com.group3.evproject.entity.*;
@@ -9,11 +11,7 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.SubscriptionPlanMapper;
 import com.group3.evproject.mapper.VehicleMapper;
 import com.group3.evproject.mapper.VehicleSubscriptionMapper;
-import com.group3.evproject.repository.SubscriptionPlanRepository;
 import com.group3.evproject.repository.VehicleRepository;
-import com.group3.evproject.repository.VehicleSubscriptionRepository;
-import com.group3.evproject.repository.VehicleSubscriptionUsageRepository;
-import com.group3.evproject.vnpay.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -21,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,21 +31,37 @@ public class VehicleService  {
     UserService userService;
     VehicleMapper vehicleMapper;
     VehicleModelService vehicleModelService;
-    SubscriptionPlanRepository subscriptionPlanRepository;
-    VehicleSubscriptionRepository vehicleSubscriptionRepository;
     SubscriptionPlanService subscriptionPlanService;
-    VehicleSubscriptionUsageRepository vehicleSubscriptionUsageRepository;
+    VehicleSubscriptionService vehicleSubscriptionService;
     SubscriptionPlanMapper subscriptionPlanMapper;
     VehicleSubscriptionMapper vehicleSubscriptionMapper;
-    PaymentTransactionService paymentTransactionService;
 
-    public List<Vehicle> getAllVehicles() {
-        return  vehicleRepository.findAll();
+    public List<VehicleResponse> getAllVehicles() {
+        List<Vehicle> vehicles = vehicleRepository.findAll();
+        List<VehicleResponse> list = new ArrayList<>();
+        for (Vehicle vehicle : vehicles) {
+            VehicleResponse vehicleResponse = vehicleMapper.vehicleToVehicleResponse(vehicle);
+            vehicleResponse.setVehicleSubscriptionResponse(
+                    vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicle.getSubscription()));
+            list.add(vehicleResponse);
+        }
+        return list;
     }
 
     public VehicleResponse getById(Long id) {
-        return  vehicleMapper.vehicleToVehicleResponse(vehicleRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle")));
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
+        VehicleSubscription vehicleSubscription = vehicle.getSubscription();
+        SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
+
+        VehicleSubscriptionResponse vehicleSubscriptionResponse =
+                vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription);
+        vehicleSubscriptionResponse.setSubscriptionPlanResponse(
+                subscriptionPlanMapper.toSubscriptionPlanResponse(subscriptionPlan));
+        VehicleResponse response =
+                vehicleMapper.vehicleToVehicleResponse(vehicle);
+        response.setVehicleSubscriptionResponse(vehicleSubscriptionResponse);
+        return  response;
         }
 
     @Transactional
@@ -73,31 +85,20 @@ public class VehicleService  {
                         .licensePlate(vehicleRegisterRequest.getLicensePlate())
                         .user(user)
                         .build());
-//        Tìm gói từ request
-        SubscriptionPlan subscriptionPlan = subscriptionPlanRepository
-                .findById(vehicleRegisterRequest.getSubscriptionPlanId())
-                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Subcription Plan"));
+//          Tìm gói từ request
+        SubscriptionPlan subscriptionPlan = subscriptionPlanService
+                .findById(vehicleRegisterRequest.getSubscriptionPlanId());
 //        2.Tạo Vehicle Subscription, save nên có id
-        VehicleSubscription vehicleSubscription =vehicleSubscriptionRepository.save(
+        VehicleSubscription vehicleSubscription =vehicleSubscriptionService.saveVehicle(
                 VehicleSubscription.builder()
                         .vehicle(vehicle)
                         .subscriptionPlan(subscriptionPlan)
                         .startDate(null)
                         .endDate(null)
-                        .status(VehicleSubscriptionStatusEnum.PENDING)
+                        .status(VehicleSubscriptionStatus.PENDING)
                         .autoRenew(false)
+                        .paymentTransactions(new ArrayList<>())
                         .build());
-//        3.Tạo Transaction
-        PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(
-                PaymentTransaction.builder()
-                .vehicleSubscription(vehicleSubscription)
-                .amount(subscriptionPlan.getPrice())
-                .paymentMethod("VNPAY")
-                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-                .status(PaymentStatusEnum.FAILED)
-                .paidAt(null)
-                .bankCode("VNBANK")
-                .build());
 //        4.Tạo Response
         VehicleSubscriptionResponse vehicleSubscriptionResponse =
                 vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription);
@@ -106,7 +107,7 @@ public class VehicleService  {
 
         VehicleResponse vehicleResponse = vehicleMapper.vehicleToVehicleResponse(vehicle);
         vehicleResponse.setVehicleSubscriptionResponse(vehicleSubscriptionResponse);
-        vehicleResponse.setPaymentTransactionId(paymentTransaction.getId());
+
         return vehicleResponse;
     }
 

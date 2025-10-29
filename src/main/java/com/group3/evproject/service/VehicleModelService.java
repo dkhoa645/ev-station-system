@@ -1,7 +1,12 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.dto.request.VehicleModelRequest;
+import com.group3.evproject.dto.response.VehicleModelResponse;
+import com.group3.evproject.dto.response.VehicleResponse;
+import com.group3.evproject.entity.VehicleBrand;
 import com.group3.evproject.entity.VehicleModel;
+import com.group3.evproject.exception.AppException;
+import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.VehicleModelMapper;
 import com.group3.evproject.repository.VehicleModelRepository;
 import jakarta.transaction.Transactional;
@@ -12,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,17 +25,22 @@ import java.util.List;
 public class VehicleModelService {
     VehicleModelRepository vehicleModelRepository;
     VehicleModelMapper vehicleModelMapper;
+    VehicleBrandService vehicleBrandService;
 
-    public List<VehicleModel> getAllModel() {
-        return vehicleModelRepository.findAll();
+    public List<VehicleModelResponse> getAllModel() {
+        List<VehicleModelResponse>response = vehicleModelRepository.findAll().stream()
+                .map(vehicleModelMapper :: toVehicleModelResponse)
+                .collect(Collectors.toList());
+
+
+        return response;
     }
 
     @Transactional
     public List<VehicleModel> saveAllModel(List<VehicleModelRequest> models) {
-        List<VehicleModel> savedModels = new ArrayList<>();
-        for(VehicleModelRequest vehicleModelRequest : models){
-            savedModels.add(vehicleModelMapper.toVehicleModel(vehicleModelRequest));
-        }
+        List<VehicleModel> savedModels = models.stream()
+                .map(vehicleModelMapper::toVehicleModel)
+                .toList();
         return vehicleModelRepository.saveAll(savedModels);
     }
 
@@ -37,13 +48,48 @@ public class VehicleModelService {
         return vehicleModelRepository.findById(id).orElse(null);
     }
 
-    public List<VehicleModel> getByBrandAndName(String brand, String model) {
-        if(brand!=null && model!=null){
-            return vehicleModelRepository.findByBrandAndModelName(brand,model);
-        }
-        else if(brand!=null ){
-            return vehicleModelRepository.findByBrand(brand);
-        }else
-            return vehicleModelRepository.findByModelName(model);
+
+
+    public VehicleModel saveModel(VehicleModelRequest vmr) {
+        VehicleBrand vehicleBrand = vehicleBrandService.findById(vmr.getBrandId());
+        VehicleModel vehicleModel = vehicleModelMapper.toVehicleModel(vmr);
+        vehicleModel.setBrand(vehicleBrand);
+         return vehicleModelRepository.save(vehicleModel);
+    }
+
+    public List<VehicleModelResponse> getModelByBrand(long id) {
+        VehicleBrand vehicleBrand = vehicleBrandService.findById(id);
+        List<VehicleModel> vehicleModels = vehicleModelRepository.findByBrand(vehicleBrand);
+        List<VehicleModelResponse> response = vehicleModels.stream()
+                .map(vehicleModelMapper::toVehicleModelResponse)
+                .collect(Collectors.toList());
+        return response;
+    }
+
+    public String deleteById(Long id) {
+        vehicleModelRepository.deleteById(id);
+        return "Success";
+    }
+
+    public String deleteModelById(Long id) {
+        vehicleModelRepository.deleteById(id);
+        return "Success";
+    }
+
+
+    public VehicleModelResponse updateModel(Long id, VehicleModelRequest vehicleModelRequest) {
+            VehicleModel vehicleModel = vehicleModelMapper.toVehicleModel(vehicleModelRequest);
+            vehicleModel.setId(id);
+
+            VehicleBrand vehicleBrand = vehicleBrandService.findById(id);
+            vehicleModel.setBrand(vehicleBrand);
+            vehicleModelRepository.save(vehicleModel);
+            return vehicleModelMapper.toVehicleModelResponse(vehicleModel);
+    }
+
+    public VehicleModelResponse getById(long id) {
+        VehicleModel vehicleModel = vehicleModelRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Model"));
+        return vehicleModelMapper.toVehicleModelResponse(vehicleModel);
     }
 }

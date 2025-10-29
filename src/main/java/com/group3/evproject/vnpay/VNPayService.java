@@ -1,6 +1,8 @@
 package com.group3.evproject.vnpay;
 
 
+import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.dto.response.PaymentTransactionResponse;
 import com.group3.evproject.entity.PaymentTransaction;
 import com.group3.evproject.service.PaymentTransactionService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +30,6 @@ public class VNPayService {
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
         vnpParamsMap.put("vnp_TxnRef",  paymentTransaction.getVnpTxnRef());
-        vnpParamsMap.put("vnp_ReturnUrl", "http://localhost:5173/success");
         if (bankCode != null && !bankCode.isEmpty()) {
             vnpParamsMap.put("vnp_BankCode", bankCode);
         }
@@ -45,4 +46,6 @@ public class VNPayService {
         .paymentUrl(paymentUrl)
         .build();
     }
+
+
 }
