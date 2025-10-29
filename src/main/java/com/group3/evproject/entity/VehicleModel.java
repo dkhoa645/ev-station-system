@@ -18,7 +18,7 @@ public class VehicleModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne()
     @JoinColumn(name = "brand_id")
     VehicleBrand brand;
 

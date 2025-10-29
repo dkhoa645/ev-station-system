@@ -41,9 +41,9 @@ public class VehicleModelService {
 
     public VehicleModel saveModel(VehicleModelRequest vmr) {
         VehicleBrand vehicleBrand = vehicleBrandService.findById(vmr.getBrandId());
-        VehicleModel vehicleModel = vehicleModelRepository.save(vehicleModelMapper.toVehicleModel(vmr));
+        VehicleModel vehicleModel = vehicleModelMapper.toVehicleModel(vmr);
         vehicleModel.setBrand(vehicleBrand);
-         return vehicleModel;
+         return vehicleModelRepository.save(vehicleModel);
     }
 
     public List<VehicleModel> getModelByBranch(long id) {
