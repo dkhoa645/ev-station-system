@@ -2,12 +2,13 @@ package com.group3.evproject.controller;
 
 import com.group3.evproject.dto.request.VehicleModelRequest;
 import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.entity.VehicleBrand;
 import com.group3.evproject.entity.VehicleModel;
+import com.group3.evproject.service.VehicleBranchService;
 import com.group3.evproject.service.VehicleModelService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,10 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VehicleModelController {
     VehicleModelService vehicleModelService;
+    VehicleBranchService vehicleBranchService;
+
+
+
 
     @GetMapping("/all")
     public ApiResponse<List<VehicleModel>> getVehicleModel() {
@@ -26,35 +31,50 @@ public class VehicleModelController {
                 .build();
     }
 
-    @GetMapping()
-    public ApiResponse<List<VehicleModel>> searchVehicles(
-            @RequestParam(required = false) String brand,
-            @RequestParam(required = false) String model) {
-        List<VehicleModel> vehicles = vehicleModelService.getByBrandAndName(brand,model);
+    @GetMapping("branch/{id}")
+    public ApiResponse<List<VehicleModel>> getVehicleModelByBranch(
+            @RequestParam long id) {
         return ApiResponse.<List<VehicleModel>>builder()
-                .result(vehicles)
-                .build();
-    }
-
-    @PostMapping("/bulk")
-    public ApiResponse<List<VehicleModel>> addVehicleModels(@RequestBody List<VehicleModelRequest> models) {
-        List<VehicleModel> savedModels = vehicleModelService.saveAllModel(models);
-        return ApiResponse.<List<VehicleModel>>builder()
-                .result(savedModels)
+                .result(vehicleModelService.getModelByBranch(id))
                 .build();
     }
 
     @PostMapping()
-    public ApiResponse<VehicleModel> addVehicleModel(@RequestBody VehicleModelRequest vmr){
+    public ApiResponse<VehicleModel> addVehicleModel(@RequestBody VehicleModelRequest vehicleModelRequest) {
         return ApiResponse.<VehicleModel>builder()
-                .result(vehicleModelService.saveModel(vmr))
+                .result(vehicleModelService.saveModel(vehicleModelRequest))
                 .build();
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<String>  deleteVehicleModel(@PathVariable Long id){
+    public ApiResponse<String> deleteVehicleModel(@PathVariable Long id) {
         return ApiResponse.<String>builder()
-                .result(vehicleModelService.deleteModelById(id))
+                .result(vehicleModelService.deleteById(id))
                 .build();
     }
+
+//    @GetMapping()
+//    public ApiResponse<List<VehicleModel>> searchVehicles(
+//            @RequestParam(required = false) String brand,
+//            @RequestParam(required = false) String model) {
+//        List<VehicleModel> vehicles = vehicleModelService.getByBrandAndName(brand,model);
+//        return ApiResponse.<List<VehicleModel>>builder()
+//                .result(vehicles)
+//                .build();
+//    }
+//
+//    @PostMapping("/bulk")
+//    public ApiResponse<List<VehicleModel>> addVehicleModels(@RequestBody List<VehicleModelRequest> models) {
+//        List<VehicleModel> savedModels = vehicleModelService.saveAllModel(models);
+//        return ApiResponse.<List<VehicleModel>>builder()
+//                .result(savedModels)
+//                .build();
+//    }
+//
+//    @PostMapping()
+//    public ApiResponse<VehicleModel> addVehicleModel(@RequestBody VehicleModelRequest vmr){
+//        return ApiResponse.<VehicleModel>builder()
+//                .result(vehicleModelService.saveModel(vmr))
+//                .build();
+//    }
 }

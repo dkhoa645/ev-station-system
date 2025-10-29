@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleModelRequest {
-    String brand;
+    Long brandId;
     String modelName;
     String connector;
     Double batteryCapacity;
