@@ -19,7 +19,7 @@ import java.util.List;
 public class VehicleModelService {
     VehicleModelRepository vehicleModelRepository;
     VehicleModelMapper vehicleModelMapper;
-    VehicleBranchService vehicleBranchService;
+    VehicleBrandService vehicleBrandService;
 
     public List<VehicleModel> getAllModel() {
         return vehicleModelRepository.findAll();
@@ -40,14 +40,14 @@ public class VehicleModelService {
 
 
     public VehicleModel saveModel(VehicleModelRequest vmr) {
-        VehicleBrand vehicleBrand = vehicleBranchService.findById(vmr.getBrandId());
+        VehicleBrand vehicleBrand = vehicleBrandService.findById(vmr.getBrandId());
         VehicleModel vehicleModel = vehicleModelRepository.save(vehicleModelMapper.toVehicleModel(vmr));
         vehicleModel.setBrand(vehicleBrand);
          return vehicleModel;
     }
 
     public List<VehicleModel> getModelByBranch(long id) {
-        VehicleBrand vehicleBrand = vehicleBranchService.findById(id);
+        VehicleBrand vehicleBrand = vehicleBrandService.findById(id);
         List<VehicleModel> vehicleModels = vehicleModelRepository.findByBrand(vehicleBrand);
 
         return vehicleModels;

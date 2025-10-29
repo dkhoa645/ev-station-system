@@ -2,9 +2,8 @@ package com.group3.evproject.controller;
 
 import com.group3.evproject.dto.request.VehicleModelRequest;
 import com.group3.evproject.dto.response.ApiResponse;
-import com.group3.evproject.entity.VehicleBrand;
 import com.group3.evproject.entity.VehicleModel;
-import com.group3.evproject.service.VehicleBranchService;
+import com.group3.evproject.service.VehicleBrandService;
 import com.group3.evproject.service.VehicleModelService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +18,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VehicleModelController {
     VehicleModelService vehicleModelService;
-    VehicleBranchService vehicleBranchService;
-
-
+    VehicleBrandService vehicleBrandService;
 
 
     @GetMapping("/all")

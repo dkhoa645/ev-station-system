@@ -3,7 +3,7 @@ package com.group3.evproject.controller;
 import com.group3.evproject.dto.request.VehicleBrandRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.entity.VehicleBrand;
-import com.group3.evproject.service.VehicleBranchService;
+import com.group3.evproject.service.VehicleBrandService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,18 +16,18 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VehicleBrandController {
-    VehicleBranchService vehicleBranchService;
+    VehicleBrandService vehicleBrandService;
 
     @PostMapping
     public ApiResponse<VehicleBrand> create(@RequestBody VehicleBrandRequest vehicleBrandRequest) {
         return ApiResponse.<VehicleBrand>builder()
-                .result(vehicleBranchService.createbrand(vehicleBrandRequest))
+                .result(vehicleBrandService.createbrand(vehicleBrandRequest))
                 .build();
     }
     @GetMapping("/all")
     public ApiResponse<List<VehicleBrand>> getAllVehicleBranch() {
         return ApiResponse.<List<VehicleBrand>>builder()
-                .result(vehicleBranchService.findAll())
+                .result(vehicleBrandService.findAll())
                 .build();
     }
 }
