@@ -3,14 +3,11 @@ package com.group3.evproject.service;
 import com.group3.evproject.entity.Booking;
 import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.entity.ChargingSpot;
-import com.group3.evproject.entity.ChargingStation;
 import com.group3.evproject.repository.BookingRepository;
 import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.ChargingSpotRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Service
@@ -56,7 +53,8 @@ public class ChargingSessionService {
     }
 
     //end
-    public ChargingSession endSession(Long sessionId, double batteryEnd, double energyUsed) {
+    public ChargingSession endSession(Long sessionId, double batteryEnd, double energyUsed,
+                                      int durationMinutes, double totalCost) {
         ChargingSession session = chargingSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Charging session not found"));
 
@@ -68,18 +66,12 @@ public class ChargingSessionService {
         session.setBatteryEnd(batteryEnd);
         session.setEnergyUsed(energyUsed);
 
-        // Tính thời lượng
-        long minutes = Duration.between(session.getStartTime(), session.getEndTime()).toMinutes();
-        session.setDurationMinutes((int) minutes);
-        session.setChargingDuration((double) minutes);
-
-        // Giá điện giả định
-        double pricePerKwh = 0.25;
-        session.setTotalCost(energyUsed * pricePerKwh);
+        session.setDurationMinutes(durationMinutes);
+        session.setChargingDuration((double) durationMinutes);
+        session.setTotalCost(totalCost);
 
         session.setStatus(ChargingSession.SessionStatus.COMPLETED);
 
-        // Giải phóng điểm sạc
         ChargingSpot spot = session.getSpot();
         spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
         spotRepository.save(spot);
