@@ -31,7 +31,7 @@ public class VehicleModelController {
                 .build();
     }
 
-    @GetMapping("branch/{id}")
+    @GetMapping("brand/{id}")
     public ApiResponse<List<VehicleModel>> getVehicleModelByBranch(
             @RequestParam long id) {
         return ApiResponse.<List<VehicleModel>>builder()
