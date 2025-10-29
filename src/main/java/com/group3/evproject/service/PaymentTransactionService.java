@@ -71,6 +71,7 @@ public class PaymentTransactionService {
     }
 
 
+
     @Transactional
     public String processSuccessfulPayment(String ref) {
 //        Tìm transaction có mã giao dịch ref
@@ -79,27 +80,31 @@ public class PaymentTransactionService {
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         paymentTransaction.setPaidAt(now);
         paymentTransaction.setStatus(PaymentTransaction.SUCCESS);
-        //            Set gói
-        VehicleSubscription vehicleSubscription = paymentTransaction.getVehicleSubscription();
-        if (vehicleSubscription == null) {
-            throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "Vehicle subscription not found");
+        //  Kiểm tra xem hóa đơn của object nào
+        VehicleSubscription checkVehicleSubscription = paymentTransaction.getVehicleSubscription();
+        Payment checkPayment = paymentTransaction.getPayment();
+        Booking checkBooking = paymentTransaction.getBooking();
+//                  Cập nhật Subscription
+        if (checkVehicleSubscription != null) {
+            checkVehicleSubscription.setStartDate(now);
+            checkVehicleSubscription.setEndDate(now.plusMonths(1));
+            checkVehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
+//                      Tạo Payment tổng
+            Payment payment = paymentService.save(
+                    Payment.builder()
+                            .totalEnergy(BigDecimal.ZERO)
+                            .totalCost(BigDecimal.ZERO)
+                            .status(PaymentStatus.UNPAID)
+                            .invoices(new ArrayList<>())
+                            .paymentTransactions(new ArrayList<>())
+                            .vehicleSubscription(checkVehicleSubscription)
+                            .build());
+            vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
         }
-        // 4. Cập nhật thông tin gói
-        vehicleSubscription.setStartDate(now);
-        vehicleSubscription.setEndDate(now.plusMonths(1));
-        vehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
-//        Tạo Payment tổng
-        Payment payment = paymentService.save(
-                Payment.builder()
-                        .totalEnergy(BigDecimal.ZERO)
-                        .totalCost(BigDecimal.ZERO)
-                        .status(PaymentStatus.UNPAID)
-                        .invoices(new ArrayList<>())
-                        .paymentTransactions(new ArrayList<>())
-                        .vehicleSubscription(vehicleSubscription)
-                        .build());
 
-        vehicleSubscriptionService.saveVehicle(vehicleSubscription);
+
+
+
         return "Success";
     }
 

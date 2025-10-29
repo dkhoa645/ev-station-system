@@ -30,4 +30,11 @@ public class VehicleBrandController {
                 .result(vehicleBrandService.findAll())
                 .build();
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<String> delete(@PathVariable long id) {
+        return ApiResponse.<String>builder()
+                .result(vehicleBrandService.deleteById(id))
+                .build();
+    }
 }

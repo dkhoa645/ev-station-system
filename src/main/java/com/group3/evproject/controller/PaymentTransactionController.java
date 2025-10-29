@@ -19,7 +19,7 @@ import lombok.AccessLevel;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("paymentTransaction")
+@RequestMapping("payment-transaction")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
 public class PaymentTransactionController {
