@@ -31,6 +31,9 @@ public class ChargingStation {
     @Column(nullable = false)
     Integer bookingAvailable = 0;
 
+    @Column(name = "image_url")
+    String imageUrl;
+
     Double powerCapacity;
     Integer availableSpots;
     Double latitude;
