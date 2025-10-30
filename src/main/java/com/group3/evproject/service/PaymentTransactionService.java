@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -92,7 +93,7 @@ public class PaymentTransactionService {
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
 
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
-        response.setVehicleSubscriptionResponse(vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription));
+        response.setVehicleSubscription(vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription));
         return response;
     }
 
@@ -119,7 +120,7 @@ public class PaymentTransactionService {
         booking.getPaymentTransactions().add(paymentTransaction);
         bookingService.saveBooking(booking);
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
-        response.setBookingResponse(bookingResponse);
+        response.setBooking(bookingResponse);
         return  response;
     }
 
@@ -163,9 +164,11 @@ public class PaymentTransactionService {
         return "Success";
     }
 
-//    public List<PaymentTransactionResponse> getAll() {
-//
-//    }
+    public List<PaymentTransactionResponse> getAll() {
+            return paymentTransactionRepository.findAll().stream()
+                    .map(paymentTransactionMapper :: toResponse)
+                    .collect(Collectors.toList());
+    }
 
 
 //            PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(

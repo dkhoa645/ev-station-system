@@ -19,7 +19,7 @@ public class PaymentTransactionResponse {
     PaymentTransaction status;
     LocalDateTime createdAt;
     LocalDateTime paidAt;
-    VehicleSubscriptionResponse vehicleSubscriptionResponse;
-    BookingResponse bookingResponse;
+    VehicleSubscriptionResponse vehicleSubscription;
+    BookingResponse booking;
 //    PaymentResponse paymentResponse;
 }

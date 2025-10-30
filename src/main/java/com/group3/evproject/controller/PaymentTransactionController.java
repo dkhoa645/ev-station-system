@@ -70,12 +70,12 @@ public class PaymentTransactionController {
             }
     }
 
-//    @GetMapping
-//    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
-//        return ApiResponse.<List<PaymentTransactionResponse>>builder()
-//                .result(paymentTransactionService.getAll())
-//                .build();
-//    }
+    @GetMapping
+    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
+        return ApiResponse.<List<PaymentTransactionResponse>>builder()
+                .result(paymentTransactionService.getAll())
+                .build();
+    }
 
 //    public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
 //        String message = authenticationService.verifyEmail(token);
