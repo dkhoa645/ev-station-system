@@ -81,7 +81,14 @@ public class BookingService {
 
         //Giảm slot
         station.setAvailableSpots(station.getAvailableSpots() - 1);
+        if (spot.getSpotType() == ChargingSpot.SpotType.BOOKING) {
+            station.setBookingAvailable(station.getBookingAvailable() - 1);
+        }
         chargingStationRepository.save(station);
+
+        //update status cua spot thanh booked
+        spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
+        chargingSpotRepository.save(spot);
 
         //phí sạc xe
         double hours = Duration.between(timeToCharge, endTime).toMinutes()/60.0;
@@ -135,7 +142,10 @@ public class BookingService {
             chargingSpotRepository.save(spot);
         }
         if (station != null) {
+                station.setAvailableSpots(station.getAvailableSpots() + 1);
+            if (spot != null && spot.getSpotType() == ChargingSpot.SpotType.BOOKING) {
                 station.setBookingAvailable(station.getBookingAvailable() + 1);
+            }
                 chargingStationRepository.save(station);
             }
             return bookingRepository.save(booking);
@@ -158,6 +168,7 @@ public class BookingService {
             throw new RuntimeException("Only confirmed or charging bookings can be completed.");
         }
         booking.setStatus(Booking.BookingStatus.COMPLETED);
+
         ChargingSpot spot = booking.getSpot();
         if (spot != null) {
             spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
@@ -166,7 +177,10 @@ public class BookingService {
 
         ChargingStation station = booking.getStation();
         if (station != null) {
-            station.setBookingAvailable(station.getBookingAvailable() + 1);
+            station.setAvailableSpots(station.getAvailableSpots() + 1);
+            if (spot != null && spot.getSpotType() == ChargingSpot.SpotType.BOOKING) {
+                station.setBookingAvailable(station.getBookingAvailable() + 1);
+            }
             chargingStationRepository.save(station);
         }
         return bookingRepository.save(booking);
