@@ -1,8 +1,6 @@
 package com.group3.evproject.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Booking extends BaseEntity {
 
     @Id
@@ -27,67 +26,43 @@ public class Booking extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference(value = "user-bookings")
     User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id")
-    @JsonBackReference(value = "station-bookings")
-    private ChargingStation station;
+    ChargingStation station;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicle_id",nullable = false)
+    @JoinColumn(name = "vehicle_id", nullable = false)
     @JsonIgnore
     Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "spot_id")
-    @JsonBackReference(value = "spot-bookings")
-    private ChargingSpot spot;
+    ChargingSpot spot;
 
-    @Column(name = "time_to_charge", nullable = true)
     LocalDateTime timeToCharge;
-
-    // Thời điểm hệ thống ghi nhận booking
-    @Column(name = "start_time")
     LocalDateTime startTime;
-
-    @Column(name = "reservation_fee")
-    BigDecimal reservationFee;
-
-    @Column(name = "end_time")
     LocalDateTime endTime;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20, nullable = false)
-    BookingStatus status = BookingStatus.PENDING;
-
-    @Column(name = "total_cost")
+    BigDecimal reservationFee;
     Double totalCost;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    BookingStatus status = BookingStatus.PENDING;
+
     public enum BookingStatus {
-        PENDING,
-        CONFIRMED,
-        COMPLETED,
-        CANCELLED,
-        CHARGING
+        PENDING, CONFIRMED, COMPLETED, CANCELLED, CHARGING
     }
+
     @PrePersist
     protected void onCreate() {
-        // Gán thời gian hiện tại cho startTime nếu chưa có
-        if (this.startTime == null) {
-            this.startTime = LocalDateTime.now();
-        }
-        // Nếu người dùng không truyền timeToCharge, thì mặc định = startTime
-        if (this.timeToCharge == null) {
-            this.timeToCharge = this.startTime;
-        }
-        // Trạng thái mặc định
-        if (this.status == null) {
-            this.status = BookingStatus.PENDING;
-        }
+        if (this.startTime == null) this.startTime = LocalDateTime.now();
+        if (this.timeToCharge == null) this.timeToCharge = this.startTime;
+        if (this.status == null) this.status = BookingStatus.PENDING;
     }
+
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    @JsonManagedReference(value = "booking-payments")
     List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 }
