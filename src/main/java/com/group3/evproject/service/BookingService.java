@@ -23,9 +23,8 @@ public class BookingService {
     private final UserRepository userRepository;
     private final ChargingStationRepository chargingStationRepository;
     private final ChargingSpotRepository chargingSpotRepository;
-    private final AuthenticationService authenticationService;
     private final VehicleRepository vehicleRepository;
-    private static final double fee = 10000;
+    private static final double fee = 30000;
 
     // Lấy tất cả booking
     public List<Booking> findAllBookings() {
