@@ -35,7 +35,7 @@ public class VehicleController {
                 .build();
     }
 //
-    @GetMapping("/forUser")
+    @GetMapping("/for-user")
     public ApiResponse<List<VehicleResponse>> getUserVehicle(HttpServletRequest request) {
     return ApiResponse.<List<VehicleResponse>>builder()
             .result(vehicleService.getByUser(request))
