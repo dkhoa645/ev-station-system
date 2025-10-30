@@ -18,8 +18,8 @@ public class SubscriptionPlan {
     String name;
     @Column(precision = 10, scale = 2)
     BigDecimal price;
-    @Column(name = "limit_value",precision = 10, scale = 2)
-    BigDecimal limitValue;
+    @Column(name = "discount",precision = 10, scale = 2)
+    BigDecimal discount = BigDecimal.valueOf(0.7);
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name= "subscription_plan_description",

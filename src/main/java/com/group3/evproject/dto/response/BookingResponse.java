@@ -3,6 +3,8 @@ package com.group3.evproject.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -33,6 +35,8 @@ public class BookingResponse {
     @Schema(description = "Thời điểm kết thúc sạc")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endTime;
+
+    private BigDecimal reservationFee;
 
     @Schema(description = "Trạng thái của booking", example = "PENDING")
     private String status;

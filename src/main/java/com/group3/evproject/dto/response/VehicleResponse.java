@@ -13,6 +13,6 @@ import lombok.experimental.FieldDefaults;
 public class VehicleResponse {
     Long id;
     String licensePlate;
-    VehicleModel model;
+    VehicleModelResponse model;
     VehicleSubscriptionResponse vehicleSubscriptionResponse;
 }

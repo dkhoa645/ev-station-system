@@ -2,6 +2,7 @@ package com.group3.evproject.controller;
 
 
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
+import com.group3.evproject.service.BookingService;
 import com.group3.evproject.service.PaymentTransactionService;
 import com.group3.evproject.vnpay.VNPayDTO;
 import com.group3.evproject.vnpay.VNPayService;
@@ -17,6 +18,7 @@ import com.group3.evproject.dto.response.ApiResponse;
 import lombok.AccessLevel;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("payment-transaction")
@@ -25,13 +27,23 @@ import java.io.IOException;
 public class PaymentTransactionController {
     VNPayService paymentService;
     PaymentTransactionService paymentTransactionService;
+    BookingService bookingService;
 
     @PostMapping("/subscription/{id}")
-    public ApiResponse<PaymentTransactionResponse> create(
+    public ApiResponse<PaymentTransactionResponse> createSubscription(
             @PathVariable Long id,
             HttpServletRequest request) {
         return ApiResponse.<PaymentTransactionResponse>builder()
                 .result(paymentTransactionService.createSubscriptionPayment(id, request))
+                .build();
+    }
+
+    @PostMapping("/booking/{id}")
+    public ApiResponse<PaymentTransactionResponse> createBooking(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+        return ApiResponse.<PaymentTransactionResponse>builder()
+                .result(paymentTransactionService.createBookingPayment(id, request))
                 .build();
     }
 
@@ -56,6 +68,13 @@ public class PaymentTransactionController {
             } else {
                 response.sendRedirect("http://localhost:5173/fail");
             }
+    }
+
+    @GetMapping
+    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
+        return ApiResponse.<List<PaymentTransactionResponse>>builder()
+                .result(paymentTransactionService.getAll())
+                .build();
     }
 
 //    public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {

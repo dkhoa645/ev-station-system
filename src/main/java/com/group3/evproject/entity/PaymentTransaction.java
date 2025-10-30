@@ -20,7 +20,6 @@ public class PaymentTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_subscription_id", nullable = true)
     VehicleSubscription vehicleSubscription;
@@ -42,6 +41,7 @@ public class PaymentTransaction {
     @Column(nullable = false, length = 20)
     com.group3.evproject.Enum.PaymentTransaction status;
     LocalDateTime createdAt;
+    LocalDateTime expiresAt;
     LocalDateTime paidAt;
     String bankCode = "VNBANK";
 

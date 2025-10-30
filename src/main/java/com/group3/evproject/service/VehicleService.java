@@ -10,6 +10,7 @@ import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.SubscriptionPlanMapper;
 import com.group3.evproject.mapper.VehicleMapper;
+import com.group3.evproject.mapper.VehicleModelMapper;
 import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.VehicleRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,12 +30,13 @@ public class VehicleService  {
     VehicleRepository vehicleRepository;
     AuthenticationService authenticationService;
     UserService userService;
-    VehicleMapper vehicleMapper;
     VehicleModelService vehicleModelService;
     SubscriptionPlanService subscriptionPlanService;
     VehicleSubscriptionService vehicleSubscriptionService;
+    VehicleMapper vehicleMapper;
     SubscriptionPlanMapper subscriptionPlanMapper;
     VehicleSubscriptionMapper vehicleSubscriptionMapper;
+    VehicleModelMapper vehicleModelMapper;
 
     public List<VehicleResponse> getAllVehicles() {
         List<Vehicle> vehicles = vehicleRepository.findAll();
@@ -107,7 +109,7 @@ public class VehicleService  {
 
         VehicleResponse vehicleResponse = vehicleMapper.vehicleToVehicleResponse(vehicle);
         vehicleResponse.setVehicleSubscriptionResponse(vehicleSubscriptionResponse);
-
+        vehicleResponse.setModel(vehicleModelMapper.toVehicleModelResponse(vehicleModel));
         return vehicleResponse;
     }
 

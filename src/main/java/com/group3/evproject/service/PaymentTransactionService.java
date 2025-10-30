@@ -1,7 +1,8 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.PaymentStatus;
-import com.group3.evproject.Enum.PaymentTransaction;
+import com.group3.evproject.dto.response.BookingResponse;
+import com.group3.evproject.entity.PaymentTransaction;
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
 import com.group3.evproject.entity.*;
@@ -22,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,8 +34,11 @@ public class PaymentTransactionService {
     VehicleSubscriptionService vehicleSubscriptionService;
     VehicleSubscriptionMapper vehicleSubscriptionMapper;
     PaymentService paymentService;
+    BookingService bookingService;
 
     SubscriptionPlanService subscriptionPlanService;
+    private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     public com.group3.evproject.entity.PaymentTransaction savePayment(com.group3.evproject.entity.PaymentTransaction paymentTransaction){
         return paymentTransactionRepository.save(paymentTransaction);
@@ -48,20 +53,41 @@ public class PaymentTransactionService {
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
     }
 
+    public PaymentTransaction createPaymentTransaction(
+            VehicleSubscription vehicleSubscription,
+            Booking booking,
+            Payment payment,
+            BigDecimal amount,
+            User user){
+        return PaymentTransaction.builder()
+                .vehicleSubscription(vehicleSubscription)
+                .booking(booking)
+                .payment(payment)
+                .amount(amount)
+                .paymentMethod("VNPAY")
+                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
+                .status(com.group3.evproject.Enum.PaymentTransaction.PENDING)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .paidAt(null)
+                .bankCode("VNBANK")
+                .user(user)
+                .build();
+    }
+
     @Transactional
     public PaymentTransactionResponse createSubscriptionPayment(Long id, HttpServletRequest request) {
         VehicleSubscription vehicleSubscription = vehicleSubscriptionService.findById(id);
+        if (!vehicleSubscription.getStatus().equals(VehicleSubscriptionStatus.PENDING)) {
+                throw  new AppException(ErrorCode.PENDING_STATUS);
+        }
         SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
-        com.group3.evproject.entity.PaymentTransaction paymentTransaction = savePayment(com.group3.evproject.entity.PaymentTransaction.builder()
-                .vehicleSubscription(vehicleSubscription)
-                .amount(subscriptionPlan.getPrice())
-                .paymentMethod("VNPAY")
-                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-                .status(PaymentTransaction.PENDING).createdAt(LocalDateTime.now())
-                .paidAt(null)
-                .bankCode("VNBANK")
-                .user(vehicleSubscriptionService.isFromUser(request,id))
-                .build());
+        BigDecimal amount = subscriptionPlan.getPrice();
+        String username= authenticationService.extractUsernameFromRequest(request);
+        User user = userService.getUserByUsername(username);
+        PaymentTransaction paymentTransaction =
+                savePayment(createPaymentTransaction(vehicleSubscription,null,null,amount,user));
+
         vehicleSubscription.getPaymentTransactions().add(paymentTransaction);
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
 
@@ -69,6 +95,34 @@ public class PaymentTransactionService {
         response.setVehicleSubscriptionResponse(vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription));
         return response;
     }
+
+
+    public PaymentTransactionResponse createBookingPayment(Long id, HttpServletRequest request) {
+            Booking booking = bookingService.getBookingById(id);
+        if (!booking.getStatus().equals(Booking.BookingStatus.PENDING)) {
+            throw new AppException(ErrorCode.PENDING_STATUS);
+        }
+        String username= authenticationService.extractUsernameFromRequest(request);
+        User user = userService.getUserByUsername(username);
+        PaymentTransaction paymentTransaction =
+                savePayment(createPaymentTransaction(null,booking,null,booking.getReservationFee(),user));
+        BookingResponse bookingResponse = BookingResponse.builder()
+                .bookingId(booking.getId())
+                .vehicleId(booking.getVehicle().getId())
+                .stationName(booking.getStation().getName())
+                .startTime(booking.getStartTime())
+                .timeToCharge(booking.getTimeToCharge())
+                .reservationFee(booking.getReservationFee())
+                .endTime(booking.getEndTime())
+                .status(booking.getStatus().name())
+                .build();
+        booking.getPaymentTransactions().add(paymentTransaction);
+        bookingService.saveBooking(booking);
+        PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
+        response.setBookingResponse(bookingResponse);
+        return  response;
+    }
+
 
 
 
@@ -79,7 +133,7 @@ public class PaymentTransactionService {
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         paymentTransaction.setPaidAt(now);
-        paymentTransaction.setStatus(PaymentTransaction.SUCCESS);
+        paymentTransaction.setStatus(com.group3.evproject.Enum.PaymentTransaction.SUCCESS);
         //  Kiểm tra xem hóa đơn của object nào
         VehicleSubscription checkVehicleSubscription = paymentTransaction.getVehicleSubscription();
         Payment checkPayment = paymentTransaction.getPayment();
@@ -101,13 +155,17 @@ public class PaymentTransactionService {
                             .build());
             vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
         } else if (checkBooking != null) {
-            
+            checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
+            bookingService.saveBooking(checkBooking);
         }
 
 
         return "Success";
     }
 
+    public List<PaymentTransactionResponse> getAll() {
+
+    }
 
 
 //            PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(
@@ -120,19 +178,12 @@ public class PaymentTransactionService {
 //                            .paidAt(null)
 //                            .bankCode("VNBANK")
 //                            .build());
-    
-//
-//    public PaymentTransactionResponse createBookingPayment(Long id) {
-//    }
 
-
-//    public PaymentTransactionResponse createPayment(Long id) {
-//    }
 
 //@Transactional
 //public String processSuccessfulPayment(String vnpTxnRef) {
 //
-//    // ✅ Tìm payment bằng vnpTxnRef
+//    //  Tìm payment bằng vnpTxnRef
 //    PaymentTransaction paymentTransaction = paymentTransactionRepository
 //            .findByVnpTxnRef(vnpTxnRef)
 //            .orElseThrow(() -> new AppException(
@@ -140,7 +191,7 @@ public class PaymentTransactionService {
 //                    "Payment transaction with ref: " + vnpTxnRef
 //            ));
 //
-//    // ✅ Kiểm tra trạng thái để tránh xử lý trùng
+//    //  Kiểm tra trạng thái để tránh xử lý trùng
 //    if (paymentTransaction.getStatus() == PaymentStatusEnum.SUCCESS) {
 //        return "Already processed";
 //    }
@@ -157,11 +208,11 @@ public class PaymentTransactionService {
 //
 //    LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
 //
-//    // ✅ Cập nhật payment
+//    // Cập nhật payment
 //    paymentTransaction.setStatus(PaymentStatusEnum.SUCCESS);
 //    paymentTransaction.setPaidAt(now);
 //
-//    // ✅ Cập nhật hoặc kích hoạt subscription
+//    //  Cập nhật hoặc kích hoạt subscription
 //    if (vehicleSubscription.getStatus() == VehicleSubscriptionStatusEnum.PENDING
 //            || vehicleSubscription.getStartDate() == null) {
 //        // Lần đầu kích hoạt
@@ -174,7 +225,7 @@ public class PaymentTransactionService {
 //    }
 //    vehicleSubscription.setStatus(VehicleSubscriptionStatusEnum.ACTIVE);
 //
-//    // ✅ Xử lý usage
+//    //  Xử lý usage
 //    VehicleSubscriptionUsage usage = vehicleSubscription.getUsage();
 //    if (usage == null) {
 //        usage = VehicleSubscriptionUsage.builder()
@@ -189,7 +240,7 @@ public class PaymentTransactionService {
 //        usage.setUsedKwh(BigDecimal.ZERO);
 //    }
 //
-//    // ✅ Save parent entity (cascade sẽ save các child)
+//    //  Save parent entity (cascade sẽ save các child)
 //    vehicleSubscriptionService.saveVehicle(vehicleSubscription);
 //    paymentTransactionRepository.save(paymentTransaction);
 //
