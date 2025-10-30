@@ -41,7 +41,7 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<BookingResponse> createBooking(
             @Valid @RequestBody BookingRequest bookingRequest,
-            @RequestHeader("UserId") Long userId
+            @RequestHeader("userId") Long userId
     ) {
         //goi service de tao booking
         Booking booking = bookingService.createBooking(
