@@ -21,4 +21,5 @@ public class PaymentTransactionResponse {
     LocalDateTime paidAt;
     VehicleSubscriptionResponse vehicleSubscriptionResponse;
     BookingResponse bookingResponse;
+    PaymentResponse paymentResponse;
 }

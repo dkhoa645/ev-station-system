@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -162,7 +163,9 @@ public class PaymentTransactionService {
         return "Success";
     }
 
+    public List<PaymentTransactionResponse> getAll() {
 
+    }
 
 
 //            PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(
