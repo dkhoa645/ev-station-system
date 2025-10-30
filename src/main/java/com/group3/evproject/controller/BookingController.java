@@ -6,13 +6,10 @@ import com.group3.evproject.entity.Booking;
 import com.group3.evproject.entity.User;
 import com.group3.evproject.service.AuthenticationService;
 import com.group3.evproject.service.BookingService;
-import com.group3.evproject.service.VehicleService;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController

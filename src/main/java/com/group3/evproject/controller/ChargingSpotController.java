@@ -33,12 +33,12 @@ public class ChargingSpotController {
     }
 
     @PostMapping("/create/{stationId}")
-    public ResponseEntity<ChargingSpot> createSpot(@PathVariable Long stationId,@RequestParam(required = false, defaultValue = "WALK_IN") ChargingSpot.SpotType spotType) {
+    public ResponseEntity<?> createSpot(@PathVariable Long stationId,@RequestParam(required = false, defaultValue = "WALK_IN") ChargingSpot.SpotType spotType) {
         try {
             ChargingSpot newSpot = chargingSpotService.createSpot(stationId,spotType);
             return ResponseEntity.ok(newSpot);
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("Error creating spot: " + ex.getMessage());
         }
     }
 
