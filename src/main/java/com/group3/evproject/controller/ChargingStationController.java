@@ -4,7 +4,14 @@ import com.group3.evproject.service.ChargingStationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/chargingStation")
@@ -27,6 +34,28 @@ public class ChargingStationController {
         ChargingStation createdStation = chargingStationService.createChargingStation(chargingStation);
         return ResponseEntity.ok(createdStation);
     }
+
+    @PostMapping("/{id}/upload-image")
+    public ResponseEntity<String> uploadImage(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) throws IOException {
+
+        ChargingStation station = chargingStationService.getChargingStationById(id);
+
+        // Lưu file vào thư mục uploads/
+        String uploadDir = "uploads/";
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        Path filePath = Paths.get(uploadDir + fileName);
+        Files.createDirectories(filePath.getParent());
+        Files.write(filePath, file.getBytes());
+
+        // Cập nhật đường dẫn ảnh
+        station.setImageUrl("/uploads/" + fileName);
+        chargingStationService.createChargingStation(station);
+
+        return ResponseEntity.ok("Uploaded successfully: " + station.getImageUrl());
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<ChargingStation> updateChargingStation(@PathVariable Long id, @RequestBody ChargingStation updatedStation) {
