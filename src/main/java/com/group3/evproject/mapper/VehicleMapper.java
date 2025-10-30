@@ -3,9 +3,11 @@ package com.group3.evproject.mapper;
 import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.entity.Vehicle;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface VehicleMapper {
+    @Mapping(source = "model", target = "model")
     VehicleResponse vehicleToVehicleResponse(Vehicle vehicle);
 
 
