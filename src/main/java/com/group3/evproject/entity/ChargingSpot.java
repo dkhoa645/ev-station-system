@@ -1,8 +1,11 @@
 package com.group3.evproject.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "charging_spot")
@@ -40,6 +43,10 @@ public class ChargingSpot {
     @Enumerated(EnumType.STRING)
     @Column(name = "spot_type", nullable = false)
     private SpotType spotType;
+
+    @OneToMany(mappedBy = "spot", cascade = CascadeType.ALL)
+    @JsonManagedReference(value = "spot-bookings")
+    List<Booking> bookings;
 
     public enum SpotType {
         WALK_IN, // không cần đặt trước

@@ -46,4 +46,8 @@ public class ChargingStation {
     @JsonManagedReference
     @JsonIgnore
     List<ChargingSpot> spots;
+
+    @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    List<Booking> bookings;
 }
