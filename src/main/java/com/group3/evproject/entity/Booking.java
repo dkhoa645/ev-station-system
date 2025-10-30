@@ -87,5 +87,6 @@ public class Booking extends BaseEntity {
         }
     }
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @JsonIgnore
     List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 }
