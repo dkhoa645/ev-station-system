@@ -6,8 +6,6 @@ import com.group3.evproject.repository.ChargingStationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,12 +29,12 @@ public class ChargingSpotService {
         return chargingSpotRepository.findByStatus(status);
     }
 
-    @Transactional
     public ChargingSpot createSpot(Long stationId, ChargingSpot.SpotType spotType) {
         ChargingStation station = chargingStationRepository.findById(stationId)
                 .orElseThrow(() -> new RuntimeException("Charging Station not found with id: " + stationId));
 
-        String spotName = station.getName().replaceAll("\\s+", "") + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        int spotCount = chargingSpotRepository.findByStationId(stationId).size() + 1;
+        String spotName = station.getName().replaceAll("\\s+", "") + "-SP" + String.format("%02d", spotCount);
 
         ChargingSpot newSpot = ChargingSpot.builder()
                 .spotName(spotName)
