@@ -1,13 +1,12 @@
 package com.group3.evproject.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "user")
@@ -15,23 +14,23 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)  // tất cả field đều là private
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id") // ✅ dùng chung với Booking
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     @Column(unique = true, nullable = false)
     String email;
+
     @Column(unique = true, nullable = false)
     String username;
+
     String password;
     String name;
-    @Column(name = "verification_token")
     String verificationToken;
-    @Column(name = "verified")
     boolean verified = false;
-
-    @Column(name = "reset_token")
     String resetToken;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -42,20 +41,16 @@ public class User {
     )
     Set<Role> roles = new HashSet<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Booking> bookings;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     List<Vehicle> vehicles;
 
-    @ManyToOne()
-    @JoinColumn(name = "company_id",nullable = true)
+    @ManyToOne
+    @JoinColumn(name = "company_id")
     Company company;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     List<PaymentTransaction> paymentTransactionList;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "user-bookings")
-    List<Booking> bookings;
-
-
 }
