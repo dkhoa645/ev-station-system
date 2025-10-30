@@ -77,7 +77,7 @@ public class BookingController {
     @PostMapping("/{id}/cancel")
     public ResponseEntity<String> cancelBooking(
             @PathVariable Long id,
-            @RequestHeader("UserId") Long userId
+            @RequestHeader("userId") Long userId
     ) {
         bookingService.cancelBooking(id);
         return ResponseEntity.ok("Booking cancelled successfully by user" + userId + ".");
