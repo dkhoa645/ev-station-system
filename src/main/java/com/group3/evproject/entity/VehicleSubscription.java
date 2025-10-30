@@ -17,7 +17,7 @@ public class VehicleSubscription {
     Long id;
 
     @OneToOne
-    @JoinColumn(name = "vehicle_id",  unique = true)
+    @JoinColumn(name = "vehicle_id", referencedColumnName = "id", nullable = false, unique = true)
     Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)
