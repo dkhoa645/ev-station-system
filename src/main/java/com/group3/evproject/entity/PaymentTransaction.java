@@ -28,7 +28,7 @@ public class PaymentTransaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id", nullable = true)
-    @JsonBackReference
+    @JsonBackReference(value = "booking-payments")
     Booking booking;
 
     @ManyToOne(fetch = FetchType.LAZY)

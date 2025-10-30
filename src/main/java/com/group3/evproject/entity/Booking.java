@@ -27,12 +27,12 @@ public class Booking extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "user-bookings")
     User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id")
-    @JsonBackReference
+    @JsonBackReference(value = "station-bookings")
     private ChargingStation station;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,7 +42,7 @@ public class Booking extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "spot_id")
-    @JsonBackReference
+    @JsonBackReference(value = "spot-bookings")
     private ChargingSpot spot;
 
     @Column(name = "time_to_charge", nullable = true)
@@ -88,6 +88,6 @@ public class Booking extends BaseEntity {
         }
     }
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference(value = "booking-payments")
     List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 }

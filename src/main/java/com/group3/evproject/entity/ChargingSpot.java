@@ -33,7 +33,7 @@ public class ChargingSpot {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "station-spots")
     private ChargingStation station;
 
     @Column(nullable = false)
