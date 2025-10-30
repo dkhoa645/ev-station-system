@@ -1,11 +1,8 @@
 package com.group3.evproject.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
 
 @Entity
 @Table(name = "charging_spot")
@@ -14,35 +11,44 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ChargingSpot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(nullable = false, unique = true)
-    String spotName;
+    private String spotName;
 
-    Double powerOutput;
+    @Column(name = "power_output")
+    private Double powerOutput;
 
+    //Enum trạng thái thực tế của điểm sạc
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    SpotStatus status = SpotStatus.AVAILABLE;
+    private SpotStatus status = SpotStatus.AVAILABLE;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id", nullable = false)
-    ChargingStation station;
+    @JsonBackReference
+    private ChargingStation station;
 
-    Boolean available = true;
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean available = true;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    SpotType spotType;
+    @Column(name = "spot_type", nullable = false)
+    private SpotType spotType;
 
-    @OneToMany(mappedBy = "spot", cascade = CascadeType.ALL)
-    List<Booking> bookings;
+    public enum SpotType {
+        WALK_IN, // không cần đặt trước
+        BOOKING  // chỉ dành cho người đã đặt
+    }
 
-    public enum SpotType { WALK_IN, BOOKING }
-    public enum SpotStatus { AVAILABLE, OCCUPIED, MAINTENANCE }
+    public enum SpotStatus {
+        AVAILABLE,  // sẵn sàng
+        OCCUPIED,   // đang được sử dụng
+        MAINTENANCE // đang bảo trì
+    }
 }
