@@ -2,6 +2,7 @@ package com.group3.evproject.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -87,6 +88,6 @@ public class Booking extends BaseEntity {
         }
     }
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JsonManagedReference
     List<PaymentTransaction> paymentTransactions = new ArrayList<>();
 }
