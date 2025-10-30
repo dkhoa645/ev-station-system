@@ -43,11 +43,10 @@ public class ChargingStation {
     Double longitude;
 
     @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    @JsonIgnore
+    @JsonManagedReference(value = "station-spots")
     List<ChargingSpot> spots;
 
     @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference(value = "station-bookings")
     List<Booking> bookings;
 }
