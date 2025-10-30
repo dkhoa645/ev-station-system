@@ -66,7 +66,8 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("Station not found"));
 
         //check tra slot kha dung
-        if (station.getBookingAvailable() == null || station.getBookingAvailable() <= 0) {
+        if (station.getAvailableSpots() == null || station.getAvailableSpots() <= 0) {
+            System.out.println("lỗi" + station.getAvailableSpots());
             throw new RuntimeException("No booking slots available for this station");
         }
 
