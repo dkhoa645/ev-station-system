@@ -4,7 +4,6 @@ import com.group3.evproject.dto.request.BookingRequest;
 import com.group3.evproject.dto.response.BookingResponse;
 import com.group3.evproject.entity.Booking;
 import com.group3.evproject.entity.User;
-import com.group3.evproject.service.AuthenticationService;
 import com.group3.evproject.service.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
-    private final AuthenticationService authenticationService;
 
     @GetMapping
     public ResponseEntity<List<Booking>> getAllBookings() {
@@ -43,13 +41,16 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<BookingResponse> createBooking(
             @Valid @RequestBody BookingRequest bookingRequest,
-            @RequestHeader("Authorization") String accessToken
+            @RequestHeader("UserId") Long userId
     ) {
-        // lay user tu token
-        User user = authenticationService.getUserFromRequest(accessToken);
-
         //goi service de tao booking
-        Booking booking = bookingService.createBooking(bookingRequest.getStationId(), bookingRequest.getTimeToCharge(), bookingRequest.getEndTime(), user.getId(), bookingRequest.getVehicleId());
+        Booking booking = bookingService.createBooking(
+                bookingRequest.getStationId(),
+                bookingRequest.getTimeToCharge(),
+                bookingRequest.getEndTime(),
+                userId,
+                bookingRequest.getVehicleId()
+        );
 
         //build response tra ve client
         BookingResponse bookingResponse = BookingResponse.builder()
@@ -76,11 +77,10 @@ public class BookingController {
     @PostMapping("/{id}/cancel")
     public ResponseEntity<String> cancelBooking(
             @PathVariable Long id,
-            @RequestHeader("Authorization") String accessToken
+            @RequestHeader("UserId") Long userId
     ) {
-        User user = authenticationService.getUserFromRequest(accessToken);
         bookingService.cancelBooking(id);
-        return ResponseEntity.ok("Booking cancelled successfully.");
+        return ResponseEntity.ok("Booking cancelled successfully by user" + userId + ".");
     }
 
     @PutMapping("/{id}/confirm")
