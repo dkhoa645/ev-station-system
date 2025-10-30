@@ -2,6 +2,7 @@ package com.group3.evproject.controller;
 
 
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
+import com.group3.evproject.service.BookingService;
 import com.group3.evproject.service.PaymentTransactionService;
 import com.group3.evproject.vnpay.VNPayDTO;
 import com.group3.evproject.vnpay.VNPayService;
@@ -25,13 +26,23 @@ import java.io.IOException;
 public class PaymentTransactionController {
     VNPayService paymentService;
     PaymentTransactionService paymentTransactionService;
+    BookingService bookingService;
 
     @PostMapping("/subscription/{id}")
-    public ApiResponse<PaymentTransactionResponse> create(
+    public ApiResponse<PaymentTransactionResponse> createSubscription(
             @PathVariable Long id,
             HttpServletRequest request) {
         return ApiResponse.<PaymentTransactionResponse>builder()
                 .result(paymentTransactionService.createSubscriptionPayment(id, request))
+                .build();
+    }
+
+    @PostMapping("/booking/{id}")
+    public ApiResponse<PaymentTransactionResponse> createBooking(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+        return ApiResponse.<PaymentTransactionResponse>builder()
+                .result(paymentTransactionService.createBookingPayment(id, request))
                 .build();
     }
 

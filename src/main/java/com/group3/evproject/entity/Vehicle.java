@@ -26,5 +26,8 @@ public class Vehicle {
     @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
     VehicleSubscription subscription;
 
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Booking> bookings;
+
 }
 

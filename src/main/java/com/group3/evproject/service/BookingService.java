@@ -7,9 +7,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -99,10 +101,11 @@ public class BookingService {
                 .station(station)
                 .vehicle(vehicle)
                 .spot(spot)
+                .paymentTransactions(new ArrayList<>())
                 .timeToCharge(timeToCharge)
                 .endTime(endTime)
                 .status(Booking.BookingStatus.PENDING)
-                .totalCost(0.0)
+                .reservationFee(BigDecimal.valueOf(reservationFee))
                 .build();
         return bookingRepository.save(booking);
     }
@@ -181,6 +184,10 @@ public class BookingService {
             chargingSpotRepository.save(booking.getSpot());
         }
         bookingRepository.delete(booking);
+    }
+
+    public Booking saveBooking(Booking booking) {
+        return bookingRepository.save(booking);
     }
 }
 

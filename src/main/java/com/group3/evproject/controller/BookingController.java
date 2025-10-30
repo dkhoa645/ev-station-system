@@ -61,6 +61,7 @@ public class BookingController {
                 .stationName(booking.getStation().getName())
                 .startTime(booking.getStartTime())
                 .timeToCharge(booking.getTimeToCharge())
+                .reservationFee(booking.getReservationFee())
                 .endTime(booking.getEndTime())
                 .status(booking.getStatus().name())
                 .build();
