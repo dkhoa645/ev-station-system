@@ -163,9 +163,9 @@ public class PaymentTransactionService {
         return "Success";
     }
 
-    public List<PaymentTransactionResponse> getAll() {
-
-    }
+//    public List<PaymentTransactionResponse> getAll() {
+//
+//    }
 
 
 //            PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(
