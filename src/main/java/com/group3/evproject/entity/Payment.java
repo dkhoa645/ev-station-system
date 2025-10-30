@@ -18,11 +18,14 @@ public class Payment {
     Long id;
     BigDecimal totalEnergy;
     BigDecimal totalCost;
+
     @Enumerated(EnumType.STRING)
     PaymentStatus status;
     LocalDateTime paidAt;
+
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     List<Invoice> invoices ;
+
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     List<PaymentTransaction> paymentTransactions;
 

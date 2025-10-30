@@ -40,19 +40,10 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<BookingResponse> createBooking(
-            @Valid @RequestBody BookingRequest bookingRequest,
-            @RequestHeader("userId") Long userId
+            @Valid @RequestBody BookingRequest bookingRequest
     ) {
-        //goi service de tao booking
-        Booking booking = bookingService.createBooking(
-                bookingRequest.getStationId(),
-                bookingRequest.getTimeToCharge(),
-                bookingRequest.getEndTime(),
-                userId,
-                bookingRequest.getVehicleId()
-        );
+        Booking booking = bookingService.createBooking(bookingRequest);
 
-        //build response tra ve client
         BookingResponse bookingResponse = BookingResponse.builder()
                 .bookingId(booking.getId())
                 .vehicleId(booking.getVehicle().getId())
@@ -63,8 +54,10 @@ public class BookingController {
                 .endTime(booking.getEndTime())
                 .status(booking.getStatus().name())
                 .build();
+
         return ResponseEntity.ok(bookingResponse);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Booking> updateBooking(
@@ -75,12 +68,9 @@ public class BookingController {
     }
 
     @PostMapping("/{id}/cancel")
-    public ResponseEntity<String> cancelBooking(
-            @PathVariable Long id,
-            @RequestHeader("userId") Long userId
-    ) {
+    public ResponseEntity<String> cancelBooking(@PathVariable Long id) {
         bookingService.cancelBooking(id);
-        return ResponseEntity.ok("Booking cancelled successfully by user" + userId + ".");
+        return ResponseEntity.ok("Booking cancelled successfully.");
     }
 
     @PutMapping("/{id}/confirm")

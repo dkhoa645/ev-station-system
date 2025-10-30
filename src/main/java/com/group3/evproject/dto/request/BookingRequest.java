@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 @Schema(description = "Thông tin khi người dùng đặt lịch sạc (booking request)")
 public class BookingRequest {
 
+    @Schema(description = "ID của người dùng đặt lịch", example = "5", required = true)
+    @NotNull(message = "userId is required")
+    private Long userId;
+
     @Schema(description = "ID của trạm sạc mà người dùng muốn đặt", example = "1", required = true)
     @NotNull(message = "stationId is required")
     private Long stationId;

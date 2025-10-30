@@ -51,15 +51,18 @@ public class BookingService {
     }
 
     // Tạo booking mới (bỏ availableSpot logic)
-    public Booking createBooking(Long stationId, LocalDateTime timeToCharge, LocalDateTime endTime, Long userId, Long vehicleId) {
+    public Booking createBooking(BookingRequest request) {
 
         // Lấy thông tin
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+        Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-        ChargingStation station = chargingStationRepository.findById(stationId)
+        ChargingStation station = chargingStationRepository.findById(request.getStationId())
                 .orElseThrow(() -> new RuntimeException("Station not found"));
+
+        LocalDateTime timeToCharge = request.getTimeToCharge();
+        LocalDateTime endTime = request.getEndTime();
 
         // Kiểm tra thời gian hợp lệ
         LocalDateTime now = LocalDateTime.now();
