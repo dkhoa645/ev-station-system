@@ -34,6 +34,7 @@ public class BookingService {
 
     // Lấy booking theo ID
     public Booking getBookingById(Long id) {
+        BookingRequ
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
     }

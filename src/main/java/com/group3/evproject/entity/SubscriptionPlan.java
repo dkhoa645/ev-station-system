@@ -18,8 +18,10 @@ public class SubscriptionPlan {
     String name;
     @Column(precision = 10, scale = 2)
     BigDecimal price;
-    @Column(name = "discount",precision = 10, scale = 2)
-    BigDecimal discount = BigDecimal.valueOf(0.7);
+    @Column(name = "discount_percent",precision = 10, scale = 2)
+    BigDecimal discount = BigDecimal.valueOf(30);
+    @Column(name = "multiplier",precision = 10, scale = 2)
+    BigDecimal multiplier = BigDecimal.valueOf(0.7);
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name= "subscription_plan_description",
@@ -27,7 +29,6 @@ public class SubscriptionPlan {
     )
     @Column(name = "description")
     List<String> description;
-
     @OneToMany(mappedBy = "subscriptionPlan")
     List<VehicleSubscription> vehicleSubscriptions = new ArrayList<>();
 }
