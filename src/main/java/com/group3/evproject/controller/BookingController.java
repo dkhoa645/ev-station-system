@@ -24,7 +24,7 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
+    public ResponseEntity<BookingResponse> getBookingById(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.getBookingById(id));
     }
 
@@ -52,7 +52,7 @@ public class BookingController {
                 .timeToCharge(booking.getTimeToCharge())
                 .reservationFee(booking.getReservationFee())
                 .endTime(booking.getEndTime())
-                .status(booking.getStatus().name())
+                .status(booking.getStatus())
                 .build();
 
         return ResponseEntity.ok(bookingResponse);
