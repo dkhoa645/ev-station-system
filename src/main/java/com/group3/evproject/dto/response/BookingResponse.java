@@ -1,5 +1,6 @@
 package com.group3.evproject.dto.response;
 
+import com.group3.evproject.entity.Booking;
 import io.swagger.v3.oas.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
@@ -39,5 +40,5 @@ public class BookingResponse {
     private BigDecimal reservationFee;
 
     @Schema(description = "Trạng thái của booking", example = "PENDING")
-    private String status;
+    private Booking.BookingStatus status;
 }

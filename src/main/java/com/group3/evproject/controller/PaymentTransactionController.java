@@ -63,12 +63,15 @@ public class PaymentTransactionController {
             if (status.equals("00")) {
                 String result = paymentTransactionService.processSuccessfulPayment(ref);
                 if (result.equals("Success")) {
+                    response.sendRedirect("http://localhost:5173/chargingSession");
+                }else {
                     response.sendRedirect("http://localhost:5173/success");
                 }
             } else {
                 response.sendRedirect("http://localhost:5173/fail");
             }
     }
+
 
 //    @GetMapping
 //    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
