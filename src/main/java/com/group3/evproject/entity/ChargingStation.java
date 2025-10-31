@@ -28,17 +28,13 @@ public class ChargingStation {
     @Column(nullable = false)
     String status = "AVAILABLE";
 
-    @Column(nullable = false)
-    Integer bookingAvailable = 10;
-
     @Column(name = "image_url")
     String imageUrl;
 
+    @Column(name = "available_spots", nullable = false)
+    Integer availableSpots = 0;
+
     Double powerCapacity;
-
-    @Column(nullable = false)
-    Integer availableSpots = 10;
-
     Double latitude;
     Double longitude;
 

@@ -56,19 +56,10 @@ public class ChargingStationController {
         return ResponseEntity.ok("Uploaded successfully: " + station.getImageUrl());
     }
 
-
     @PutMapping("/{id}")
     public ResponseEntity<ChargingStation> updateChargingStation(@PathVariable Long id, @RequestBody ChargingStation updatedStation) {
         ChargingStation station = chargingStationService.updateChargingStation(id, updatedStation);
         return ResponseEntity.ok(station);
-    }
-
-    @PutMapping("/{id}/update-booking-slots")
-    public ResponseEntity<ChargingStation> updatedBookingAvailable(@PathVariable Long id, @RequestParam Integer bookingSlots) {
-        ChargingStation station = chargingStationService.getChargingStationById(id);
-        station.setBookingAvailable(bookingSlots);
-        ChargingStation updated = chargingStationService.createChargingStation(station);
-        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")

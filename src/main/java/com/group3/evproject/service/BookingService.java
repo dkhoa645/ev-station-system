@@ -91,14 +91,6 @@ public class BookingService {
             throw new RuntimeException("End time must be after charging start time");
         }
 
-        // Tìm chỗ sạc còn trống
-        ChargingSpot spot = chargingSpotRepository.findFirstByStationAndStatus(station, ChargingSpot.SpotStatus.AVAILABLE)
-                .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
-
-        // Cập nhật trạng thái spot
-        spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
-        chargingSpotRepository.save(spot);
-
         // Tính phí
         double hours = Duration.between(timeToCharge, endTime).toMinutes() / 60.0;
         double reservationFee = hours * fee;
@@ -108,13 +100,14 @@ public class BookingService {
                 .user(user)
                 .station(station)
                 .vehicle(vehicle)
-                .spot(spot)
                 .paymentTransactions(new ArrayList<>())
                 .timeToCharge(timeToCharge)
                 .endTime(endTime)
                 .status(Booking.BookingStatus.PENDING)
                 .reservationFee(BigDecimal.valueOf(reservationFee))
                 .build();
+        station.setAvailableSpots(station.getAvailableSpots() + 1);
+        chargingStationRepository.save(station);
 
         return bookingRepository.save(booking);
     }
@@ -145,11 +138,9 @@ public class BookingService {
 
         booking.setStatus(Booking.BookingStatus.CANCELLED);
 
-        ChargingSpot spot = booking.getSpot();
-        if (spot != null) {
-            spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-            chargingSpotRepository.save(spot);
-        }
+       ChargingStation station = booking.getStation();
+       station.setAvailableSpots(station.getAvailableSpots() - 1);
+       chargingStationRepository.save(station);
 
         return bookingRepository.save(booking);
     }
@@ -173,11 +164,9 @@ public class BookingService {
         }
         booking.setStatus(Booking.BookingStatus.COMPLETED);
 
-        ChargingSpot spot = booking.getSpot();
-        if (spot != null) {
-            spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-            chargingSpotRepository.save(spot);
-        }
+        ChargingStation station = booking.getStation();
+        station.setAvailableSpots(Math.max(0, station.getAvailableSpots() - 1));
+        chargingStationRepository.save(station);
 
         return bookingRepository.save(booking);
     }
@@ -185,10 +174,11 @@ public class BookingService {
     // Delete booking
     public void deleteBooking(Long id) {
         Booking booking = findBookingById(id);
+        ChargingStation station = booking.getStation();
 
-        if (booking.getSpot() != null) {
-            booking.getSpot().setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-            chargingSpotRepository.save(booking.getSpot());
+        if (station != null) {
+            station.setAvailableSpots(Math.max(0, station.getAvailableSpots() - 1));
+            chargingStationRepository.save(station);
         }
         bookingRepository.delete(booking);
     }
