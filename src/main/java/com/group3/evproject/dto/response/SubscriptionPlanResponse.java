@@ -16,6 +16,6 @@ public class SubscriptionPlanResponse {
     Long id;
     String name;
     BigDecimal price;
-    BigDecimal limitValue;
+    BigDecimal discount;
     List<String> description;
 }
