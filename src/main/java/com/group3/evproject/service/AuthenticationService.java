@@ -1,11 +1,13 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.Enum.PaymentStatus;
 import com.group3.evproject.dto.request.AuthenticationRequest;
 import com.group3.evproject.dto.request.IntrospectRequest;
 import com.group3.evproject.dto.request.UserCreationRequest;
 import com.group3.evproject.dto.response.AuthenticationResponse;
 import com.group3.evproject.dto.response.IntrospectResponse;
 import com.group3.evproject.dto.response.UserResponse;
+import com.group3.evproject.entity.Payment;
 import com.group3.evproject.entity.Role;
 import com.group3.evproject.entity.User;
 import com.group3.evproject.exception.AppException;
@@ -29,6 +31,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -43,6 +46,7 @@ public class AuthenticationService {
     RoleRepository roleRepository;
     UserRepository userRepository;
     EmailService emailService;
+    PaymentService paymentService;
 
     private PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
@@ -169,6 +173,8 @@ public class AuthenticationService {
         // 5. Gửi email xác thực
         emailService.sendVerificationEmail(user.getEmail(), verificationToken);
 
+
+
         // 6. Trả về DTO
         UserResponse userResponse = userMapper.toUserResponse(user);
         userResponse.setMessage("Registration successfull! Please Verify your Email");
@@ -181,6 +187,15 @@ public class AuthenticationService {
         if (user == null) {
             throw new AppException(ErrorCode.TOKEN_INVALID);
         }
+//        Tạo gói trả sau khi tạo tài khoản
+        paymentService.save(Payment.builder()
+                        .status(PaymentStatus.UNPAID)
+                        .totalCost(BigDecimal.ZERO)
+                        .totalEnergy(BigDecimal.ZERO)
+                        .invoices(new ArrayList<>())
+                        .paymentTransactions(new ArrayList<>())
+                .build());
+
         user.setVerified(true);
         user.setVerificationToken(null);
         userRepository.save(user);
