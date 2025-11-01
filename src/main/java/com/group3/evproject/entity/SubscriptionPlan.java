@@ -21,9 +21,10 @@ public class SubscriptionPlan {
     @Column(name = "discount_percent",precision = 10, scale = 2)
     BigDecimal discount ;
     @Column(name = "multiplier",precision = 10, scale = 2)
-    BigDecimal multiplier = BigDecimal.ONE.subtract(
-            discount.divide(BigDecimal.valueOf(100))
-            );;
+            BigDecimal multiplier;
+//    BigDecimal multiplier = BigDecimal.ONE.subtract(
+//            discount.divide(BigDecimal.valueOf(100))
+//            );;
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name= "subscription_plan_description",
