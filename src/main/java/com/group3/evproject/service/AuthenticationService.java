@@ -90,19 +90,11 @@ public class AuthenticationService {
 //        Tao header voi thuat toan
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 //            Tao Claimset cho vao Payload
-        Map<String, Object> userInfo = new HashMap<>();
-        User user = userRepository.findByUsername(username).orElse(null);
-        userInfo.put("id", user.getId());
-        userInfo.put("email", user.getEmail());
-        userInfo.put("name", user.getName());
-        userInfo.put("password", user.getPassword());
-
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
                 .issuer("backend-dev")
                 .issueTime(new Date())
                 .expirationTime(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
-                .claim("user", userInfo)
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);

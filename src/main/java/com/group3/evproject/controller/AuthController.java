@@ -52,13 +52,7 @@ public class AuthController {
                 .result(authenticationService.registerUser(request))
                 .build();
     }
-//    @GetMapping("/verify")
-//    public ApiResponse<String> verifyEmail(@RequestParam String token) {
-//        String message = authenticationService.verifyEmail(token);
-//        return ApiResponse.<String>builder()
-//                .result(message)
-//                .build();
-//    }
+
     @GetMapping("/verifySuccess")
     public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
         String message = authenticationService.verifyEmail(token);
