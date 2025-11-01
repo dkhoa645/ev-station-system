@@ -29,6 +29,7 @@ public class ChargingSpotService {
         return chargingSpotRepository.findByStatus(status);
     }
 
+
     public ChargingSpot createSpot(Long stationId, ChargingSpot.SpotType spotType) {
         ChargingStation station = chargingStationRepository.findById(stationId)
                 .orElseThrow(() -> new RuntimeException("Charging Station not found with id: " + stationId));
@@ -44,6 +45,19 @@ public class ChargingSpotService {
                 .station(station)
                 .available(true)
                 .build();
+
+        //lưu spot mới
+        ChargingSpot saveSpot = chargingSpotRepository.save(newSpot);
+
+        //tăng totalSpot +1 cho station
+        station.setTotalSpots(station.getTotalSpots() + 1);
+
+        //update lại availableSpots
+        int available = getAvailableSpots(station);
+        station.setAvailableSpots(available);
+
+        chargingStationRepository.save(station);
+
         return chargingSpotRepository.save(newSpot);
     }
 
@@ -64,9 +78,30 @@ public class ChargingSpotService {
     }
 
     public void deleteSpot(Long id) {
-        if(!chargingSpotRepository.existsById(id)) {
-            throw new RuntimeException("Charging Spot does not found with id" + id);
+        ChargingSpot spot = chargingSpotRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Charging Spot not found with id: " + id));
+
+        ChargingStation station = spot.getStation();
+        if (station.getTotalSpots() > 0) {
+            station.setTotalSpots(station.getTotalSpots() - 1);
+            chargingStationRepository.save(station);
         }
-        chargingSpotRepository.deleteById(id);
+
+        chargingSpotRepository.delete(spot);
+    }
+
+    public long countOccupiedSpots (Long stationId){
+        return chargingSpotRepository.countByStationIdAndStatus(stationId, ChargingSpot.SpotStatus.OCCUPIED);
+    }
+
+    public int getAvailableSpots(ChargingStation station){
+        long occupied = countOccupiedSpots(station.getId());
+        int available = station.getTotalSpots() - (int) occupied;
+        return Math.max(available,0); // tránh âm
+    }
+
+    public ChargingSpot getAvailableSpot(ChargingStation station){
+        return chargingSpotRepository.findFirstByStationAndStatus(station, ChargingSpot.SpotStatus.AVAILABLE)
+                .orElseThrow(() -> new RuntimeException("No available Spot found for this station"));
     }
 }

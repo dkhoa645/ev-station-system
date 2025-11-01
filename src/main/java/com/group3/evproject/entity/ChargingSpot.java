@@ -43,7 +43,7 @@ public class ChargingSpot {
 
     public enum SpotType {
         WALK_IN, // không cần đặt trước
-        BOOKING  // chỉ dành cho người đã đặt
+        BOOKING  // chỉ dành cho người đã đặt online
     }
 
     public enum SpotStatus {
