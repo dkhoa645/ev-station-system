@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -188,12 +189,18 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.TOKEN_INVALID);
         }
 //        Tạo gói trả sau khi tạo tài khoản
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime period = LocalDateTime.of(now.getYear(), now.getMonth(), 25, 0, 0);
+        if (now.getDayOfMonth() > 25) {
+            period = period.plusMonths(1);
+        }
         paymentService.save(Payment.builder()
                         .status(PaymentStatus.UNPAID)
                         .totalCost(BigDecimal.ZERO)
                         .totalEnergy(BigDecimal.ZERO)
                         .invoices(new ArrayList<>())
                         .paymentTransactions(new ArrayList<>())
+                        .period(period)
                 .build());
 
         user.setVerified(true);

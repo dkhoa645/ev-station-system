@@ -49,6 +49,9 @@ public class User {
     @JoinColumn(name = "company_id",nullable = true)
     Company company;
 
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    List<Payment> payments;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     List<PaymentTransaction> paymentTransactionList;
 }

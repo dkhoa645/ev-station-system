@@ -22,6 +22,7 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     PaymentStatus status;
     LocalDateTime paidAt;
+    LocalDateTime period;
 
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     List<Invoice> invoices ;
@@ -29,6 +30,8 @@ public class Payment {
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     List<PaymentTransaction> paymentTransactions;
 
-
+    @ManyToOne()
+    @JoinColumn(name="user_id")
+    User user;
 
 }
