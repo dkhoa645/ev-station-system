@@ -32,10 +32,12 @@ public class ChargingStation {
     String imageUrl;
 
     @Column(name = "available_spots", nullable = false)
+    @JsonIgnore
     Integer availableSpots = 0;
 
     @Column
-    Integer totalSpots;
+    @JsonIgnore
+    Integer totalSpots = 0;
 
     Double powerCapacity;
     Double latitude;
