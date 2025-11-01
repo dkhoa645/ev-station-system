@@ -145,15 +145,6 @@ public class PaymentTransactionService {
             checkVehicleSubscription.setEndDate(now.plusMonths(1));
             checkVehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
 //                      Tạo Payment tổng
-            Payment payment = paymentService.save(
-                    Payment.builder()
-                            .totalEnergy(BigDecimal.ZERO)
-                            .totalCost(BigDecimal.ZERO)
-                            .status(PaymentStatus.UNPAID)
-                            .invoices(new ArrayList<>())
-                            .paymentTransactions(new ArrayList<>())
-                            .vehicleSubscription(checkVehicleSubscription)
-                            .build());
             vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
         } else if (checkBooking != null) {
             checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);

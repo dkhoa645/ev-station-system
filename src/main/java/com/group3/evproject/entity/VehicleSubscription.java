@@ -32,7 +32,6 @@ public class VehicleSubscription {
     boolean autoRenew;
     @OneToMany(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
     List<PaymentTransaction> paymentTransactions ;
-    @OneToOne(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
-    Payment payment;
+
 }
 
