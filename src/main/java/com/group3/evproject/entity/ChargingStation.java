@@ -34,6 +34,9 @@ public class ChargingStation {
     @Column(name = "available_spots", nullable = false)
     Integer availableSpots = 0;
 
+    @Column
+    Integer totalSpots;
+
     Double powerCapacity;
     Double latitude;
     Double longitude;
