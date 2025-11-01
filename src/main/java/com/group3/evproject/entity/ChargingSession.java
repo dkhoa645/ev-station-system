@@ -73,7 +73,7 @@ public class ChargingSession {
         CANCELLED
     }
 
-    @OneToOne(mappedBy = "chargingSession")
-    @JsonManagedReference
-    private Invoice invoice;
+//    @OneToOne(mappedBy = "chargingSession")
+//    @JsonManagedReference
+//    private Invoice invoice;
 }

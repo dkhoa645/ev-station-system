@@ -1,39 +1,42 @@
 package com.group3.evproject.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "invoice")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Invoice {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    @Column(name="issue_date")
-    LocalDateTime issueDate;
+    // Liên kết với ChargingSession
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id", nullable = false)
+    private ChargingSession session;
 
-    @Column(name="final_cost")
-    BigDecimal finalCost;
+    // Liên kết với Payment
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
 
-    @OneToOne()
-    @JoinColumn(name="session_id")
-    @JsonBackReference
-    ChargingSession chargingSession;
+    @Column(name = "issue_date", nullable = false)
+    private LocalDateTime issueDate;
 
-    @ManyToOne()
-    @JoinColumn(name="payment_id")
-    Payment payment;
+    @Column(name = "final_cost", nullable = false)
+    private Double finalCost;
 
-
+    @PrePersist
+    public void prePersist() {
+        if (issueDate == null) {
+            issueDate = LocalDateTime.now();
+        }
+    }
 }

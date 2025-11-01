@@ -43,6 +43,7 @@ public class VehicleService  {
         List<VehicleResponse> list = new ArrayList<>();
         for (Vehicle vehicle : vehicles) {
             VehicleResponse vehicleResponse = vehicleMapper.vehicleToVehicleResponse(vehicle);
+            vehicleResponse.setModel(vehicleModelMapper.toVehicleModelResponse(vehicle.getModel()));
             vehicleResponse.setVehicleSubscriptionResponse(
                     vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicle.getSubscription()));
             list.add(vehicleResponse);
@@ -62,6 +63,7 @@ public class VehicleService  {
                 subscriptionPlanMapper.toSubscriptionPlanResponse(subscriptionPlan));
         VehicleResponse response =
                 vehicleMapper.vehicleToVehicleResponse(vehicle);
+        response.setModel(vehicleModelMapper.toVehicleModelResponse(vehicle.getModel()));
         response.setVehicleSubscriptionResponse(vehicleSubscriptionResponse);
         return  response;
         }
@@ -121,6 +123,7 @@ public class VehicleService  {
         List<VehicleResponse> responses = new ArrayList<>();
         for(Vehicle vehicle : list) {
             VehicleResponse response = vehicleMapper.vehicleToVehicleResponse(vehicle);
+            response.setModel(vehicleModelMapper.toVehicleModelResponse(vehicle.getModel()));
             VehicleSubscription vs = vehicle.getSubscription();
             SubscriptionPlan sp = vs.getSubscriptionPlan();
             VehicleSubscriptionResponse vsr = vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vs);

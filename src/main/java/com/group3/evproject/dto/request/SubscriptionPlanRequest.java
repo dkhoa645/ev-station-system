@@ -21,6 +21,6 @@ public class SubscriptionPlanRequest {
     @NotNull(message = "Price is required")
     BigDecimal price;
     @NotNull(message = "Price is required")
-    BigDecimal limitValue;
+    BigDecimal discount;
     List<String> description;
 }

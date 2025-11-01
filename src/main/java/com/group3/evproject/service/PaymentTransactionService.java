@@ -99,7 +99,7 @@ public class PaymentTransactionService {
 
 
     public PaymentTransactionResponse createBookingPayment(Long id, HttpServletRequest request) {
-            Booking booking = bookingService.getBookingById(id);
+            Booking booking = bookingService.findBookingById(id);
         if (!booking.getStatus().equals(Booking.BookingStatus.PENDING)) {
             throw new AppException(ErrorCode.PENDING_STATUS);
         }
@@ -115,7 +115,7 @@ public class PaymentTransactionService {
                 .timeToCharge(booking.getTimeToCharge())
                 .reservationFee(booking.getReservationFee())
                 .endTime(booking.getEndTime())
-                .status(booking.getStatus().name())
+                .status(booking.getStatus())
                 .build();
         booking.getPaymentTransactions().add(paymentTransaction);
         bookingService.saveBooking(booking);
@@ -158,6 +158,7 @@ public class PaymentTransactionService {
         } else if (checkBooking != null) {
             checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
             bookingService.saveBooking(checkBooking);
+            return "chargingSession";
         }
 
 

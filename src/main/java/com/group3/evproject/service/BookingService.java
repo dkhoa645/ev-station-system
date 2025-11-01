@@ -1,6 +1,7 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.dto.request.BookingRequest;
+import com.group3.evproject.dto.response.BookingResponse;
 import com.group3.evproject.entity.*;
 import com.group3.evproject.repository.*;
 import jakarta.transaction.Transactional;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,19 +23,35 @@ public class BookingService {
     private final UserRepository userRepository;
     private final ChargingStationRepository chargingStationRepository;
     private final ChargingSpotRepository chargingSpotRepository;
-    private final AuthenticationService authenticationService;
     private final VehicleRepository vehicleRepository;
-    private static final double fee = 10000;
+    private static final double fee = 30000;
 
     // Lấy tất cả booking
     public List<Booking> findAllBookings() {
         return bookingRepository.findAll();
     }
 
-    // Lấy booking theo ID
-    public Booking getBookingById(Long id) {
+    public Booking findBookingById(Long id) {
         return bookingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + id));
+                .orElseThrow(()-> new RuntimeException("Booking not found"));
+    }
+
+    // Lấy booking theo ID
+    public BookingResponse getBookingById(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(()-> new RuntimeException("Booking not found"));
+        BookingResponse response = BookingResponse.builder()
+                .bookingId(booking.getId())
+                .reservationFee(booking.getReservationFee())
+                .vehicleId(booking.getVehicle().getId())
+                .status(booking.getStatus())
+                .startTime(booking.getStartTime())
+                .endTime(booking.getEndTime())
+                .timeToCharge(booking.getTimeToCharge())
+                .stationName(booking.getStation().getName())
+                .build();
+
+        return response;
     }
 
     // Lấy bookings theo userId
@@ -52,26 +68,21 @@ public class BookingService {
         return bookingRepository.findByStation(station);
     }
 
-    public Booking createBooking(Long stationId, LocalDateTime timeToCharge, LocalDateTime endTime, Long userId, Long vehicleId) {
+    // Tạo booking mới (bỏ availableSpot logic)
+    public Booking createBooking(BookingRequest request) {
 
-        //lay thong tin user
-        User user = userRepository.findById(userId)
+        // Lấy thông tin
+        User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        //lay thong tin vehicle
-        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+        Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-
-        //lay thong tin station
-        ChargingStation station = chargingStationRepository.findById(stationId)
+        ChargingStation station = chargingStationRepository.findById(request.getStationId())
                 .orElseThrow(() -> new RuntimeException("Station not found"));
 
-        //check tra slot kha dung
-        if (station.getBookingAvailable() == null || station.getBookingAvailable() <= 0) {
-            throw new RuntimeException("No booking slots available for this station");
-        }
+        LocalDateTime timeToCharge = request.getTimeToCharge();
+        LocalDateTime endTime = request.getEndTime();
 
-        //check tra time hợp lệ
+        // Kiểm tra thời gian hợp lệ
         LocalDateTime now = LocalDateTime.now();
         if (timeToCharge.isBefore(now)) {
             throw new RuntimeException("Charging time must be in the future");
@@ -80,39 +91,30 @@ public class BookingService {
             throw new RuntimeException("End time must be after charging start time");
         }
 
-        //tim cho sac trong
-        ChargingSpot spot = chargingSpotRepository.findFirstByStationAndStatus(station,ChargingSpot.SpotStatus.AVAILABLE)
-                .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
-
-        //Giảm slot
-        station.setBookingAvailable(station.getBookingAvailable() - 1);
-        if (station.getAvailableSpots() != null && station.getAvailableSpots() > 0) {
-            station.setAvailableSpots(station.getAvailableSpots() - 1);
-        }
-        chargingStationRepository.save(station);
-
-        //phí sạc xe
-        double hours = Duration.between(timeToCharge, endTime).toMinutes()/60.0;
+        // Tính phí
+        double hours = Duration.between(timeToCharge, endTime).toMinutes() / 60.0;
         double reservationFee = hours * fee;
 
-        //Tạo booking mới
+        // Tạo booking mới
         Booking booking = Booking.builder()
                 .user(user)
                 .station(station)
                 .vehicle(vehicle)
-                .spot(spot)
                 .paymentTransactions(new ArrayList<>())
                 .timeToCharge(timeToCharge)
                 .endTime(endTime)
                 .status(Booking.BookingStatus.PENDING)
                 .reservationFee(BigDecimal.valueOf(reservationFee))
                 .build();
+        station.setAvailableSpots(station.getAvailableSpots() + 1);
+        chargingStationRepository.save(station);
+
         return bookingRepository.save(booking);
     }
 
     // Update booking
     public Booking updateBooking(Long id, Booking updatedBooking) {
-        Booking booking = getBookingById(id);
+        Booking booking = findBookingById(id);
 
         if (updatedBooking.getTimeToCharge() != null) {
             booking.setTimeToCharge(updatedBooking.getTimeToCharge());
@@ -126,38 +128,26 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    // Cancel booking
+    // Cancel booking (bỏ logic availableSpot)
     public Booking cancelBooking(Long id) {
-        Booking booking = getBookingById(id);
+        Booking booking = findBookingById(id);
 
-        if (booking.getStatus() == Booking.BookingStatus.COMPLETED || booking.getStatus() == Booking.BookingStatus.CANCELLED){
-            throw  new RuntimeException("Booking is already completed or cancelled");
+        if (booking.getStatus() == Booking.BookingStatus.COMPLETED || booking.getStatus() == Booking.BookingStatus.CANCELLED) {
+            throw new RuntimeException("Booking is already completed or cancelled");
         }
 
         booking.setStatus(Booking.BookingStatus.CANCELLED);
 
-        ChargingStation station = booking.getStation();
-        ChargingSpot spot = booking.getSpot();
-        if (spot != null) {
-            spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-            spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-            chargingSpotRepository.save(spot);
-        }
-        if (station != null) {
-            if (station.getBookingAvailable() != null) {
-                station.setBookingAvailable(station.getBookingAvailable() + 1);
-            }
-            if (station.getAvailableSpots() != null) {
-                station.setAvailableSpots(station.getAvailableSpots() + 1);
-            }
-            chargingStationRepository.save(station);
-        }
+       ChargingStation station = booking.getStation();
+       station.setAvailableSpots(station.getAvailableSpots() - 1);
+       chargingStationRepository.save(station);
+
         return bookingRepository.save(booking);
     }
 
     // Confirm booking
     public Booking confirmBooking(Long id) {
-        Booking booking = getBookingById(id);
+        Booking booking = findBookingById(id);
         if (booking.getStatus() != Booking.BookingStatus.PENDING) {
             throw new RuntimeException("Only pending bookings can be confirmed.");
         }
@@ -165,23 +155,30 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
+    // Complete booking (bỏ logic availableSpot)
     public Booking completeBooking(Long id) {
-        Booking booking = getBookingById(id);
+        Booking booking = findBookingById(id);
         if (booking.getStatus() != Booking.BookingStatus.CONFIRMED
                 && booking.getStatus() != Booking.BookingStatus.CHARGING) {
             throw new RuntimeException("Only confirmed or charging bookings can be completed.");
         }
         booking.setStatus(Booking.BookingStatus.COMPLETED);
+
+        ChargingStation station = booking.getStation();
+        station.setAvailableSpots(Math.max(0, station.getAvailableSpots() - 1));
+        chargingStationRepository.save(station);
+
         return bookingRepository.save(booking);
     }
 
     // Delete booking
     public void deleteBooking(Long id) {
-        Booking booking = getBookingById(id);
+        Booking booking = findBookingById(id);
+        ChargingStation station = booking.getStation();
 
-        if (booking.getSpot() != null) {
-            booking.getSpot().setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-            chargingSpotRepository.save(booking.getSpot());
+        if (station != null) {
+            station.setAvailableSpots(Math.max(0, station.getAvailableSpots() - 1));
+            chargingStationRepository.save(station);
         }
         bookingRepository.delete(booking);
     }
@@ -190,4 +187,3 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 }
-

@@ -33,7 +33,10 @@ public class ChargingSpot {
     @JsonBackReference
     private ChargingStation station;
 
-    //Loại điểm sạc (đặt trước hay tự do)
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean available = true;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "spot_type", nullable = false)
     private SpotType spotType;

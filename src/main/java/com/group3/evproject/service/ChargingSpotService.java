@@ -42,6 +42,7 @@ public class ChargingSpotService {
                 .status(ChargingSpot.SpotStatus.AVAILABLE)
                 .spotType(spotType)
                 .station(station)
+                .available(true)
                 .build();
         return chargingSpotRepository.save(newSpot);
     }
@@ -55,6 +56,9 @@ public class ChargingSpotService {
         }
         if (updatedSpot.getPowerOutput() != null) {
             existing.setPowerOutput(updatedSpot.getPowerOutput());
+        }
+        if (updatedSpot.getSpotType() != null) {
+            existing.setSpotType(updatedSpot.getSpotType());
         }
         return chargingSpotRepository.save(existing);
     }

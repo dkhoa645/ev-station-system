@@ -63,6 +63,8 @@ public class PaymentTransactionController {
             if (status.equals("00")) {
                 String result = paymentTransactionService.processSuccessfulPayment(ref);
                 if (result.equals("Success")) {
+                    response.sendRedirect("http://localhost:5173/chargingSession");
+                }else {
                     response.sendRedirect("http://localhost:5173/success");
                 }
             } else {
@@ -70,12 +72,12 @@ public class PaymentTransactionController {
             }
     }
 
-    @GetMapping
-    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
-        return ApiResponse.<List<PaymentTransactionResponse>>builder()
-                .result(paymentTransactionService.getAll())
-                .build();
-    }
+//    @GetMapping
+//    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
+//        return ApiResponse.<List<PaymentTransactionResponse>>builder()
+//                .result(paymentTransactionService.getAll())
+//                .build();
+//    }
 
 //    public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
 //        String message = authenticationService.verifyEmail(token);

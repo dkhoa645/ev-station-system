@@ -1,5 +1,6 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,8 +16,11 @@ public class Vehicle {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     @ManyToOne @JoinColumn(name = "user_id")
+    @JsonIgnore
     User user;
+
     @Column(name = "license_plate")
     String licensePlate;
 

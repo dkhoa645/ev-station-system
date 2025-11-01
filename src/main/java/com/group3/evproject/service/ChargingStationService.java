@@ -19,11 +19,10 @@ public class ChargingStationService {
     }
 
     public ChargingStation createChargingStation(ChargingStation chargingStation) {
-        if (chargingStation.getAvailableSpots() == null) {
-            chargingStation.setAvailableSpots(0);
-        }
-        if (chargingStation.getBookingAvailable() == null) {
-            chargingStation.setBookingAvailable(0);
+        chargingStation.setAvailableSpots(0);
+
+        if (chargingStation.getStatus() == null || chargingStation.getStatus().isEmpty()) {
+            chargingStation.setStatus("AVAILABLE");
         }
         return chargingStationRepository.save(chargingStation);
     }
@@ -45,15 +44,16 @@ public class ChargingStationService {
         if (updatedStation.getAvailableSpots()!=null) {
             station.setAvailableSpots(updatedStation.getAvailableSpots());
         }
-        if (updatedStation.getBookingAvailable()!=null) {
-            station.setBookingAvailable(updatedStation.getBookingAvailable());
-        }
         if (updatedStation.getLatitude()!=null) {
             station.setLatitude(updatedStation.getLatitude());
         }
         if (updatedStation.getLongitude()!=null) {
             station.setLongitude(updatedStation.getLongitude());
         }
+        if (updatedStation.getImageUrl()!=null) {
+            station.setImageUrl(updatedStation.getImageUrl());
+        }
+
         return chargingStationRepository.save(station);
     }
 
