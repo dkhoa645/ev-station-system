@@ -42,7 +42,7 @@ public class ApplicationInitConfig {
                         });
             });
             //  2. Tạo ADMIN nếu chưa có
-           Role admin = roleRepository.findByName(RoleName.ROLE_ADMIN)
+           Role admin = roleRepository.findByName(RoleName.ADMIN)
                    .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Role"));
           if(userRepository.findByUsername("admin").isEmpty()) {
               Set<Role> roles = new HashSet<>();

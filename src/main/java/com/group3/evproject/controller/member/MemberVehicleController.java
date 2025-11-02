@@ -26,14 +26,14 @@ public class MemberVehicleController {
                 .result(vehicleService.getAllVehicles())
                 .build();
     }
-//
+
     @GetMapping("/{id}")
     public ApiResponse<VehicleResponse> getVehicleById(@PathVariable Long id) {
         return ApiResponse.<VehicleResponse>builder()
                 .result(vehicleService.getById(id))
                 .build();
     }
-//
+
     @GetMapping("/for-user")
     public ApiResponse<List<VehicleResponse>> getUserVehicle(HttpServletRequest request) {
     return ApiResponse.<List<VehicleResponse>>builder()

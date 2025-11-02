@@ -46,6 +46,8 @@ public class PaymentTransactionController {
                 .build();
     }
 
+//    @PostMapping("payment/{id}")
+
     @PostMapping("/vn-pay")
     public ApiResponse<VNPayDTO> pay(
             Long paymentTransactionId,

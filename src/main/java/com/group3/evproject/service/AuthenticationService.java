@@ -156,7 +156,7 @@ public class AuthenticationService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setVerified(false);
         // 3. Gán role mặc định USER
-        Role userRole = roleRepository.findByName(RoleName.ROLE_MEMBER).orElse(null);
+        Role userRole = roleRepository.findByName(RoleName.MEMBER).orElse(null);
         if (user.getRoles() == null) {
             user.setRoles(new HashSet<>());
         }

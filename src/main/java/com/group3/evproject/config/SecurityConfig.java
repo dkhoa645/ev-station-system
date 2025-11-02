@@ -22,8 +22,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 public class SecurityConfig {
 
+
+
+
     private final String[] PUBLIC_ENDPOINTS = {
-            "/auth"
+            "/api/authentication/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
     };
 
     @Value("${jwt.signerKey}")
@@ -38,12 +44,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers( "/auth/**").permitAll()
-                        .requestMatchers(
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**",
-                                "/webjars/**")
+                        .requestMatchers(PUBLIC_ENDPOINTS)
                         .permitAll()
 //                        .requestMatchers("/member/**").hasAnyAuthority("ROLE_ADMIN","ROLE_MEMBER")
 //                        .requestMatchers("/company/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY")
@@ -54,16 +55,9 @@ public class SecurityConfig {
                 )
                 .httpBasic(withDefaults()); // HTTP Basic mặc định
         http.oauth2ResourceServer(oauth2 ->
-                oauth2.bearerTokenResolver(request -> {
-                            String path = request.getServletPath();
-                            if (path.contains("swagger") || path.contains("api-docs") || path.contains("webjars") || path.startsWith("/auth")) {
-                                return null;
-                            }
-                            return new DefaultBearerTokenResolver().resolve(request);
-                        })
-                        .jwt(jwtConfigurer -> jwtConfigurer
-                                .decoder(jwtDecoder())
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(jwtDecoder())
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 );
 
         http.csrf(AbstractHttpConfigurer::disable);
@@ -72,14 +66,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("scope");
-        grantedAuthoritiesConverter.setAuthorityPrefix("");
+    JwtAuthenticationConverter jwtAuthenticationConverter(){
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-        return converter;
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+
+        return jwtAuthenticationConverter;
     }
 
     @Bean
