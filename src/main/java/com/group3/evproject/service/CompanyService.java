@@ -4,6 +4,7 @@ import com.group3.evproject.dto.request.CompanyCreationRequest;
 import com.group3.evproject.dto.request.CompanyUpdateRequest;
 import com.group3.evproject.dto.response.CompanyResponse;
 import com.group3.evproject.entity.Company;
+import com.group3.evproject.entity.Payment;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.CompanyMapper;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class CompanyService {
     CompanyRepository companyRepository;
     CompanyMapper companyMapper;
+    PaymentService paymentService;
 
     public CompanyResponse createCompany(CompanyCreationRequest companyCreationRequest) {
         if(companyRepository.existsByContactEmail(companyCreationRequest.getContactEmail()))
@@ -29,6 +32,11 @@ public class CompanyService {
         if(companyRepository.existsByName(companyCreationRequest.getName()))
             throw new AppException(ErrorCode.RESOURCES_EXISTS,"Company Name");
         Company company = companyMapper.toCompany(companyCreationRequest);
+
+        Payment payment = paymentService.createNew(null,company);
+        List<Payment> list = new ArrayList<>();
+                list.add(payment);
+        company.setPayment(list);
         return companyMapper.toCompanyResponse(companyRepository.save(company));
     }
 

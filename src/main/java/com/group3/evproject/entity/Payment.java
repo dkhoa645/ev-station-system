@@ -31,7 +31,10 @@ public class Payment {
     List<PaymentTransaction> paymentTransactions;
 
     @ManyToOne()
-    @JoinColumn(name="user_id")
+    @JoinColumn(name="user_id",nullable = true)
     User user;
 
+    @ManyToOne()
+    @JoinColumn(name="company_id",nullable = true)
+    Company company;
 }

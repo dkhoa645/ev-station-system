@@ -18,4 +18,6 @@ public class Company {
     String contactEmail;
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     List<User> user;
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
+    List<Payment> payment;
 }
