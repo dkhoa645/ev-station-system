@@ -193,6 +193,7 @@ public class AuthenticationService {
                         .totalEnergy(BigDecimal.ZERO)
                         .invoices(new ArrayList<>())
                         .paymentTransactions(new ArrayList<>())
+                        .user(user)
                         .period(period)
                 .build());
 
