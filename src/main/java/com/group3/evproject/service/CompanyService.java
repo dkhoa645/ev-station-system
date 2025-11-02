@@ -12,6 +12,7 @@ import com.group3.evproject.repository.CompanyRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -63,5 +64,9 @@ public class CompanyService {
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company"));
         companyRepository.delete(company);
         return "Company "+ company.getName() + " Deleted";
+    }
+
+    public Company findById(Long companyId) {
+        return companyRepository.findById(companyId).orElse(null);
     }
 }

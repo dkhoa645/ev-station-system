@@ -1,5 +1,8 @@
 package com.group3.evproject.controller.admin;
 
+import com.group3.evproject.dto.request.PaymentCreationRequest;
+import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.dto.response.PaymentResponse;
 import com.group3.evproject.entity.Payment;
 import com.group3.evproject.service.PaymentService;
 import lombok.AccessLevel;
@@ -18,6 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
     PaymentService paymentService;
 
-
+    @PostMapping
+    public ApiResponse<PaymentResponse> createPayment(@RequestBody PaymentCreationRequest request) {
+        return ApiResponse.<PaymentResponse>builder()
+                .result(paymentService.createPayment(request))
+                .build();
+    }
 
 }

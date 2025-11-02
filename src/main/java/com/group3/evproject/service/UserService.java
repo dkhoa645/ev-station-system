@@ -134,4 +134,10 @@ public class UserService {
         userResponse.setRoles(roles);
         return userResponse;
     }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
+
 }
