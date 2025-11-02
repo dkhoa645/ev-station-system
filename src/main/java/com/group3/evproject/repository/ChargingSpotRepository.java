@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface ChargingSpotRepository extends JpaRepository<ChargingSpot, Long> {
     List<ChargingSpot> findByStationId(Long stationId);
     List<ChargingSpot> findByStatus(ChargingSpot.SpotStatus status);
-    List<ChargingSpot> findByStationAndStatus(ChargingStation station, ChargingSpot.SpotStatus status);
     Optional<ChargingSpot> findFirstByStationAndStatus(ChargingStation station, ChargingSpot.SpotStatus status);
+    Long countByStationIdAndStatus(Long stationId, ChargingSpot.SpotStatus status);
 }
