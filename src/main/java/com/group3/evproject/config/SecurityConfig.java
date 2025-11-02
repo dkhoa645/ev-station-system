@@ -45,12 +45,12 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**")
                         .permitAll()
-                        .requestMatchers("/member/**").hasAnyAuthority("ROLE_ADMIN","ROLE_MEMBER")
-                        .requestMatchers("/company/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY")
-                        .requestMatchers("/driver/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY","ROLE_DRIVER")
-                        .requestMatchers("/staff/**").hasAnyAuthority("ROLE_ADMIN","ROLE_STAFF")
-                        .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
-                        .anyRequest().authenticated()
+//                        .requestMatchers("/member/**").hasAnyAuthority("ROLE_ADMIN","ROLE_MEMBER")
+//                        .requestMatchers("/company/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY")
+//                        .requestMatchers("/driver/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY","ROLE_DRIVER")
+//                        .requestMatchers("/staff/**").hasAnyAuthority("ROLE_ADMIN","ROLE_STAFF")
+//                        .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
+                        .anyRequest().permitAll()
                 )
                 .httpBasic(withDefaults()); // HTTP Basic mặc định
         http.oauth2ResourceServer(oauth2 ->
