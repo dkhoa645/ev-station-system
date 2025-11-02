@@ -11,6 +11,7 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentTransactionMapper;
 import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.PaymentTransactionRepository;
+import com.group3.evproject.utils.UserUtils;
 import com.group3.evproject.utils.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -39,6 +40,7 @@ public class PaymentTransactionService {
     SubscriptionPlanService subscriptionPlanService;
     private final AuthenticationService authenticationService;
     private final UserService userService;
+    private final UserUtils userUtils;
 
     public com.group3.evproject.entity.PaymentTransaction savePayment(com.group3.evproject.entity.PaymentTransaction paymentTransaction){
         return paymentTransactionRepository.save(paymentTransaction);
@@ -155,8 +157,9 @@ public class PaymentTransactionService {
         return "Success";
     }
 
-    public List<PaymentTransactionResponse> getAll() {
-            return paymentTransactionRepository.findAll().stream()
+    public List<PaymentTransactionResponse> getByUser() {
+            User user = userUtils.getCurrentUser();
+            return paymentTransactionRepository.findByUser(user).stream()
                     .map(entity -> {
                         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(entity);
                         String type ="";

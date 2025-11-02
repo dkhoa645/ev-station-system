@@ -77,7 +77,7 @@ public class PaymentTransactionController {
     @GetMapping
     public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
         return ApiResponse.<List<PaymentTransactionResponse>>builder()
-                .result(paymentTransactionService.getAll())
+                .result(paymentTransactionService.getByUser())
                 .build();
     }
 
