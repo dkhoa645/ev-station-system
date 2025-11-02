@@ -50,11 +50,11 @@ public class VehicleModelService {
 
 
 
-    public VehicleModel saveModel(VehicleModelRequest vmr) {
+    public VehicleModelResponse saveModel(VehicleModelRequest vmr) {
         VehicleBrand vehicleBrand = vehicleBrandService.findById(vmr.getBrandId());
         VehicleModel vehicleModel = vehicleModelMapper.toVehicleModel(vmr);
         vehicleModel.setBrand(vehicleBrand);
-         return vehicleModelRepository.save(vehicleModel);
+         return vehicleModelMapper.toVehicleModelResponse(vehicleModelRepository.save(vehicleModel));
     }
 
     public List<VehicleModelResponse> getModelByBrand(long id) {

@@ -1,4 +1,4 @@
-package com.group3.evproject.controller.admin;
+package com.group3.evproject.controller.member;
 
 
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
@@ -20,7 +20,7 @@ import lombok.AccessLevel;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("payment-transaction")
+@RequestMapping("member/payment-transaction")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
 public class PaymentTransactionController {

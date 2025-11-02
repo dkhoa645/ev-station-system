@@ -45,8 +45,8 @@ public class VehicleModelController {
     }
 
     @PostMapping()
-    public ApiResponse<VehicleModel> addVehicleModel(@RequestBody VehicleModelRequest vehicleModelRequest) {
-        return ApiResponse.<VehicleModel>builder()
+    public ApiResponse<VehicleModelResponse> addVehicleModel(@RequestBody VehicleModelRequest vehicleModelRequest) {
+        return ApiResponse.<VehicleModelResponse>builder()
                 .result(vehicleModelService.saveModel(vehicleModelRequest))
                 .build();
     }
