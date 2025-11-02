@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -36,19 +37,33 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers( "/auth/**").permitAll()
                         .requestMatchers(
+                                "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
-                                "/webjars/**").permitAll()
+                                "/webjars/**")
+                        .permitAll()
                         .requestMatchers("/member/**").hasAnyRole("ADMIN","MEMBER")
                         .requestMatchers("/company/**").hasAnyRole("ADMIN","COMPANY")
                         .requestMatchers("/driver/**").hasAnyRole("ADMIN","COMPANY","DRIVER")
                         .requestMatchers("/staff/**").hasAnyRole("ADMIN","STAFF")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults()); // HTTP Basic mặc định
         http.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
+                oauth2.bearerTokenResolver(request -> {
+                            String path = request.getServletPath();
+                            if (path.startsWith("/auth") ||
+                                    path.startsWith("/swagger-ui") ||
+                                    path.startsWith("/v3/api-docs") ||
+                                    path.startsWith("/swagger-resources") ||
+                                    path.startsWith("/webjars")) {
+                                return null; // ✅ Bỏ qua JWT check
+                            }
+                            return new DefaultBearerTokenResolver().resolve(request);
+                        })
+                        .jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
                 );
 
         http.csrf(AbstractHttpConfigurer::disable);

@@ -103,9 +103,22 @@ public class UserService {
         }
     }
 
+    @Transactional
     public UserResponse updateMember(@Valid UserUpdateRequest userUpdateRequest) {
         User user = userUtils.getCurrentUser();
         userMapper.updateUserFromRequest(userUpdateRequest, user);
         return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    public String deleteMember() {
+        User user = userUtils.getCurrentUser();
+        userRepository.deleteById(user.getId());
+        return "Deleted" + user.getId() + "successfully";
+    }
+
+    public UserResponse getUserInfo() {
+        User user = userUtils.getCurrentUser();
+        return userMapper.toUserResponse(user);
     }
 }

@@ -39,6 +39,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -74,9 +75,17 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
+        UserResponse userResponse = userMapper.toUserResponse(user);
+        userResponse.setRoles(
+                user.getRoles().stream()
+                        .map(Role::getName)
+                        .collect(Collectors.toCollection(HashSet::new))
+        );
+
         var token = generateToken(user);
 
         return AuthenticationResponse.builder()
+                .user(userResponse)
                 .token(token)
                 .authenticated(true)
                 .build();

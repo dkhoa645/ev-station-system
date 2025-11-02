@@ -1,7 +1,6 @@
 package com.group3.evproject.dto.request;
 
-
-import jakarta.validation.constraints.NotBlank;
+import com.group3.evproject.Enum.RoleName;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,9 +9,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationRequest {
-    @NotBlank(message = "Username must not be blank")
-    String username;
-    @NotBlank(message = "Password must not be blank")
+public class AdminUserCreationRequest {
+    String email;
     String password;
+    String name;
+    RoleName role;
+    Long companyId;
 }
