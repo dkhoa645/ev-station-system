@@ -23,8 +23,8 @@ public class UserController {
     UserService userService;
 
     @GetMapping
-    ApiResponse<List<User>>  getAllUsers() {
-        return ApiResponse.<List<User>>builder()
+    ApiResponse<List<UserResponse>>  getAllUsers() {
+        return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getAllUsers())
                 .build();
     }

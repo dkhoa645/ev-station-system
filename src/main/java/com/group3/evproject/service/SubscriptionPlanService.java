@@ -25,6 +25,7 @@ import java.util.List;
 public class SubscriptionPlanService {
     SubscriptionPlanRepository subscriptionPlanRepository;
     SubscriptionPlanMapper mapper;
+    private final SubscriptionPlanMapper subscriptionPlanMapper;
 
     public SubscriptionPlan savePlan(SubscriptionPlan sp){
         return subscriptionPlanRepository.save(sp);
@@ -66,8 +67,10 @@ public class SubscriptionPlanService {
         subscriptionPlanRepository.delete(existing);
     }
 
-    public SubscriptionPlan getById(Long id) {
-        return subscriptionPlanRepository.findById(id)
+    public SubscriptionPlanResponse getById(Long id) {
+        SubscriptionPlan subscriptionPlan = subscriptionPlanRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Subscription"));
+
+        return subscriptionPlanMapper.toSubscriptionPlanResponse(subscriptionPlan);
     }
 }

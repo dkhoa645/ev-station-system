@@ -37,8 +37,8 @@ public class VehicleModelController {
                 .build();
     }
 
-    @GetMapping
-    public ApiResponse<VehicleModelResponse> getVehicleModelById(@RequestParam long id) {
+    @GetMapping("/{id}")
+    public ApiResponse<VehicleModelResponse> getVehicleModelById(@PathVariable long id) {
         return ApiResponse.<VehicleModelResponse>builder()
                 .result(vehicleModelService.getById(id))
                 .build();

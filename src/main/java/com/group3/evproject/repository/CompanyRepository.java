@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company,Long> {
-    boolean existByContactEmail(
+    boolean existsByContactEmail(
             @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$", message = "Email wrong format")
             String contactEmail);
 
-    boolean existByName(@Size(min = 1, max = 50) String name);
+    boolean existsByName(@Size(min = 1, max = 50) String name);
 }

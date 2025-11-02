@@ -27,8 +27,8 @@ public class SubscriptionPlanController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<SubscriptionPlan> getSubscriptionPlanById(@PathVariable Long id) {
-        return ApiResponse.<SubscriptionPlan>builder()
+    public ApiResponse<SubscriptionPlanResponse> getSubscriptionPlanById(@PathVariable Long id) {
+        return ApiResponse.<SubscriptionPlanResponse>builder()
                 .result(subscriptionPlanService.getById(id))
                 .build();
     }

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +36,10 @@ public class UserService {
     UserUtils userUtils;
 
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(userMapper::toUserResponse)
+                .collect(Collectors.toList());
     }
 
     public User getUserByUsername(String username) {

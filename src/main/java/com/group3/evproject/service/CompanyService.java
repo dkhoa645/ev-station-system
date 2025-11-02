@@ -24,9 +24,9 @@ public class CompanyService {
     CompanyMapper companyMapper;
 
     public CompanyResponse createCompany(CompanyCreationRequest companyCreationRequest) {
-        if(companyRepository.existByContactEmail(companyCreationRequest.getContactEmail()))
+        if(companyRepository.existsByContactEmail(companyCreationRequest.getContactEmail()))
             throw new AppException(ErrorCode.RESOURCES_EXISTS,"Company Email");
-        if(companyRepository.existByName(companyCreationRequest.getName()))
+        if(companyRepository.existsByName(companyCreationRequest.getName()))
             throw new AppException(ErrorCode.RESOURCES_EXISTS,"Company Name");
         Company company = companyMapper.toCompany(companyCreationRequest);
         return companyMapper.toCompanyResponse(companyRepository.save(company));

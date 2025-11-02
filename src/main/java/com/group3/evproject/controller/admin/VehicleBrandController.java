@@ -25,6 +25,22 @@ public class VehicleBrandController {
                 .result(vehicleBrandService.createbrand(vehicleBrandRequest))
                 .build();
     }
+    @GetMapping("/{id}")
+    public ApiResponse<VehicleBrandResponse> get(@PathVariable Long id) {
+        return ApiResponse.<VehicleBrandResponse>builder()
+                .result(vehicleBrandService.getById(id))
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<VehicleBrandResponse> update(
+            @PathVariable Long id,
+            @RequestBody VehicleBrandRequest vehicleBrandRequest) {
+        return ApiResponse.<VehicleBrandResponse>builder()
+                .result(vehicleBrandService.update(id,vehicleBrandRequest))
+                .build();
+    }
+
     @GetMapping("/all")
     public ApiResponse<List<VehicleBrandResponse>> getAllVehicleBranch() {
         return ApiResponse.<List<VehicleBrandResponse>>builder()

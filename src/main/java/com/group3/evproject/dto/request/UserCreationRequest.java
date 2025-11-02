@@ -20,7 +20,7 @@ public class UserCreationRequest {
 
     @Size(min = 6, message = "PASSWORD_INVALID")
     String password;
-
+    @Size(min = 1, message = "NAME_INVALID")
     String name;
 
     @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$", message = "Email wrong format")

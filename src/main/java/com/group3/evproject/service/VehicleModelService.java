@@ -78,13 +78,12 @@ public class VehicleModelService {
 
 
     public VehicleModelResponse updateModel(Long id, VehicleModelRequest vehicleModelRequest) {
-            VehicleModel vehicleModel = vehicleModelMapper.toVehicleModel(vehicleModelRequest);
-            vehicleModel.setId(id);
 
-            VehicleBrand vehicleBrand = vehicleBrandService.findById(id);
-            vehicleModel.setBrand(vehicleBrand);
-            vehicleModelRepository.save(vehicleModel);
-            return vehicleModelMapper.toVehicleModelResponse(vehicleModel);
+            VehicleModel vehicleModel = vehicleModelRepository.findById(id).orElse(null);
+
+            vehicleModelMapper.updateToVehicleModel(vehicleModelRequest, vehicleModel);
+
+            return vehicleModelMapper.toVehicleModelResponse(vehicleModelRepository.save(vehicleModel));
     }
 
     public VehicleModelResponse getById(long id) {

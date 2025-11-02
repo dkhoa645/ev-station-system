@@ -92,7 +92,7 @@ public class PaymentTransactionService {
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
 
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
-        response.setVehicleSubscription(vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription));
+        response.setType("VEHICLE_SUBSCRIPTION");
         return response;
     }
 
@@ -119,7 +119,7 @@ public class PaymentTransactionService {
         booking.getPaymentTransactions().add(paymentTransaction);
         bookingService.saveBooking(booking);
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
-        response.setBooking(bookingResponse);
+        response.setType("BOOKING");
         return  response;
     }
 
@@ -157,7 +157,15 @@ public class PaymentTransactionService {
 
     public List<PaymentTransactionResponse> getAll() {
             return paymentTransactionRepository.findAll().stream()
-                    .map(paymentTransactionMapper :: toResponse)
+                    .map(entity -> {
+                        PaymentTransactionResponse response = paymentTransactionMapper.toResponse(entity);
+                        String type ="";
+                        if(entity.getBooking() != null) type ="BOOKING";
+                        if(entity.getPayment() != null) type ="PAYMENT";
+                        if(entity.getVehicleSubscription() != null) type ="VEHICLE SUBSCRIPTION";
+                        response.setType(type);
+                        return response;
+                    })
                     .collect(Collectors.toList());
     }
 

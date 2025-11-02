@@ -18,6 +18,7 @@ import com.group3.evproject.dto.response.ApiResponse;
 import lombok.AccessLevel;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("member/payment-transaction")
@@ -73,19 +74,12 @@ public class PaymentTransactionController {
             }
     }
 
-//    @GetMapping
-//    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
-//        return ApiResponse.<List<PaymentTransactionResponse>>builder()
-//                .result(paymentTransactionService.getAll())
-//                .build();
-//    }
+    @GetMapping
+    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
+        return ApiResponse.<List<PaymentTransactionResponse>>builder()
+                .result(paymentTransactionService.getAll())
+                .build();
+    }
 
-//    public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
-//        String message = authenticationService.verifyEmail(token);
-//        if (message.contains("success")) {
-//            response.sendRedirect("http://localhost:5173/");
-//        } else {
-//            response.sendRedirect("http://localhost:5173/");
-//        }
-//    }
+
 }
