@@ -2,6 +2,8 @@ package com.group3.evproject.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,32 +13,24 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
-    // Liên kết với ChargingSession
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "session_id", nullable = false)
-    private ChargingSession session;
-
-    // Liên kết với Payment
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id")
-    private Payment payment;
+    @OneToOne
+    @JoinColumn(name = "session_id")
+    ChargingSession session;
 
     @Column(name = "issue_date", nullable = false)
-    private LocalDateTime issueDate;
+    LocalDateTime issueDate;
 
     @Column(name = "final_cost", nullable = false)
-    private Double finalCost;
+    Double finalCost;
 
-    @PrePersist
-    public void prePersist() {
-        if (issueDate == null) {
-            issueDate = LocalDateTime.now();
-        }
-    }
+    @ManyToOne
+    @JoinColumn(name = "payment_id")
+    Payment payment;
 }
