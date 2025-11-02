@@ -1,4 +1,4 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.admin;
 
 import com.group3.evproject.service.PaymentService;
 import lombok.AccessLevel;

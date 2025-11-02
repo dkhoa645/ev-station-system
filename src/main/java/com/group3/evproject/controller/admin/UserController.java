@@ -1,4 +1,4 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.admin;
 
 import com.group3.evproject.dto.request.UserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
@@ -10,20 +10,18 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.apache.coyote.Request;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
-@RequestMapping("/user")
+@RequestMapping("/admin/user")
 @RequiredArgsConstructor
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
     UserService userService;
-//
-//    Tạo user không phải đăng kí
+
     @GetMapping
     ApiResponse<List<User>>  getAllUsers() {
         return ApiResponse.<List<User>>builder()
@@ -52,7 +50,6 @@ public class UserController {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUser(userId, userUpdateRequest))
                 .build();
-
     }
 
     @DeleteMapping("/{userId}")

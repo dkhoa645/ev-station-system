@@ -28,7 +28,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // hoặc BCryptPasswordEncoder(10)
+        return new BCryptPasswordEncoder(10);
     }
 
     @Bean
@@ -40,7 +40,11 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/member/**").hasAnyRole("ADMIN","MEMBER")
+                        .requestMatchers("/company/**").hasAnyRole("ADMIN","COMPANY")
+                        .requestMatchers("/driver/**").hasAnyRole("ADMIN","COMPANY","DRIVER")
+                        .requestMatchers("/staff/**").hasAnyRole("ADMIN","STAFF")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                 )
                 .httpBasic(withDefaults()); // HTTP Basic mặc định
         http.oauth2ResourceServer(oauth2 ->

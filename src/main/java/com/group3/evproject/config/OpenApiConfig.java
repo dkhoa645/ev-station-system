@@ -15,7 +15,7 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("JavaInUse Authentication Service"))
+                .info(new Info().title("EV Station System API"))
                 .addSecurityItem(new SecurityRequirement().addList("JavaInUseSecurityScheme"))
                 .components(new Components().addSecuritySchemes("JavaInUseSecurityScheme", new SecurityScheme()
                         .name("JavaInUseSecurityScheme").type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")))

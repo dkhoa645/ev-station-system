@@ -1,6 +1,6 @@
 package com.group3.evproject.service;
 
-import com.group3.evproject.Enum.PaymentStatus;
+import com.group3.evproject.Enum.PaymentTransactionStatus;
 import com.group3.evproject.dto.response.BookingResponse;
 import com.group3.evproject.entity.PaymentTransaction;
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
@@ -11,7 +11,7 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentTransactionMapper;
 import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.PaymentTransactionRepository;
-import com.group3.evproject.vnpay.VNPayUtil;
+import com.group3.evproject.utils.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,7 +66,7 @@ public class PaymentTransactionService {
                 .amount(amount)
                 .paymentMethod("VNPAY")
                 .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-                .status(com.group3.evproject.Enum.PaymentTransaction.PENDING)
+                .status(PaymentTransactionStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusMinutes(15))
                 .paidAt(null)
@@ -134,7 +133,7 @@ public class PaymentTransactionService {
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         paymentTransaction.setPaidAt(now);
-        paymentTransaction.setStatus(com.group3.evproject.Enum.PaymentTransaction.SUCCESS);
+        paymentTransaction.setStatus(PaymentTransactionStatus.SUCCESS);
         //  Kiểm tra xem hóa đơn của object nào
         VehicleSubscription checkVehicleSubscription = paymentTransaction.getVehicleSubscription();
         Payment checkPayment = paymentTransaction.getPayment();

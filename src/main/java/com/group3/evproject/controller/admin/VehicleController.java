@@ -1,9 +1,8 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.admin;
 
 import com.group3.evproject.dto.request.VehicleRegisterRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.VehicleResponse;
-import com.group3.evproject.entity.Vehicle;
 import com.group3.evproject.service.VehicleService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
@@ -52,11 +51,6 @@ public class VehicleController {
                 .build();
     }
 
-//    @PutMapping
-//    public ApiResponse<Vehicle> updateVehicle(@RequestBody VehicleRequest vehicleRequest) {
-//
-//    }
-//
     @DeleteMapping("/{id}")
     public ApiResponse<String> deleteVehicleById(
             @PathVariable Long id,
@@ -66,15 +60,5 @@ public class VehicleController {
                         .result(message)
                         .build();
     }
-//
-//    @PutMapping("/{id}")
-//    public ApiResponse<VehicleResponse> updateVehicleById(
-//            @PathVariable Long id,
-//            HttpServletRequest request,
-//            @RequestBody VehicleRegisterRequest vehicleRegisterRequest) {
-//        return ApiResponse.<VehicleResponse>builder()
-//                .result(vehicleService.updateUserVehicle(id,request, vehicleRegisterRequest))
-//                .build();
-//    }
 
 }

@@ -1,6 +1,6 @@
 package com.group3.evproject.Enum;
 
-public enum PaymentTransaction {
+public enum PaymentTransactionStatus {
     FAILED,
     SUCCESS,
     PENDING

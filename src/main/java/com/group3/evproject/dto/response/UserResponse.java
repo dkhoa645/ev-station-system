@@ -17,4 +17,5 @@ public class UserResponse {
     String username;
     String name;
     String message;
+    ;
 }

@@ -10,7 +10,9 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.UserMapper;
 import com.group3.evproject.repository.RoleRepository;
 import com.group3.evproject.repository.UserRepository;
+import com.group3.evproject.utils.UserUtils;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +32,7 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
+    UserUtils userUtils;
 
 
     public List<User> getAllUsers() {
@@ -98,5 +101,11 @@ public class UserService {
         else {
             throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User");
         }
+    }
+
+    public UserResponse updateMember(@Valid UserUpdateRequest userUpdateRequest) {
+        User user = userUtils.getCurrentUser();
+        userMapper.updateUserFromRequest(userUpdateRequest, user);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 }

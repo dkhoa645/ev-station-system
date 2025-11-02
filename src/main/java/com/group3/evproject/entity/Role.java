@@ -1,5 +1,6 @@
 package com.group3.evproject.entity;
 
+import com.group3.evproject.Enum.RoleName;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -21,10 +22,11 @@ import java.util.Set;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
 
-    @Column(nullable = false, unique = true)
-    String name;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    RoleName name;
 
     @ManyToMany(mappedBy = "roles")
     Set<User> users = new HashSet<>();

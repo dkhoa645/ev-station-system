@@ -1,4 +1,4 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.admin;
 
 
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
@@ -18,7 +18,6 @@ import com.group3.evproject.dto.response.ApiResponse;
 import lombok.AccessLevel;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("payment-transaction")

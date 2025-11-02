@@ -1,9 +1,8 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.admin;
 
 import com.group3.evproject.dto.request.VehicleBrandRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.VehicleBrandResponse;
-import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.entity.VehicleBrand;
 import com.group3.evproject.service.VehicleBrandService;
 import lombok.AccessLevel;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/vehicle-brand")
+@RequestMapping("/admin/vehicle-brand")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VehicleBrandController {

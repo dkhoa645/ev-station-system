@@ -1,6 +1,6 @@
 package com.group3.evproject.dto.response;
 
-import com.group3.evproject.Enum.PaymentTransaction;
+import com.group3.evproject.Enum.PaymentTransactionStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,7 +16,7 @@ public class PaymentTransactionResponse {
     Long id;
     BigDecimal amount;
     String paymentMethod;
-    PaymentTransaction status;
+    PaymentTransactionStatus status;
     LocalDateTime createdAt;
     LocalDateTime paidAt;
     VehicleSubscriptionResponse vehicleSubscription;

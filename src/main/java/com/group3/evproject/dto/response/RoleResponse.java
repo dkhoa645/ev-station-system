@@ -1,5 +1,6 @@
 package com.group3.evproject.dto.response;
 
+import com.group3.evproject.Enum.RoleName;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,8 +9,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationResponse {
-    String token;
-    UserResponse user;
-    boolean authenticated;
+public class RoleResponse {
+    RoleName name;
 }

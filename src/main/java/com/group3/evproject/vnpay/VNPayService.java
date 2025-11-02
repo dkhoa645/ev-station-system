@@ -1,8 +1,6 @@
 package com.group3.evproject.vnpay;
 
 
-import com.group3.evproject.dto.response.ApiResponse;
-import com.group3.evproject.dto.response.PaymentTransactionResponse;
 import com.group3.evproject.entity.PaymentTransaction;
 import com.group3.evproject.service.PaymentTransactionService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import com.group3.evproject.vnpay.VNPayUtil;
+import com.group3.evproject.utils.VNPayUtil;
 
 import lombok.AccessLevel;
 

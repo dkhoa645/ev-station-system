@@ -1,22 +1,14 @@
 package com.group3.evproject.vnpay;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.group3.evproject.utils.VNPayUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import lombok.NoArgsConstructor;
 
