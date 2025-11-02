@@ -1,12 +1,11 @@
 package com.group3.evproject.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,24 +22,20 @@ public class ChargingSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    // Nếu Booking có thể null (trong trường hợp Walk-in), nên cho phép nullable = true
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id")
     @JsonBackReference
     Booking booking;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "station_id", nullable = false)
+    @JoinColumn(name = "station_id")
     @JsonBackReference
     ChargingStation station;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "spot_id", nullable = false)
+    @JoinColumn(name = "spot_id")
     @JsonBackReference
     ChargingSpot spot;
-
-    @Column(name = "energy_used")
-    Double energyUsed;
 
     @Column(name = "start_time", nullable = false)
     LocalDateTime startTime;
@@ -48,32 +43,42 @@ public class ChargingSession {
     @Column(name = "end_time")
     LocalDateTime endTime;
 
-    @Column(name = "total_cost")
-    Double totalCost;
+    @Column(name = "power_output") // công suất trạm sạc (kW)
+    Double powerOutput;
 
-    @Column(name = "duration_minutes")
-    Integer durationMinutes;
-
-    @Column(name = "battery_start")
-    Double batteryStart;
-
-    @Column(name = "battery_end")
-    Double batteryEnd;
-
-    @Column(name = "charging_duration")
+    @Column(name = "charging_duration") // thời gian sạc (giờ)
     Double chargingDuration;
 
+    @Column(name = "battery_capacity") // dung lượng pin (kWh)
+    Double batteryCapacity;
+
+    @Column(name = "percent_before") // % pin trước khi sạc
+    Double percentBefore;
+
+    @Column(name = "percent_after") // % pin sau khi sạc
+    Double percentAfter;
+
+    @Column(name = "energy_added") // số điện đã vào xe (kWh)
+    Double energyAdded;
+
+    @Column(name = "energy_used") // lượng điện đã sạc thực tế (kWh)
+    Double energyUsed;
+
+    @Column(name = "rate_per_kwh") // giá tiền trên mỗi kWh
+    Double ratePerKWh;
+
+    @Column(name = "total_cost") // tổng chi phí sạc
+    Double totalCost;
+
+    // 🧭 Trạng thái phiên sạc
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    SessionStatus status = SessionStatus.IN_PROGRESS;
+    Status status = Status.ACTIVE;
 
-    public enum SessionStatus {
-        IN_PROGRESS,
+    public enum Status {
+        ACTIVE,
         COMPLETED,
-        CANCELLED
+        CANCELLED,
+        ERROR
     }
-
-//    @OneToOne(mappedBy = "chargingSession")
-//    @JsonManagedReference
-//    private Invoice invoice;
 }

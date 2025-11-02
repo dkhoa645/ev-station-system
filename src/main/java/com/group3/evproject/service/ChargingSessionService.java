@@ -1,108 +1,168 @@
 package com.group3.evproject.service;
 
-import com.group3.evproject.entity.Booking;
-import com.group3.evproject.entity.ChargingSession;
-import com.group3.evproject.entity.ChargingSpot;
-import com.group3.evproject.repository.BookingRepository;
-import com.group3.evproject.repository.ChargingSessionRepository;
-import com.group3.evproject.repository.ChargingSpotRepository;
+import com.group3.evproject.entity.*;
+import com.group3.evproject.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.group3.evproject.dto.response.ChargingSessionResponse;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ChargingSessionService {
 
     private final ChargingSessionRepository chargingSessionRepository;
+    private final ChargingSpotRepository chargingSpotRepository;
+    private final ChargingStationRepository chargingStationRepository;
     private final BookingRepository bookingRepository;
-    private final ChargingSpotRepository spotRepository;
 
-    //start
-    public ChargingSession startSession(Long bookingId, Long chargingPointId) {
+    public List<ChargingSession> getAllSessions() {
+        return chargingSessionRepository.findAll();
+    }
+    public ChargingSession getSessionEntityById(Long id) {
+        return chargingSessionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Charging session not found with id: " + id));
+    }
+
+    public ChargingSessionResponse getSessionById(Long id) {
+        ChargingSession session = getSessionEntityById(id);
+
+        return ChargingSessionResponse.builder()
+                .sessionId(session.getId())
+                .stationName(session.getStation() != null ? session.getStation().getName() : null)
+                .spotName(session.getSpot() != null ? session.getSpot().getSpotName() : null)
+                .bookingId(session.getBooking() != null ? session.getBooking().getId() : null)
+                .startTime(session.getStartTime())
+                .endTime(session.getEndTime())
+                .chargingDuration(session.getChargingDuration())
+                .powerOutput(session.getPowerOutput())
+                .batteryCapacity(session.getBatteryCapacity())
+                .percentBefore(session.getPercentBefore())
+                .percentAfter(session.getPercentAfter())
+                .energyUsed(session.getEnergyUsed())
+                .ratePerKWh(session.getRatePerKWh())
+                .totalCost(session.getTotalCost())
+                .status(session.getStatus().name())
+                .build();
+    }
+
+    public ChargingSession startSession(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
 
-        ChargingSpot spot = spotRepository.findById(chargingPointId)
-                .orElseThrow(() -> new RuntimeException("Charging point not found"));
+        ChargingStation station = booking.getStation();
 
-        // Kiểm tra thời gian hợp lệ
-        if (booking.getStartTime().isAfter(LocalDateTime.now())) {
-            throw new RuntimeException("Cannot start charging before your booking time");
-        }
+        // Tìm spot khả dụng
+        ChargingSpot spot = chargingSpotRepository.findFirstByStationAndStatus(station, ChargingSpot.SpotStatus.AVAILABLE)
+                .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
 
-        // Kiểm tra điểm sạc có đang trống
-        if (spot.getStatus() == ChargingSpot.SpotStatus.OCCUPIED) {
-            throw new RuntimeException("Charging point is already occupied");
-        }
-
-        // Đánh dấu điểm sạc đang sử dụng
+        // Đánh dấu spot đang bận
         spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
-        spotRepository.save(spot);
+        chargingSpotRepository.save(spot);
 
-        // Tạo session mới
+        // Giảm availableSpot trong station
+        station.setAvailableSpots(Math.max(0, station.getAvailableSpots() - 1));
+        chargingStationRepository.save(station);
+
+        // Tạo session
         ChargingSession session = ChargingSession.builder()
                 .booking(booking)
-                .station(booking.getStation())
+                .station(station)
                 .spot(spot)
                 .startTime(LocalDateTime.now())
-                .status(ChargingSession.SessionStatus.IN_PROGRESS)
+                .powerOutput(station.getPowerCapacity()) // dùng công suất trạm
+                .status(ChargingSession.Status.ACTIVE)
                 .build();
 
         return chargingSessionRepository.save(session);
     }
 
-    //end
-    public ChargingSession endSession(Long sessionId, double batteryEnd, double energyUsed,
-                                      int durationMinutes, double totalCost) {
-        ChargingSession session = chargingSessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Charging session not found"));
+    public ChargingSession endSession(Long sessionId, Double ratePerKWh, Double percentBefore, Double batteryCapacity) {
+        ChargingSession session =getSessionEntityById(sessionId);
 
-        if (session.getStatus() != ChargingSession.SessionStatus.IN_PROGRESS) {
-            throw new RuntimeException("Session is not currently active");
+        if (session.getStatus() != ChargingSession.Status.ACTIVE) {
+            throw new RuntimeException("Only active sessions can be ended.");
         }
 
-        session.setEndTime(LocalDateTime.now());
-        session.setBatteryEnd(batteryEnd);
+        LocalDateTime endTime = LocalDateTime.now();
+        session.setEndTime(endTime);
+
+        // 🔹 1. Tính thời gian sạc (giờ)
+        double durationHours = Duration.between(session.getStartTime(), endTime).toMinutes() / 60.0;
+        session.setChargingDuration(durationHours);
+
+        // 🔹 2. Tính số điện đã vào xe (kWh)
+        double energyAdded = session.getPowerOutput() * durationHours;
+        session.setEnergyAdded(energyAdded);
+
+        // 🔹 3. Tính % sau sạc
+        double percentAfter = ((energyAdded / batteryCapacity) * 100) + percentBefore;
+        if (percentAfter > 100) percentAfter = 100.0;
+        session.setPercentBefore(percentBefore);
+        session.setPercentAfter(percentAfter);
+        session.setBatteryCapacity(batteryCapacity);
+
+        // 🔹 4. Lượng điện đã sạc (kWh)
+        double energyUsed = (percentAfter - percentBefore) * (batteryCapacity / 100);
         session.setEnergyUsed(energyUsed);
 
-        session.setDurationMinutes(durationMinutes);
-        session.setChargingDuration((double) durationMinutes);
-        session.setTotalCost(totalCost);
+        // 🔹 5. Tính chi phí sạc
+        session.setRatePerKWh(ratePerKWh);
+        double totalCost = energyUsed * ratePerKWh;
+        session.setTotalCost(Double.valueOf(totalCost));
 
-        session.setStatus(ChargingSession.SessionStatus.COMPLETED);
+        // 🔹 6. Cập nhật trạng thái
+        session.setStatus(ChargingSession.Status.COMPLETED);
 
+        // 🔹 7. Giải phóng spot
         ChargingSpot spot = session.getSpot();
         spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-        spotRepository.save(spot);
+        chargingSpotRepository.save(spot);
+
+        // 🔹 8. Tăng available spot trong station
+        ChargingStation station = session.getStation();
+        station.setAvailableSpots(Math.min(station.getTotalSpots(), station.getAvailableSpots() + 1));
+        chargingStationRepository.save(station);
+
+        // 🔹 9. Cập nhật booking tương ứng
+        Booking booking = session.getBooking();
+        if (booking != null) {
+            booking.setStatus(Booking.BookingStatus.COMPLETED);
+            booking.setTotalCost(session.getTotalCost());
+            bookingRepository.save(booking);
+        }
 
         return chargingSessionRepository.save(session);
     }
 
-    //cancel
     public ChargingSession cancelSession(Long sessionId) {
-        ChargingSession session = chargingSessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Charging session not found"));
+        ChargingSession session = getSessionEntityById(sessionId);
 
-        if (session.getStatus() == ChargingSession.SessionStatus.COMPLETED) {
-            throw new RuntimeException("Cannot cancel a completed session");
+        if (session.getStatus() == ChargingSession.Status.COMPLETED) {
+            throw new RuntimeException("Completed session cannot be cancelled.");
         }
 
-        session.setStatus(ChargingSession.SessionStatus.CANCELLED);
+        session.setStatus(ChargingSession.Status.CANCELLED);
+        session.setEndTime(LocalDateTime.now());
 
-        // Giải phóng điểm sạc nếu đang bị giữ
+        // Giải phóng spot
         ChargingSpot spot = session.getSpot();
-        if (spot.getStatus() == ChargingSpot.SpotStatus.OCCUPIED) {
+        if (spot != null) {
             spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-            spotRepository.save(spot);
+            chargingSpotRepository.save(spot);
+        }
+
+        // Cập nhật station
+        ChargingStation station = session.getStation();
+        if (station != null) {
+            station.setAvailableSpots(Math.min(station.getTotalSpots(), station.getAvailableSpots() + 1));
+            chargingStationRepository.save(station);
         }
 
         return chargingSessionRepository.save(session);
-    }
-
-    //Lấy session theo ID
-    public ChargingSession getSessionById(Long sessionId) {
-        return chargingSessionRepository.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found"));
     }
 }
