@@ -20,7 +20,7 @@ public class SubscriptionPlanRequest {
     String name;
     @NotNull(message = "Price is required")
     BigDecimal price;
-    @NotNull(message = "Price is required")
+    @NotNull(message = "Discount is required")
     BigDecimal discount;
     List<String> description;
 }

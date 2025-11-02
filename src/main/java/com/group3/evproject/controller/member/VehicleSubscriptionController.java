@@ -1,4 +1,4 @@
-package com.group3.evproject.controller.admin;
+package com.group3.evproject.controller.member;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

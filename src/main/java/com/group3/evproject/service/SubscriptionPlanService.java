@@ -13,6 +13,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +47,8 @@ public class SubscriptionPlanService {
     public SubscriptionPlan createPlan(SubscriptionPlanRequest subscriptionPlanRequest) {
         SubscriptionPlan subscriptionPlan = new SubscriptionPlan();
         mapper.toSubscriptionPlan(subscriptionPlanRequest, subscriptionPlan);
+        subscriptionPlan.setMultiplier(BigDecimal.ONE.subtract(
+                subscriptionPlan.getDiscount().divide(BigDecimal.valueOf(100))));
         return subscriptionPlanRepository.save(subscriptionPlan);
     }
 
