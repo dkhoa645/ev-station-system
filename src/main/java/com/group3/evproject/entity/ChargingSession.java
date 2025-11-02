@@ -70,6 +70,9 @@ public class ChargingSession {
     @Column(name = "total_cost") // tổng chi phí sạc
     Double totalCost;
 
+    @OneToOne(mappedBy = "session")
+    private Invoice invoice;
+
     // 🧭 Trạng thái phiên sạc
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
