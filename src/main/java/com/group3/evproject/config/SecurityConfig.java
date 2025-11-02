@@ -45,11 +45,11 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**")
                         .permitAll()
-                        .requestMatchers("/member/**").hasAnyAuthority("ADMIN","MEMBER")
-                        .requestMatchers("/company/**").hasAnyAuthority("ADMIN","COMPANY")
-                        .requestMatchers("/driver/**").hasAnyAuthority("ADMIN","COMPANY","DRIVER")
-                        .requestMatchers("/staff/**").hasAnyAuthority("ADMIN","STAFF")
-                        .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/member/**").hasAnyAuthority("ROLE_ADMIN","ROLE_MEMBER")
+                        .requestMatchers("/company/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY")
+                        .requestMatchers("/driver/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY","ROLE_DRIVER")
+                        .requestMatchers("/staff/**").hasAnyAuthority("ROLE_ADMIN","ROLE_STAFF")
+                        .requestMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults()); // HTTP Basic mặc định
