@@ -43,11 +43,11 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**")
                         .permitAll()
-                        .requestMatchers("/member/**").hasAnyRole("ADMIN","MEMBER")
-                        .requestMatchers("/company/**").hasAnyRole("ADMIN","COMPANY")
-                        .requestMatchers("/driver/**").hasAnyRole("ADMIN","COMPANY","DRIVER")
-                        .requestMatchers("/staff/**").hasAnyRole("ADMIN","STAFF")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/member/**").hasAnyAuthority("ADMIN","MEMBER")
+                        .requestMatchers("/company/**").hasAnyAuthority("ADMIN","COMPANY")
+                        .requestMatchers("/driver/**").hasAnyAuthority("ADMIN","COMPANY","DRIVER")
+                        .requestMatchers("/staff/**").hasAnyAuthority("ADMIN","STAFF")
+                        .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults()); // HTTP Basic mặc định
@@ -59,7 +59,7 @@ public class SecurityConfig {
                                     path.startsWith("/v3/api-docs") ||
                                     path.startsWith("/swagger-resources") ||
                                     path.startsWith("/webjars")) {
-                                return null; // ✅ Bỏ qua JWT check
+                                return null; //
                             }
                             return new DefaultBearerTokenResolver().resolve(request);
                         })
