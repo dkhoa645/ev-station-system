@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -18,5 +19,5 @@ public class UserResponse {
     String username;
     String name;
     String message;
-    HashSet<RoleName> roles;
+    Set<RoleName> roles;
 }

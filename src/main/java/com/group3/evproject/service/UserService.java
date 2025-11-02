@@ -1,5 +1,6 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.Enum.RoleName;
 import com.group3.evproject.dto.request.UserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.UserResponse;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +40,12 @@ public class UserService {
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(userMapper::toUserResponse)
+                .map(entity -> {
+                    UserResponse userResponse = userMapper.toUserResponse(entity);
+                    Set<RoleName> roles = entity.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
+                    userResponse.setRoles(roles);
+                    return userResponse;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -122,6 +129,9 @@ public class UserService {
 
     public UserResponse getUserInfo() {
         User user = userUtils.getCurrentUser();
-        return userMapper.toUserResponse(user);
+        UserResponse userResponse = userMapper.toUserResponse(user);
+        Set<RoleName> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
+        userResponse.setRoles(roles);
+        return userResponse;
     }
 }
