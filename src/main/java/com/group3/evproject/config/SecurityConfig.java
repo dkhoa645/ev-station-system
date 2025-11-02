@@ -56,12 +56,8 @@ public class SecurityConfig {
         http.oauth2ResourceServer(oauth2 ->
                 oauth2.bearerTokenResolver(request -> {
                             String path = request.getServletPath();
-                            if (path.startsWith("/auth") ||
-                                    path.startsWith("/swagger-ui") ||
-                                    path.startsWith("/v3/api-docs") ||
-                                    path.startsWith("/swagger-resources") ||
-                                    path.startsWith("/webjars")) {
-                                return null; //
+                            if (path.contains("swagger") || path.contains("api-docs") || path.contains("webjars") || path.startsWith("/auth")) {
+                                return null;
                             }
                             return new DefaultBearerTokenResolver().resolve(request);
                         })
