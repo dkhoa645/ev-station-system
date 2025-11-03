@@ -91,10 +91,6 @@ public class ChargingSessionService {
         spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
         chargingSpotRepository.save(spot);
 
-        // Giảm availableSpot trong station
-        station.setAvailableSpots(Math.max(0, station.getAvailableSpots() - 1));
-        chargingStationRepository.save(station);
-
         // Tạo session
         ChargingSession session = ChargingSession.builder()
                 .booking(booking)
@@ -150,11 +146,6 @@ public class ChargingSessionService {
         spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
         chargingSpotRepository.save(spot);
 
-        //Tăng available spot trong station
-        ChargingStation station = session.getStation();
-        station.setAvailableSpots(Math.min(station.getTotalSpots(), station.getAvailableSpots() + 1));
-        chargingStationRepository.save(station);
-
         //Cập nhật booking tương ứng
         Booking booking = session.getBooking();
         if (booking != null) {
@@ -182,13 +173,6 @@ public class ChargingSessionService {
         if (spot != null) {
             spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
             chargingSpotRepository.save(spot);
-        }
-
-        // Cập nhật station
-        ChargingStation station = session.getStation();
-        if (station != null) {
-            station.setAvailableSpots(Math.min(station.getTotalSpots(), station.getAvailableSpots() + 1));
-            chargingStationRepository.save(station);
         }
 
         return chargingSessionRepository.save(session);

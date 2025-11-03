@@ -31,12 +31,13 @@ public class ChargingStation {
     @Column(name = "image_url")
     String imageUrl;
 
-    @Column(name = "available_spots", nullable = false)
-    @JsonIgnore
-    Integer availableSpots = 0;
+    @Column(name = "total_spots_offline", nullable = false)
+    Integer totalSpotsOffline = 0;
+
+    @Column(name = "total_spots_online", nullable = false)
+    Integer totalSpotsOnline = 0;
 
     @Column
-    @JsonIgnore
     Integer totalSpots = 0;
 
     Double powerCapacity;
