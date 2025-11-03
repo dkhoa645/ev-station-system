@@ -1,6 +1,6 @@
 package com.group3.evproject.service;
 
-import com.group3.evproject.Enum.PaymentTransactionStatus;
+import com.group3.evproject.Enum.PaymentStatus;
 import com.group3.evproject.dto.response.BookingResponse;
 import com.group3.evproject.entity.PaymentTransaction;
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
@@ -11,8 +11,7 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentTransactionMapper;
 import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.PaymentTransactionRepository;
-import com.group3.evproject.utils.UserUtils;
-import com.group3.evproject.utils.VNPayUtil;
+import com.group3.evproject.vnpay.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +40,6 @@ public class PaymentTransactionService {
     SubscriptionPlanService subscriptionPlanService;
     private final AuthenticationService authenticationService;
     private final UserService userService;
-    private final UserUtils userUtils;
 
     public com.group3.evproject.entity.PaymentTransaction savePayment(com.group3.evproject.entity.PaymentTransaction paymentTransaction){
         return paymentTransactionRepository.save(paymentTransaction);
@@ -68,7 +67,7 @@ public class PaymentTransactionService {
                 .amount(amount)
                 .paymentMethod("VNPAY")
                 .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-                .status(PaymentTransactionStatus.PENDING)
+                .status(com.group3.evproject.Enum.PaymentTransaction.PENDING)
                 .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusMinutes(15))
                 .paidAt(null)
@@ -94,8 +93,7 @@ public class PaymentTransactionService {
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
 
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
-        response.setId(paymentTransaction.getId());
-        response.setType("VEHICLE_SUBSCRIPTION");
+        response.setVehicleSubscription(vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription));
         return response;
     }
 
@@ -122,9 +120,11 @@ public class PaymentTransactionService {
         booking.getPaymentTransactions().add(paymentTransaction);
         bookingService.saveBooking(booking);
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
-        response.setType("BOOKING");
+        response.setBooking(bookingResponse);
         return  response;
     }
+
+
 
 
     @Transactional
@@ -134,7 +134,7 @@ public class PaymentTransactionService {
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         paymentTransaction.setPaidAt(now);
-        paymentTransaction.setStatus(PaymentTransactionStatus.SUCCESS);
+        paymentTransaction.setStatus(com.group3.evproject.Enum.PaymentTransaction.SUCCESS);
         //  Kiểm tra xem hóa đơn của object nào
         VehicleSubscription checkVehicleSubscription = paymentTransaction.getVehicleSubscription();
         Payment checkPayment = paymentTransaction.getPayment();
@@ -144,8 +144,8 @@ public class PaymentTransactionService {
             checkVehicleSubscription.setStartDate(now);
             checkVehicleSubscription.setEndDate(now.plusMonths(1));
             checkVehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
+//                      Tạo Payment tổng
             vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
-            return "Success";
         } else if (checkBooking != null) {
             checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
             bookingService.saveBooking(checkBooking);
@@ -153,22 +153,12 @@ public class PaymentTransactionService {
         }
 
 
-        return "fail";
+        return "Success";
     }
 
-    public List<PaymentTransactionResponse> getByUser() {
-            User user = userUtils.getCurrentUser();
-            return paymentTransactionRepository.findByUser(user).stream()
-                    .map(entity -> {
-                        PaymentTransactionResponse response = paymentTransactionMapper.toResponse(entity);
-                        response.setId(entity.getId());
-                        String type ="";
-                        if(entity.getBooking() != null) type ="BOOKING";
-                        if(entity.getPayment() != null) type ="PAYMENT";
-                        if(entity.getVehicleSubscription() != null) type ="VEHICLE SUBSCRIPTION";
-                        response.setType(type);
-                        return response;
-                    })
+    public List<PaymentTransactionResponse> getAll() {
+            return paymentTransactionRepository.findAll().stream()
+                    .map(paymentTransactionMapper :: toResponse)
                     .collect(Collectors.toList());
     }
 
