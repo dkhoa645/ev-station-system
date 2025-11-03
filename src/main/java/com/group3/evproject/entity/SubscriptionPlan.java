@@ -21,7 +21,7 @@ public class SubscriptionPlan {
     @Column(name = "discount_percent",precision = 10, scale = 2)
     BigDecimal discount ;
     @Column(name = "multiplier",precision = 10, scale = 2)
-            BigDecimal multiplier;
+            Double multiplier;
 //    BigDecimal multiplier = BigDecimal.ONE.subtract(
 //            discount.divide(BigDecimal.valueOf(100))
 //            );;

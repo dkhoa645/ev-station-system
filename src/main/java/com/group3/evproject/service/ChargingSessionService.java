@@ -91,44 +91,44 @@ public class ChargingSessionService {
         LocalDateTime endTime = LocalDateTime.now();
         session.setEndTime(endTime);
 
-        // 🔹 1. Tính thời gian sạc (giờ)
+        //Tính thời gian sạc (giờ)
         double durationHours = Duration.between(session.getStartTime(), endTime).toMinutes() / 60.0;
         session.setChargingDuration(durationHours);
 
-        // 🔹 2. Tính số điện đã vào xe (kWh)
+        //Tính số điện đã vào xe (kWh)
         double energyAdded = session.getPowerOutput() * durationHours;
         session.setEnergyAdded(energyAdded);
 
-        // 🔹 3. Tính % sau sạc
+        //Tính % sau sạc
         double percentAfter = ((energyAdded / batteryCapacity) * 100) + percentBefore;
         if (percentAfter > 100) percentAfter = 100.0;
         session.setPercentBefore(percentBefore);
         session.setPercentAfter(percentAfter);
         session.setBatteryCapacity(batteryCapacity);
 
-        // 🔹 4. Lượng điện đã sạc (kWh)
+        //Lượng điện đã sạc (kWh)
         double energyUsed = (percentAfter - percentBefore) * (batteryCapacity / 100);
         session.setEnergyUsed(energyUsed);
 
-        // 🔹 5. Tính chi phí sạc
+        //Tính chi phí sạc
         session.setRatePerKWh(ratePerKWh);
         double totalCost = energyUsed * ratePerKWh;
         session.setTotalCost(Double.valueOf(totalCost));
 
-        // 🔹 6. Cập nhật trạng thái
+        //Cập nhật trạng thái
         session.setStatus(ChargingSession.Status.COMPLETED);
 
-        // 🔹 7. Giải phóng spot
+        //Giải phóng spot
         ChargingSpot spot = session.getSpot();
         spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
         chargingSpotRepository.save(spot);
 
-        // 🔹 8. Tăng available spot trong station
+        //Tăng available spot trong station
         ChargingStation station = session.getStation();
         station.setAvailableSpots(Math.min(station.getTotalSpots(), station.getAvailableSpots() + 1));
         chargingStationRepository.save(station);
 
-        // 🔹 9. Cập nhật booking tương ứng
+        //Cập nhật booking tương ứng
         Booking booking = session.getBooking();
         if (booking != null) {
             booking.setStatus(Booking.BookingStatus.COMPLETED);

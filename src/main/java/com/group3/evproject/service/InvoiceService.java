@@ -1,11 +1,14 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.entity.Invoice;
+import com.group3.evproject.entity.SubscriptionPlan;
+import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.InvoiceRepository;
+import com.group3.evproject.repository.SubscriptionPlanRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -13,6 +16,8 @@ import java.util.List;
 public class InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
+    private final ChargingSessionRepository chargingSessionRepository;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
 
     // Lấy tất cả hóa đơn
     public List<Invoice> getAllInvoices() {
@@ -27,6 +32,26 @@ public class InvoiceService {
 
     // Tạo mới hóa đơn
     public Invoice createInvoice(Invoice invoice) {
+        ChargingSession session = chargingSessionRepository.findById(invoice.getSession().getId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Session not found with id: " + invoice.getSession().getId()
+                ));
+
+        SubscriptionPlan plan = subscriptionPlanRepository.findById(invoice.getSubscriptionPlan().getId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Subscription plan not found with id: " + invoice.getSubscriptionPlan().getId()
+                ));
+
+        Double finalCost = 0.0;
+        if (session.getTotalCost() != null && plan.getMultiplier() != null) {
+            finalCost = session.getTotalCost() * plan.getMultiplier();
+        }
+
+        invoice.setFinalCost(Double.valueOf(finalCost));
+
+        invoice.setSession(session);
+        invoice.setSubscriptionPlan(plan);
+
         return invoiceRepository.save(invoice);
     }
 
