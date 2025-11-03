@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/invoice")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 
