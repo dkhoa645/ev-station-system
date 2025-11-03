@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,11 +47,12 @@ public class SubscriptionPlanService {
         SubscriptionPlan subscriptionPlan = new SubscriptionPlan();
         mapper.toSubscriptionPlan(subscriptionPlanRequest, subscriptionPlan);
 
-        // discount là Double (phần trăm)
+
         if (subscriptionPlan.getDiscount() != null) {
-            subscriptionPlan.setMultiplier(1.0 - subscriptionPlan.getDiscount() / 100.0);
+            subscriptionPlan.setMultiplier(BigDecimal.ONE.subtract(
+                    subscriptionPlan.getDiscount().divide(BigDecimal.valueOf(100))));
         } else {
-            subscriptionPlan.setMultiplier(1.0);
+            subscriptionPlan.setMultiplier(BigDecimal.ONE);
         }
 
         return subscriptionPlanRepository.save(subscriptionPlan);

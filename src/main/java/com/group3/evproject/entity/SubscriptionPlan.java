@@ -18,13 +18,13 @@ public class SubscriptionPlan {
     String name;
 
     @Column(precision = 10, scale = 2)
-    Double price;
+    BigDecimal price;
 
     @Column(name = "discount_percent",precision = 10, scale = 2)
-    Double discount ;
+    BigDecimal discount ;
 
     @Column(name = "multiplier",precision = 10, scale = 2)
-    Double multiplier;
+    BigDecimal multiplier;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
