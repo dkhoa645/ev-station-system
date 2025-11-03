@@ -1,14 +1,18 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.RoleName;
+import com.group3.evproject.dto.request.AdminUserCreationRequest;
 import com.group3.evproject.dto.request.UserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.UserResponse;
+import com.group3.evproject.entity.Company;
 import com.group3.evproject.entity.Role;
 import com.group3.evproject.entity.User;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
+import com.group3.evproject.mapper.CompanyMapper;
 import com.group3.evproject.mapper.UserMapper;
+import com.group3.evproject.repository.CompanyRepository;
 import com.group3.evproject.repository.RoleRepository;
 import com.group3.evproject.repository.UserRepository;
 import com.group3.evproject.utils.UserUtils;
@@ -34,8 +38,10 @@ public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
-    RoleRepository roleRepository;
+    RoleService roleService;
     UserUtils userUtils;
+    CompanyRepository companyRepository;
+    CompanyMapper companyMapper;
 
 
     public List<UserResponse> getAllUsers() {
@@ -44,6 +50,7 @@ public class UserService {
                     UserResponse userResponse = userMapper.toUserResponse(entity);
                     Set<RoleName> roles = entity.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
                     userResponse.setRoles(roles);
+                    userResponse.setCompanyResponse(companyMapper.toCompanyResponse(entity.getCompany()));
                     return userResponse;
                 })
                 .collect(Collectors.toList());
@@ -56,8 +63,11 @@ public class UserService {
 
 
     @Transactional
-    public UserResponse createUser(UserCreationRequest userCreationRequest) {
-        User user = userMapper.toUser(userCreationRequest);
+    public UserResponse createUser(AdminUserCreationRequest userCreationRequest) {
+        if(userCreationRequest.getRole().equals(RoleName.ADMIN)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        User user = userMapper.toUserFormAdmin(userCreationRequest);
         user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
         if(userRepository.existsByUsername(user.getUsername())){
                 throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
@@ -65,7 +75,21 @@ public class UserService {
         if(userRepository.existsByEmail(user.getEmail())){
             throw new AppException(ErrorCode.RESOURCES_EXISTS, "Email");
         }
-        return userMapper.toUserResponse(userRepository.save(user));
+        Company company = companyRepository.findById(userCreationRequest.getCompanyId())
+                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company"));
+
+        Role role = roleService.findByName(userCreationRequest.getRole());
+        Set<Role>roles = new HashSet<>();
+        roles.add(role);
+
+        user.setCompany(company);
+        user.setRoles(roles);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        UserResponse userResponse = userMapper.toUserResponse(userRepository.save(user));
+        userResponse.setCompanyResponse(companyMapper.toCompanyResponse(company));
+        userResponse.setRoles(roles.stream().map(Role::getName).collect(Collectors.toSet()));
+        return userResponse;
     }
 
 //    @Transactional

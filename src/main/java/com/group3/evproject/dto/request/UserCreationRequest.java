@@ -2,6 +2,7 @@ package com.group3.evproject.dto.request;
 
 import java.time.LocalDate;
 
+import com.group3.evproject.Enum.RoleName;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

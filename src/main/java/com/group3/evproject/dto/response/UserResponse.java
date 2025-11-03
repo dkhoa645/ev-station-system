@@ -19,5 +19,6 @@ public class UserResponse {
     String username;
     String name;
     String message;
+    CompanyResponse companyResponse;
     Set<RoleName> roles;
 }

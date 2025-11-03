@@ -94,6 +94,7 @@ public class PaymentTransactionService {
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
 
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
+        response.setId(paymentTransaction.getId());
         response.setType("VEHICLE_SUBSCRIPTION");
         return response;
     }
@@ -126,8 +127,6 @@ public class PaymentTransactionService {
     }
 
 
-
-
     @Transactional
     public String processSuccessfulPayment(String ref) {
 //        Tìm transaction có mã giao dịch ref
@@ -145,8 +144,8 @@ public class PaymentTransactionService {
             checkVehicleSubscription.setStartDate(now);
             checkVehicleSubscription.setEndDate(now.plusMonths(1));
             checkVehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
-//                      Tạo Payment tổng
             vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
+            return "Success";
         } else if (checkBooking != null) {
             checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
             bookingService.saveBooking(checkBooking);
@@ -154,7 +153,7 @@ public class PaymentTransactionService {
         }
 
 
-        return "Success";
+        return "fail";
     }
 
     public List<PaymentTransactionResponse> getByUser() {
@@ -162,6 +161,7 @@ public class PaymentTransactionService {
             return paymentTransactionRepository.findByUser(user).stream()
                     .map(entity -> {
                         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(entity);
+                        response.setId(entity.getId());
                         String type ="";
                         if(entity.getBooking() != null) type ="BOOKING";
                         if(entity.getPayment() != null) type ="PAYMENT";
