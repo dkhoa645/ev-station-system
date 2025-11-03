@@ -48,17 +48,8 @@ public class ChargingSpotService {
 
         //lưu spot mới
         ChargingSpot saveSpot = chargingSpotRepository.save(newSpot);
-
-        //tăng totalSpot +1 cho station
-        station.setTotalSpots(station.getTotalSpots() + 1);
-
-        //update lại availableSpots
-        int available = getAvailableSpots(station);
-        station.setAvailableSpots(available);
-
-        chargingStationRepository.save(station);
-
-        return chargingSpotRepository.save(newSpot);
+        updateStationSpotCount(station);
+        return saveSpot;
     }
 
     public ChargingSpot updateSpot(ChargingSpot updatedSpot, Long id) {
@@ -74,7 +65,8 @@ public class ChargingSpotService {
         if (updatedSpot.getSpotType() != null) {
             existing.setSpotType(updatedSpot.getSpotType());
         }
-        return chargingSpotRepository.save(existing);
+        ChargingSpot updated = chargingSpotRepository.save(existing);
+        return updated;
     }
 
     public void deleteSpot(Long id) {
@@ -82,26 +74,24 @@ public class ChargingSpotService {
                 .orElseThrow(() -> new RuntimeException("Charging Spot not found with id: " + id));
 
         ChargingStation station = spot.getStation();
-        if (station.getTotalSpots() > 0) {
-            station.setTotalSpots(station.getTotalSpots() - 1);
-            chargingStationRepository.save(station);
-        }
-
         chargingSpotRepository.delete(spot);
+        updateStationSpotCount(station);
     }
 
-    public long countOccupiedSpots (Long stationId){
-        return chargingSpotRepository.countByStationIdAndStatus(stationId, ChargingSpot.SpotStatus.OCCUPIED);
+    private void updateStationSpotCount(ChargingStation station) {
+        Long stationId = station.getId();
+
+        int total = chargingSpotRepository.countByStationId(stationId);
+        int online = chargingSpotRepository.countByStationIdAndSpotType(stationId, ChargingSpot.SpotType.BOOKING);
+        int offline = chargingSpotRepository.countByStationIdAndSpotType(stationId, ChargingSpot.SpotType.WALK_IN);
+
+        station.setTotalSpots(total);
+        station.setTotalSpotsOnline(online);
+        station.setTotalSpotsOffline(offline);
+
+        chargingStationRepository.save(station);
     }
 
-    public int getAvailableSpots(ChargingStation station){
-        long occupied = countOccupiedSpots(station.getId());
-        int available = station.getTotalSpots() - (int) occupied;
-        return Math.max(available,0); // tránh âm
-    }
 
-    public ChargingSpot getAvailableSpot(ChargingStation station){
-        return chargingSpotRepository.findFirstByStationAndStatus(station, ChargingSpot.SpotStatus.AVAILABLE)
-                .orElseThrow(() -> new RuntimeException("No available Spot found for this station"));
-    }
+
 }

@@ -4,6 +4,7 @@ import com.group3.evproject.dto.request.BookingRequest;
 import com.group3.evproject.dto.response.BookingResponse;
 import com.group3.evproject.entity.*;
 import com.group3.evproject.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -69,7 +70,7 @@ public class BookingService {
         return bookingRepository.findByStation(station);
     }
 
-    // Tạo booking mới (bỏ availableSpot logic)
+    // Tạo booking mới
     public Booking createBooking(BookingRequest request) {
 
         // Lấy thông tin
@@ -92,14 +93,19 @@ public class BookingService {
             throw new RuntimeException("End time must be after charging start time");
         }
 
-        //kiểm tra available spot
-        int availableSpots = chargingSpotService.getAvailableSpots(station);
-        if(availableSpots <= 0) {
-            throw new RuntimeException("No available charging spots at this station");
+        //Lấy danh sách spot khả dụng (chỉ lấy loại BOOKING)
+        List<ChargingSpot> availableSpots = chargingSpotRepository.findByStationId(station.getId())
+                .stream()
+                .filter(s -> s.getSpotType() == ChargingSpot.SpotType.BOOKING &&
+                        s.getStatus() == ChargingSpot.SpotStatus.AVAILABLE)
+                .toList();
+
+        if (availableSpots.isEmpty()) {
+            throw new RuntimeException("No available booking-type charging spots at this station");
         }
 
-        //tìm spot available và chuyển thành occupied
-        ChargingSpot spot = chargingSpotService.getAvailableSpot(station);
+        //Chọn spot đầu tiên khả dụng
+        ChargingSpot spot = availableSpots.get(0);
         spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
         chargingSpotRepository.save(spot);
 
@@ -120,10 +126,6 @@ public class BookingService {
                 .reservationFee(Double.valueOf(reservationFee))
                 .build();
 
-        //update availableSpots của station
-        station.setAvailableSpots(station.getAvailableSpots() + 1);
-        chargingStationRepository.save(station);
-
         return bookingRepository.save(booking);
     }
 
@@ -143,15 +145,16 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    // Cancel booking (bỏ logic availableSpot)
-    public Booking cancelBooking(Long id) {
-        Booking booking = findBookingById(id);
+    // Cancel booking
+    public void cancelBooking(Long BookingId) {
+        Booking booking = findBookingById(BookingId);
 
         if (booking.getStatus() == Booking.BookingStatus.COMPLETED || booking.getStatus() == Booking.BookingStatus.CANCELLED) {
             throw new RuntimeException("Booking is already completed or cancelled");
         }
 
         booking.setStatus(Booking.BookingStatus.CANCELLED);
+        bookingRepository.save(booking);
 
         //trả spot về available
         ChargingSpot spot = booking.getSpot();
@@ -160,12 +163,6 @@ public class BookingService {
             chargingSpotRepository.save(spot);
         }
 
-        //update lại spot available
-        ChargingStation station = booking.getStation();
-        station.setAvailableSpots(chargingSpotService.getAvailableSpots(station));
-        chargingStationRepository.save(station);
-
-        return bookingRepository.save(booking);
     }
 
     // Confirm booking
@@ -178,46 +175,35 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    // Complete booking (bỏ logic availableSpot)
-    public Booking completeBooking(Long id) {
-        Booking booking = findBookingById(id);
+    // Complete booking
+    public void completeBooking(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + bookingId));
 
-        if (booking.getStatus() != Booking.BookingStatus.CONFIRMED
-                && booking.getStatus() != Booking.BookingStatus.CHARGING) {
-            throw new RuntimeException("Only confirmed or charging bookings can be completed.");
-        }
         booking.setStatus(Booking.BookingStatus.COMPLETED);
+        bookingRepository.save(booking);
 
-        //giải phóng spot
+        // Giải phóng spot
         ChargingSpot spot = booking.getSpot();
         if (spot != null) {
             spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
             chargingSpotRepository.save(spot);
         }
-
-        // Cập nhật lại số chỗ trống
-        ChargingStation station = booking.getStation();
-        station.setAvailableSpots(chargingSpotService.getAvailableSpots(station));
-        chargingStationRepository.save(station);
-
-        return bookingRepository.save(booking);
     }
 
     // Delete booking
     public void deleteBooking(Long id) {
-        Booking booking = findBookingById(id);
-        ChargingSpot spot = booking.getSpot();
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + id));
 
-        if (spot != null) {
+        // Nếu spot đang OCCUPIED thì trả lại AVAILABLE
+        ChargingSpot spot = booking.getSpot();
+        if (spot != null && spot.getStatus() == ChargingSpot.SpotStatus.OCCUPIED) {
             spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
             chargingSpotRepository.save(spot);
         }
 
-        ChargingStation station = booking.getStation();
-        station.setAvailableSpots(chargingSpotService.getAvailableSpots(station));
-        chargingStationRepository.save(station);
-
-        bookingRepository.delete(booking);
+        bookingRepository.deleteById(id);
     }
 
     public Booking saveBooking(Booking booking) {
