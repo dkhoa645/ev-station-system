@@ -73,6 +73,7 @@ public class ChargingSession {
     @OneToOne(mappedBy = "session")
     private Invoice invoice;
 
+    // 🧭 Trạng thái phiên sạc
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     Status status = Status.ACTIVE;

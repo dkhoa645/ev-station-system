@@ -21,10 +21,8 @@ public class ChargingSessionService {
     private final BookingRepository bookingRepository;
 
     public List<ChargingSession> getAllSessions() {
-
         return chargingSessionRepository.findAll();
     }
-
     public ChargingSession getSessionEntityById(Long id) {
         return chargingSessionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Charging session not found with id: " + id));
@@ -52,45 +50,23 @@ public class ChargingSessionService {
                 .build();
     }
 
-    public ChargingSession startSession(Long bookingId, Long spotId) {
-
+    public ChargingSession startSession(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("⚠️ Booking not found with id: " + bookingId));
-
-        if (booking.getStatus() != Booking.BookingStatus.CONFIRMED) {
-            throw new RuntimeException("Booking must be CONFIRMED before starting a session.");
-        }
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
 
         ChargingStation station = booking.getStation();
-        if (station == null) {
-            throw new RuntimeException("Booking does not have an assigned station.");
-        }
 
-        //Lấy spot mà người dùng đã chọn
-        ChargingSpot spot = chargingSpotRepository.findById(spotId)
-                .orElseThrow(() -> new RuntimeException("pot not found with id: " + spotId));
+        // Tìm spot khả dụng
+        ChargingSpot spot = chargingSpotRepository.findFirstByStationAndStatus(station, ChargingSpot.SpotStatus.AVAILABLE)
+                .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
 
-        // Kiểm tra xem spot có thuộc về đúng station không
-        if (!spot.getStation().getId().equals(station.getId())) {
-            throw new RuntimeException("Spot does not belong to this station.");
-        }
-
-        // Kiểm tra trạng thái spot
-        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
-            throw new RuntimeException("Selected spot is not available.");
-        }
-
-        // Đánh dấu spot là đang được sử dụng
+        // Đánh dấu spot đang bận
         spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
         chargingSpotRepository.save(spot);
 
-        // Giảm số chỗ trống trong station
+        // Giảm availableSpot trong station
         station.setAvailableSpots(Math.max(0, station.getAvailableSpots() - 1));
         chargingStationRepository.save(station);
-
-        // Cập nhật trạng thái booking
-        booking.setStatus(Booking.BookingStatus.CHARGING);
-        bookingRepository.save(booking);
 
         // Tạo session
         ChargingSession session = ChargingSession.builder()
@@ -98,13 +74,12 @@ public class ChargingSessionService {
                 .station(station)
                 .spot(spot)
                 .startTime(LocalDateTime.now())
-                .powerOutput(spot.getPowerOutput() != null ? spot.getPowerOutput() : station.getPowerCapacity())
+                .powerOutput(station.getPowerCapacity()) // dùng công suất trạm
                 .status(ChargingSession.Status.ACTIVE)
                 .build();
 
         return chargingSessionRepository.save(session);
     }
-
 
     public ChargingSession endSession(Long sessionId, Double ratePerKWh, Double percentBefore, Double batteryCapacity) {
         ChargingSession session =getSessionEntityById(sessionId);

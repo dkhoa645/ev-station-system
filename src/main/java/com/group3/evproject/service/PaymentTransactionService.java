@@ -11,7 +11,7 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentTransactionMapper;
 import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.PaymentTransactionRepository;
-import com.group3.evproject.vnpay.VNPayUtil;
+//import com.group3.evproject.vnpay.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -66,8 +66,8 @@ public class PaymentTransactionService {
                 .payment(payment)
                 .amount(amount)
                 .paymentMethod("VNPAY")
-                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-                .status(com.group3.evproject.Enum.PaymentTransaction.PENDING)
+//                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
+//                .status(com.group3.evproject.Enum.PaymentTransaction.PENDING)
                 .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusMinutes(15))
                 .paidAt(null)
@@ -93,68 +93,68 @@ public class PaymentTransactionService {
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
 
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
-        response.setVehicleSubscription(vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription));
+//        response.setVehicleSubscription(vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription));
         return response;
     }
 
 
-    public PaymentTransactionResponse createBookingPayment(Long id, HttpServletRequest request) {
-            Booking booking = bookingService.findBookingById(id);
-        if (!booking.getStatus().equals(Booking.BookingStatus.PENDING)) {
-            throw new AppException(ErrorCode.PENDING_STATUS);
-        }
-        String username= authenticationService.extractUsernameFromRequest(request);
-        User user = userService.getUserByUsername(username);
-        PaymentTransaction paymentTransaction =
-                savePayment(createPaymentTransaction(null,booking,null,booking.getReservationFee(),user));
-        BookingResponse bookingResponse = BookingResponse.builder()
-                .bookingId(booking.getId())
-                .vehicleId(booking.getVehicle().getId())
-                .stationName(booking.getStation().getName())
-                .startTime(booking.getStartTime())
-                .timeToCharge(booking.getTimeToCharge())
-                .reservationFee(booking.getReservationFee())
-                .endTime(booking.getEndTime())
-                .status(booking.getStatus())
-                .build();
-        booking.getPaymentTransactions().add(paymentTransaction);
-        bookingService.saveBooking(booking);
-        PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
-        response.setBooking(bookingResponse);
-        return  response;
-    }
+//    public PaymentTransactionResponse createBookingPayment(Long id, HttpServletRequest request) {
+//            Booking booking = bookingService.findBookingById(id);
+//        if (!booking.getStatus().equals(Booking.BookingStatus.PENDING)) {
+//            throw new AppException(ErrorCode.PENDING_STATUS);
+//        }
+//        String username= authenticationService.extractUsernameFromRequest(request);
+//        User user = userService.getUserByUsername(username);
+//        PaymentTransaction paymentTransaction =
+////                savePayment(createPaymentTransaction(null,booking,null,booking.getReservationFee(),user));
+//        BookingResponse bookingResponse = BookingResponse.builder()
+//                .bookingId(booking.getId())
+//                .vehicleId(booking.getVehicle().getId())
+//                .stationName(booking.getStation().getName())
+//                .startTime(booking.getStartTime())
+//                .timeToCharge(booking.getTimeToCharge())
+////                .reservationFee(booking.getReservationFee())
+//                .endTime(booking.getEndTime())
+//                .status(booking.getStatus())
+//                .build();
+//        booking.getPaymentTransactions().add(paymentTransaction);
+//        bookingService.saveBooking(booking);
+//        PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
+////        response.setBooking(bookingResponse);
+//        return  response;
+//    }
 
 
 
 
     @Transactional
-    public String processSuccessfulPayment(String ref) {
-//        Tìm transaction có mã giao dịch ref
-        com.group3.evproject.entity.PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
-                .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
-        paymentTransaction.setPaidAt(now);
-        paymentTransaction.setStatus(com.group3.evproject.Enum.PaymentTransaction.SUCCESS);
-        //  Kiểm tra xem hóa đơn của object nào
-        VehicleSubscription checkVehicleSubscription = paymentTransaction.getVehicleSubscription();
-        Payment checkPayment = paymentTransaction.getPayment();
-        Booking checkBooking = paymentTransaction.getBooking();
-//                  Cập nhật Subscription
-        if (checkVehicleSubscription != null) {
-            checkVehicleSubscription.setStartDate(now);
-            checkVehicleSubscription.setEndDate(now.plusMonths(1));
-            checkVehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
-//                      Tạo Payment tổng
-            vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
-        } else if (checkBooking != null) {
-            checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
-            bookingService.saveBooking(checkBooking);
-            return "chargingSession";
-        }
-
-
-        return "Success";
-    }
+//    public String processSuccessfulPayment(String ref) {
+////        Tìm transaction có mã giao dịch ref
+//        com.group3.evproject.entity.PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
+//                .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
+//        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+//        paymentTransaction.setPaidAt(now);
+//        paymentTransaction.setStatus(com.group3.evproject.Enum.PaymentTransaction.SUCCESS);
+//        //  Kiểm tra xem hóa đơn của object nào
+//        VehicleSubscription checkVehicleSubscription = paymentTransaction.getVehicleSubscription();
+//        Payment checkPayment = paymentTransaction.getPayment();
+//        Booking checkBooking = paymentTransaction.getBooking();
+////                  Cập nhật Subscription
+//        if (checkVehicleSubscription != null) {
+//            checkVehicleSubscription.setStartDate(now);
+//            checkVehicleSubscription.setEndDate(now.plusMonths(1));
+//            checkVehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
+////                      Tạo Payment tổng
+//            vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
+//        } else if (checkBooking != null) {
+//            checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
+//            bookingService.saveBooking(checkBooking);
+//            return "chargingSession";
+//        }
+//
+//
+//        return "Success";
+//    }
 
     public List<PaymentTransactionResponse> getAll() {
             return paymentTransactionRepository.findAll().stream()
