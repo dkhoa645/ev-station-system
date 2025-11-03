@@ -24,7 +24,6 @@ public class BookingService {
     private final UserRepository userRepository;
     private final ChargingStationRepository chargingStationRepository;
     private final ChargingSpotRepository chargingSpotRepository;
-    private final ChargingSpotService chargingSpotService;
     private final VehicleRepository vehicleRepository;
     private static final double fee = 30000;
 
