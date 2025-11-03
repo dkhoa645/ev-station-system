@@ -16,12 +16,16 @@ public class SubscriptionPlan {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String name;
+
     @Column(precision = 10, scale = 2)
-    BigDecimal price;
+    Double price;
+
     @Column(name = "discount_percent",precision = 10, scale = 2)
-    BigDecimal discount ;
+    Double discount ;
+
     @Column(name = "multiplier",precision = 10, scale = 2)
-    BigDecimal multiplier;
+    Double multiplier;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name= "subscription_plan_description",
