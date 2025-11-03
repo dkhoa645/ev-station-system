@@ -9,6 +9,8 @@ import com.group3.evproject.repository.SubscriptionPlanRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -42,9 +44,13 @@ public class InvoiceService {
                         "Subscription plan not found with id: " + invoice.getSubscriptionPlan().getId()
                 ));
 
-        Double finalCost = 0.0;
+        double finalCost = 0.0;
         if (session.getTotalCost() != null && plan.getMultiplier() != null) {
-            finalCost = session.getTotalCost() * plan.getMultiplier();
+            BigDecimal totalCost = BigDecimal.valueOf(session.getTotalCost());
+            BigDecimal multiplier = plan.getMultiplier();
+
+            // phép nhân BigDecimal
+            finalCost = totalCost.multiply(multiplier).doubleValue();
         }
 
         invoice.setFinalCost(Double.valueOf(finalCost));
