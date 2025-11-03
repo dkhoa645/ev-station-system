@@ -6,6 +6,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.group3.evproject.dto.response.ChargingSessionResponse;
+
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,7 +58,7 @@ public class ChargingSessionService {
         Invoice invoice = new Invoice();
         invoice.setSession(session);
         invoice.setIssueDate(LocalDateTime.now());
-        invoice.setFinalCost(session.getTotalCost());
+        invoice.setFinalCost(BigDecimal.valueOf(session.getTotalCost()));
         invoice.setStatus(Invoice.Status.PENDING);
 
         SubscriptionPlan plan = null;
