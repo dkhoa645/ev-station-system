@@ -33,6 +33,12 @@ public class ChargingSessionController {
         }
     }
 
+    @GetMapping("/vehicle/{vehicleId}")
+    public ResponseEntity<?> getSessionsByVehicle(@PathVariable Long vehicleId) {
+        List<ChargingSessionResponse> history = chargingSessionService.getSessionsByVehicle(vehicleId);
+        return ResponseEntity.ok(history);
+    }
+
     @PostMapping("/start/{booking_id}")
     public ResponseEntity<?> startSession(
             @PathVariable("booking_id") Long bookingId,
@@ -69,7 +75,7 @@ public class ChargingSessionController {
 
             ChargingSession session = chargingSessionService.endSession(sessionId, ratePerKWh, percentBefore, batteryCapacity);
 
-            // 🔹 Dùng Mapper để trả về DTO đầy đủ
+            //Dùng Mapper để trả về DTO đầy đủ
             return ResponseEntity.ok(ChargingSessionMapper.toDetailResponse(session));
 
         } catch (RuntimeException ex) {
@@ -79,4 +85,14 @@ public class ChargingSessionController {
         }
     }
 
+
+    @PostMapping("/cancel/{session_id}")
+    public ResponseEntity<?> cancelSession(@PathVariable("session_id") Long sessionId) {
+        try {
+            ChargingSession session = chargingSessionService.cancelSession(sessionId);
+            return ResponseEntity.ok(session);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body("Error cancelling session: " + ex.getMessage());
+        }
+    }
 }

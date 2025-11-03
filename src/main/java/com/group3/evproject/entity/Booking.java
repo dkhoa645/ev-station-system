@@ -52,7 +52,7 @@ public class Booking extends BaseEntity {
     LocalDateTime startTime;
 
     @Column(name = "reservation_fee")
-    BigDecimal reservationFee;
+    Double reservationFee;
 
     @Column(name = "end_time")
     LocalDateTime endTime;

@@ -39,4 +39,14 @@ public class Invoice {
     @JoinColumn(name = "subscription_plan_id")
     SubscriptionPlan subscriptionPlan;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    Status status;
+
+    public enum Status {
+        PENDING,
+        PAID,
+        CANCELLED
+    }
+
 }

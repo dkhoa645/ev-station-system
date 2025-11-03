@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -50,7 +52,7 @@ public class BookingController {
                 .stationName(booking.getStation().getName())
                 .startTime(booking.getStartTime())
                 .timeToCharge(booking.getTimeToCharge())
-                .reservationFee(booking.getReservationFee())
+                .reservationFee(BigDecimal.valueOf(booking.getReservationFee()))
                 .endTime(booking.getEndTime())
                 .status(booking.getStatus())
                 .build();

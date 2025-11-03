@@ -16,4 +16,7 @@ public interface ChargingSessionRepository extends JpaRepository<ChargingSession
     List<ChargingSession> findByBooking(Booking booking);
 
     List<ChargingSession> findByStatus(ChargingSession.Status status);
+
+    List<ChargingSession> findByBooking_Vehicle_IdOrderByStartTimeDesc(Long vehicleId);
+
 }

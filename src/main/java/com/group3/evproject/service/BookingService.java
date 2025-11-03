@@ -43,7 +43,7 @@ public class BookingService {
                 .orElseThrow(()-> new RuntimeException("Booking not found"));
         BookingResponse response = BookingResponse.builder()
                 .bookingId(booking.getId())
-                .reservationFee(booking.getReservationFee())
+                .reservationFee(BigDecimal.valueOf(booking.getReservationFee()))
                 .vehicleId(booking.getVehicle().getId())
                 .status(booking.getStatus())
                 .startTime(booking.getStartTime())
@@ -117,7 +117,7 @@ public class BookingService {
                 .timeToCharge(timeToCharge)
                 .endTime(endTime)
                 .status(Booking.BookingStatus.PENDING)
-                .reservationFee(BigDecimal.valueOf(reservationFee))
+                .reservationFee(Double.valueOf(reservationFee))
                 .build();
 
         //update availableSpots của station
