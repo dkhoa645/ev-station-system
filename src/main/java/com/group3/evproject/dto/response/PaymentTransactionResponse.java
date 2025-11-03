@@ -13,13 +13,14 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentTransactionResponse {
-    String vnpTxnRef;
+    Long id;
     BigDecimal amount;
     String paymentMethod;
     PaymentTransactionStatus status;
     LocalDateTime createdAt;
     LocalDateTime paidAt;
     String type;
+    String vnpTxnRef;
 //    ehicleSubscription,booking,payment
 
 }
