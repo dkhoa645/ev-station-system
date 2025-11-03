@@ -50,7 +50,7 @@ public class ChargingSessionService {
                 .build();
     }
 
-    public ChargingSession startSession(Long bookingId) {
+    public ChargingSession startSession(Long bookingId, Long spotId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
 
