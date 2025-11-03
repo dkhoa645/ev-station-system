@@ -19,11 +19,17 @@ public class ChargingStationService {
     }
 
     public ChargingStation createChargingStation(ChargingStation chargingStation) {
-        chargingStation.setAvailableSpots(0);
 
+        // Nếu status trống -> mặc định AVAILABLE
         if (chargingStation.getStatus() == null || chargingStation.getStatus().isEmpty()) {
             chargingStation.setStatus("AVAILABLE");
         }
+
+        // Khởi tạo các thông tin thống kê
+        chargingStation.setTotalSpots(0);
+        chargingStation.setTotalSpotsOnline(0);
+        chargingStation.setTotalSpotsOffline(0);
+
         return chargingStationRepository.save(chargingStation);
     }
 
@@ -40,9 +46,6 @@ public class ChargingStationService {
         }
         if (updatedStation.getPowerCapacity()!=null) {
             station.setPowerCapacity(updatedStation.getPowerCapacity());
-        }
-        if (updatedStation.getAvailableSpots()!=null) {
-            station.setAvailableSpots(updatedStation.getAvailableSpots());
         }
         if (updatedStation.getLatitude()!=null) {
             station.setLatitude(updatedStation.getLatitude());
