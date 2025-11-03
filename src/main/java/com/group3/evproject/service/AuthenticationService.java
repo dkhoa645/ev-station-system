@@ -1,6 +1,7 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.PaymentStatus;
+import com.group3.evproject.Enum.RoleName;
 import com.group3.evproject.dto.request.AuthenticationRequest;
 import com.group3.evproject.dto.request.IntrospectRequest;
 import com.group3.evproject.dto.request.UserCreationRequest;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -37,6 +39,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -49,8 +52,8 @@ public class AuthenticationService {
     EmailService emailService;
     PaymentService paymentService;
 
-    private PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
+    PasswordEncoder passwordEncoder;
+    UserMapper userMapper;
 
 
     @NonFinal
@@ -62,51 +65,46 @@ public class AuthenticationService {
         var user = userRepository
                 .findByUsername(request.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-
-        boolean isUserRole = user.getRoles().stream()
-                .anyMatch(role -> role.getName().equals("USER"));
-
         if (!user.isVerified()) {
             throw new AppException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
-        var token = generateToken(request.getUsername());
+        UserResponse userResponse = userMapper.toUserResponse(user);
+        userResponse.setRoles(
+                user.getRoles().stream()
+                        .map(Role::getName)
+                        .collect(Collectors.toCollection(HashSet::new))
+        );
+
+        var token = generateToken(user);
 
         return AuthenticationResponse.builder()
+                .user(userResponse)
                 .token(token)
                 .authenticated(true)
                 .build();
     }
 
 
-    private String generateToken(String username) {
+    private String generateToken(User user) {
 //        Tao header voi thuat toan
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 //            Tao Claimset cho vao Payload
-        Map<String, Object> userInfo = new HashMap<>();
-        User user = userRepository.findByUsername(username).orElse(null);
-        userInfo.put("id", user.getId());
-        userInfo.put("email", user.getEmail());
-        userInfo.put("name", user.getName());
-        userInfo.put("password", user.getPassword());
-
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
+                .subject(user.getUsername())
                 .issuer("backend-dev")
                 .issueTime(new Date())
                 .expirationTime(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
-                .claim("user", userInfo)
+                .claim("scope",buildScope(user))
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);
-
 
         try {
             jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
@@ -150,7 +148,6 @@ public class AuthenticationService {
                         .build();
             }
         }
-
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
         }
@@ -159,13 +156,11 @@ public class AuthenticationService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setVerified(false);
         // 3. Gán role mặc định USER
-        Role userRole = roleRepository.findByName("USER");
+        Role userRole = roleRepository.findByName(RoleName.MEMBER).orElse(null);
         if (user.getRoles() == null) {
             user.setRoles(new HashSet<>());
         }
         user.getRoles().add(userRole);
-//        Role role = roleRepository.findByName("USER");
-//        user.getRoles().add(role);
         // 4. Sinh token xác minh email
         String verificationToken = UUID.randomUUID().toString();
         user.setVerificationToken(verificationToken);
@@ -173,8 +168,6 @@ public class AuthenticationService {
 
         // 5. Gửi email xác thực
         emailService.sendVerificationEmail(user.getEmail(), verificationToken);
-
-
 
         // 6. Trả về DTO
         UserResponse userResponse = userMapper.toUserResponse(user);
@@ -200,6 +193,7 @@ public class AuthenticationService {
                         .totalEnergy(BigDecimal.ZERO)
                         .invoices(new ArrayList<>())
                         .paymentTransactions(new ArrayList<>())
+                        .user(user)
                         .period(period)
                 .build());
 
@@ -240,5 +234,12 @@ public class AuthenticationService {
         } catch (Exception e) {
             throw new AppException(ErrorCode.TOKEN_INVALID);
         }
+    }
+
+    private String buildScope(User user){
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if(!CollectionUtils.isEmpty(user.getRoles()))
+            user.getRoles().forEach(role -> stringJoiner.add(role.getName().name()));
+        return stringJoiner.toString();
     }
 }

@@ -1,6 +1,5 @@
 package com.group3.evproject.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,7 +8,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class VehicleBrandRequest {
-    @NotBlank(message = "Brand name must not be blank")
-    String name;
+public class PaymentCreationRequest {
+    Long userId;
+    Long companyId;
 }

@@ -1,4 +1,4 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.admin;
 
 import com.group3.evproject.dto.request.SubscriptionPlanRequest;
 import com.group3.evproject.dto.response.ApiResponse;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/subscription-plan")
 @RestController
+@RequestMapping("/admin/subscription-plan")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SubscriptionPlanController {
@@ -27,8 +27,8 @@ public class SubscriptionPlanController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<SubscriptionPlan> getSubscriptionPlanById(@PathVariable Long id) {
-        return ApiResponse.<SubscriptionPlan>builder()
+    public ApiResponse<SubscriptionPlanResponse> getSubscriptionPlanById(@PathVariable Long id) {
+        return ApiResponse.<SubscriptionPlanResponse>builder()
                 .result(subscriptionPlanService.getById(id))
                 .build();
     }

@@ -12,10 +12,12 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Company {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
     String name;
     String address;
     String contactEmail;
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     List<User> user;
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
+    List<Payment> payment;
 }

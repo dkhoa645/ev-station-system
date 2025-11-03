@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,18 +34,32 @@ public class VehicleBrandService {
 
     public VehicleBrand findById(long id) {
         return vehicleBranchRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Branch"));
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Brand"));
     }
 
+    @Transactional
     public VehicleBrand createbrand(VehicleBrandRequest vehicleBrandRequest) {
         VehicleBrand vehicleBrand = new VehicleBrand();
         vehicleBrand.setName(vehicleBrandRequest.getName().toUpperCase());
         return vehicleBranchRepository.save(vehicleBrand);
     }
 
+    @Transactional
     public String deleteById(long id) {
         VehicleBrand vehicleBrand = findById(id);
         vehicleBranchRepository.deleteById(id);
         return "Delete " +vehicleBrand.getName() + " successfully";
+    }
+
+    public VehicleBrandResponse getById(Long id) {
+        VehicleBrand vehicleBrand = findById(id);
+        return vehicleBrandMapper.toDto(vehicleBrand);
+    }
+
+    @Transactional
+    public VehicleBrandResponse update(Long id ,VehicleBrandRequest vehicleBrandRequest) {
+        VehicleBrand vehicleBrand = findById(id);
+        vehicleBrand.setName(vehicleBrandRequest.getName());
+        return vehicleBrandMapper.toDto(vehicleBranchRepository.save(vehicleBrand));
     }
 }

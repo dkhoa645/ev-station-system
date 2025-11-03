@@ -3,9 +3,10 @@ package com.group3.evproject.Enum;
 import lombok.Getter;
 
 @Getter
-public enum Role {
-    USER,
+public enum RoleName {
+    MEMBER,
     ADMIN,
-    STAFF
-
+    STAFF,
+    DRIVER,
+    COMPANY;
 }

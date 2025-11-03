@@ -8,6 +8,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface PaymentTransactionMapper{
 
-    @Mapping(source = "vehicleSubscription", target = "vehicleSubscription")
+
     PaymentTransactionResponse toResponse(PaymentTransaction transaction);
 }

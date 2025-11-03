@@ -2,6 +2,7 @@ package com.group3.evproject.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.group3.evproject.Enum.PaymentTransactionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -47,7 +48,7 @@ public class PaymentTransaction {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    com.group3.evproject.Enum.PaymentTransaction status;
+    PaymentTransactionStatus status;
     LocalDateTime createdAt;
     LocalDateTime expiresAt;
     LocalDateTime paidAt;

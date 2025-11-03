@@ -10,5 +10,6 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface SubscriptionPlanMapper {
     void toSubscriptionPlan(SubscriptionPlanRequest request, @MappingTarget SubscriptionPlan plan);
+
     SubscriptionPlanResponse toSubscriptionPlanResponse(SubscriptionPlan subscriptionPlan);
 }

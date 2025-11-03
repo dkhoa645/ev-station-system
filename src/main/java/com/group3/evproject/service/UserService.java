@@ -1,5 +1,6 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.Enum.RoleName;
 import com.group3.evproject.dto.request.UserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.UserResponse;
@@ -10,7 +11,9 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.UserMapper;
 import com.group3.evproject.repository.RoleRepository;
 import com.group3.evproject.repository.UserRepository;
+import com.group3.evproject.utils.UserUtils;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +24,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,10 +35,18 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
+    UserUtils userUtils;
 
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(entity -> {
+                    UserResponse userResponse = userMapper.toUserResponse(entity);
+                    Set<RoleName> roles = entity.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
+                    userResponse.setRoles(roles);
+                    return userResponse;
+                })
+                .collect(Collectors.toList());
     }
 
     public User getUserByUsername(String username) {
@@ -99,4 +112,32 @@ public class UserService {
             throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User");
         }
     }
+
+    @Transactional
+    public UserResponse updateMember(@Valid UserUpdateRequest userUpdateRequest) {
+        User user = userUtils.getCurrentUser();
+        userMapper.updateUserFromRequest(userUpdateRequest, user);
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    public String deleteMember() {
+        User user = userUtils.getCurrentUser();
+        userRepository.deleteById(user.getId());
+        return "Deleted" + user.getId() + "successfully";
+    }
+
+    public UserResponse getUserInfo() {
+        User user = userUtils.getCurrentUser();
+        UserResponse userResponse = userMapper.toUserResponse(user);
+        Set<RoleName> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
+        userResponse.setRoles(roles);
+        return userResponse;
+    }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
+
+
 }

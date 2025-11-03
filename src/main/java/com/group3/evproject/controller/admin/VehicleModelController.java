@@ -1,10 +1,8 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.admin;
 
-import com.group3.evproject.dto.request.VehicleBrandRequest;
 import com.group3.evproject.dto.request.VehicleModelRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.VehicleModelResponse;
-import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.entity.VehicleModel;
 import com.group3.evproject.service.VehicleBrandService;
 import com.group3.evproject.service.VehicleModelService;
@@ -16,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/model")
+@RequestMapping("/admin/model")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VehicleModelController {
@@ -39,16 +37,16 @@ public class VehicleModelController {
                 .build();
     }
 
-    @GetMapping
-    public ApiResponse<VehicleModelResponse> getVehicleModelById(@RequestParam long id) {
+    @GetMapping("/{id}")
+    public ApiResponse<VehicleModelResponse> getVehicleModelById(@PathVariable long id) {
         return ApiResponse.<VehicleModelResponse>builder()
                 .result(vehicleModelService.getById(id))
                 .build();
     }
 
     @PostMapping()
-    public ApiResponse<VehicleModel> addVehicleModel(@RequestBody VehicleModelRequest vehicleModelRequest) {
-        return ApiResponse.<VehicleModel>builder()
+    public ApiResponse<VehicleModelResponse> addVehicleModel(@RequestBody VehicleModelRequest vehicleModelRequest) {
+        return ApiResponse.<VehicleModelResponse>builder()
                 .result(vehicleModelService.saveModel(vehicleModelRequest))
                 .build();
     }

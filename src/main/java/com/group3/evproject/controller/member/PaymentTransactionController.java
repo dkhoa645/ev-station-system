@@ -1,4 +1,4 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.member;
 
 
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("payment-transaction")
+@RequestMapping("member/payment-transaction")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
 public class PaymentTransactionController {
@@ -46,6 +46,8 @@ public class PaymentTransactionController {
                 .result(paymentTransactionService.createBookingPayment(id, request))
                 .build();
     }
+
+//    @PostMapping("payment/{id}")
 
     @PostMapping("/vn-pay")
     public ApiResponse<VNPayDTO> pay(
@@ -72,19 +74,12 @@ public class PaymentTransactionController {
             }
     }
 
-//    @GetMapping
-//    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
-//        return ApiResponse.<List<PaymentTransactionResponse>>builder()
-//                .result(paymentTransactionService.getAll())
-//                .build();
-//    }
+    @GetMapping
+    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
+        return ApiResponse.<List<PaymentTransactionResponse>>builder()
+                .result(paymentTransactionService.getByUser())
+                .build();
+    }
 
-//    public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
-//        String message = authenticationService.verifyEmail(token);
-//        if (message.contains("success")) {
-//            response.sendRedirect("http://localhost:5173/");
-//        } else {
-//            response.sendRedirect("http://localhost:5173/");
-//        }
-//    }
+
 }
