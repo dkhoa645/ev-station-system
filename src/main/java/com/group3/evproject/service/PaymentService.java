@@ -12,6 +12,7 @@ import com.group3.evproject.repository.PaymentRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -35,12 +36,8 @@ public class PaymentService {
     }
 
     public Payment createNew(User user, Company company){
-
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime period = LocalDateTime.of(now.getYear(), now.getMonth(), 25, 0, 0);
-        if (now.getDayOfMonth() > 25) {
-            period = period.plusMonths(1);
-        }
+        LocalDateTime period = getPeriod();
         Payment payment = Payment.builder()
                 .user(user)
                 .company(company)
@@ -67,12 +64,7 @@ public class PaymentService {
     }
 
     public Payment findByUser(User user){
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime period = LocalDateTime.of(now.getYear(), now.getMonth(), 25, 0, 0);
-        if (now.getDayOfMonth() > 25) {
-            period = period.plusMonths(1);
-        }
-        final LocalDateTime finalPeriod = period;
+        final LocalDateTime finalPeriod = getPeriod();
         Payment payment = null;
         Company company = user.getCompany();
         if(company!=null){
@@ -81,6 +73,15 @@ public class PaymentService {
             payment = paymentRepository.findByUserAndPeriod(user,finalPeriod);
         }
         return payment;
+    }
+
+    public LocalDateTime getPeriod(){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime period = LocalDateTime.of(now.getYear(), now.getMonth(), 25, 0, 0);
+        if (now.getDayOfMonth() > 25) {
+            period = period.plusMonths(1);
+        }
+        return period;
     }
 
 }

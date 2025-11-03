@@ -1,5 +1,6 @@
 package com.group3.evproject.controller.admin;
 
+import com.group3.evproject.dto.request.AdminUserCreationRequest;
 import com.group3.evproject.dto.request.UserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.ApiResponse;
@@ -37,7 +38,7 @@ public class UserController {
     }
 
     @PostMapping
-    ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
+    ApiResponse<UserResponse> createUser(@RequestBody @Valid AdminUserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createUser(request))
                 .build();
