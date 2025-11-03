@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,9 +29,14 @@ public class Invoice {
     LocalDateTime issueDate;
 
     @Column(name = "final_cost", nullable = false)
-    Double finalCost;
+    BigDecimal finalCost;
 
     @ManyToOne
     @JoinColumn(name = "payment_id")
     Payment payment;
+
+    @ManyToOne
+    @JoinColumn(name = "subscription_plan_id")
+    SubscriptionPlan subscriptionPlan;
+
 }
