@@ -33,4 +33,9 @@ public class Invoice {
     @ManyToOne
     @JoinColumn(name = "payment_id")
     Payment payment;
+
+    @ManyToOne
+    @JoinColumn(name = "subscription_plan_id")
+    SubscriptionPlan subscriptionPlan;
+
 }

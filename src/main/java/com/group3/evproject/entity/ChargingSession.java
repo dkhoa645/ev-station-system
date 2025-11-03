@@ -55,19 +55,19 @@ public class ChargingSession {
     @Column(name = "percent_before") // % pin trước khi sạc
     Double percentBefore;
 
-    @Column(name = "percent_after") // % pin sau khi sạc
+    @Column(name = "percent_after")
     Double percentAfter;
 
-    @Column(name = "energy_added") // số điện đã vào xe (kWh)
+    @Column(name = "energy_added")
     Double energyAdded;
 
-    @Column(name = "energy_used") // lượng điện đã sạc thực tế (kWh)
+    @Column(name = "energy_used")
     Double energyUsed;
 
-    @Column(name = "rate_per_kwh") // giá tiền trên mỗi kWh
+    @Column(name = "rate_per_kwh")
     Double ratePerKWh;
 
-    @Column(name = "total_cost") // tổng chi phí sạc
+    @Column(name = "total_cost")
     Double totalCost;
 
     @OneToOne(mappedBy = "session")
