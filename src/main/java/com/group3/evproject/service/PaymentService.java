@@ -6,6 +6,8 @@ import com.group3.evproject.dto.response.PaymentResponse;
 import com.group3.evproject.entity.Company;
 import com.group3.evproject.entity.Payment;
 import com.group3.evproject.entity.User;
+import com.group3.evproject.exception.AppException;
+import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentMapper;
 import com.group3.evproject.repository.CompanyRepository;
 import com.group3.evproject.repository.PaymentRepository;
@@ -52,15 +54,32 @@ public class PaymentService {
     }
 
     public PaymentResponse createPayment(PaymentCreationRequest request) {
+        Payment payment = null;
+        //Check user có gói chưa
+        if(request.getUserId() != null ) {
             User user = userService.findById(request.getUserId());
-
+            if(!user.getPayments().stream().filter(paymentCheck ->
+                    paymentCheck.getPeriod().equals(getPeriod())).findFirst().isEmpty()) {
+                payment = createNew(user, null);
+            }else{
+                throw new AppException(ErrorCode.RESOURCES_EXISTS,"Payment");
+            }
+        }
+        //Check company
+        if(request.getCompanyId() != null ) {
             Company company = companyRepository.findById(request.getCompanyId()).orElse(null);
+            if(company.getPayment().stream().filter(paymentCheck ->
+                    paymentCheck.getPeriod().equals(getPeriod())).findFirst().isEmpty()){
+                payment = createNew(null, company);
+            }else{
+                throw new AppException(ErrorCode.RESOURCES_EXISTS,"Payment");
+            }
+        }
+        if(payment==null) throw new RuntimeException("Payment must not be null");
 
-            Payment payment = createNew(user, company);
+        Payment saved = paymentRepository.save(payment);
 
-            Payment saved = paymentRepository.save(payment);
-
-            return paymentMapper.toPaymentResponse(saved);
+        return paymentMapper.toPaymentResponse(saved);
     }
 
     public Payment findByUser(User user){
@@ -83,5 +102,7 @@ public class PaymentService {
         }
         return period;
     }
+
+
 
 }

@@ -22,6 +22,7 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     PaymentStatus status;
     LocalDateTime paidAt;
+    @Column(unique = true)
     LocalDateTime period;
 
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
