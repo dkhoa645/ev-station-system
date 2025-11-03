@@ -71,7 +71,9 @@ public class ChargingSession {
     Double totalCost;
 
     @OneToOne(mappedBy = "session")
+    @JsonBackReference
     private Invoice invoice;
+
 
     // 🧭 Trạng thái phiên sạc
     @Enumerated(EnumType.STRING)
