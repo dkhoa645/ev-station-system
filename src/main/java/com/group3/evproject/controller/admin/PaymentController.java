@@ -9,10 +9,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/admin/payment")
 @RestController
@@ -21,6 +20,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class PaymentController {
     PaymentService paymentService;
 
+    @GetMapping
+    public ApiResponse<List<PaymentResponse>> getPayment(){
+        return ApiResponse.<List<PaymentResponse>>builder()
+                .result(paymentService.getAll())
+                .build();
+    }
+
+    @GetMapping("/company/{id}")
+    public ApiResponse<List<PaymentResponse>> getPaymentByCompany(@PathVariable Long id){
+        return ApiResponse.<List<PaymentResponse>>builder()
+                .result(paymentService.getByCompany(id))
+                .build();
+    }
+
+    @GetMapping("/user/{id}")
+    public ApiResponse<List<PaymentResponse>> getPaymentByUser(@PathVariable Long id){
+        return ApiResponse.<List<PaymentResponse>>builder()
+                .result(paymentService.getByUser(id))
+                .build();
+    }
 
 
     @PostMapping

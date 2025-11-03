@@ -104,5 +104,13 @@ public class PaymentService {
     }
 
 
+    public List<PaymentResponse> getAll() {
 
+    }
+
+    public List<PaymentResponse> getByCompany(Long id) {
+    }
+
+    public List<PaymentResponse> getByUser(Long id) {
+    }
 }
