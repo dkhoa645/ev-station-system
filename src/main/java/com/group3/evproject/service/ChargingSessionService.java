@@ -19,6 +19,8 @@ public class ChargingSessionService {
     private final ChargingSpotRepository chargingSpotRepository;
     private final ChargingStationRepository chargingStationRepository;
     private final BookingRepository bookingRepository;
+    private final InvoiceRepository invoiceRepository;
+    private final VehicleRepository vehicleRepository;
 
     public List<ChargingSession> getAllSessions() {
         return chargingSessionRepository.findAll();
@@ -48,6 +50,29 @@ public class ChargingSessionService {
                 .totalCost(session.getTotalCost())
                 .status(session.getStatus().name())
                 .build();
+    }
+
+    private void createInvoiceForSession(ChargingSession session) {
+        Invoice invoice = new Invoice();
+        invoice.setSession(session);
+        invoice.setIssueDate(LocalDateTime.now());
+        invoice.setFinalCost(session.getTotalCost());
+        invoice.setStatus(Invoice.Status.PENDING);
+
+        SubscriptionPlan plan = null;
+        if (session.getBooking() != null && session.getBooking().getVehicle() != null) {
+            Vehicle vehicle = session.getBooking().getVehicle();
+            if (vehicle.getSubscription() != null &&
+                    vehicle.getSubscription().getSubscriptionPlan() != null) {
+                plan = vehicle.getSubscription().getSubscriptionPlan();
+            }
+        }
+
+        if (plan != null) {
+            invoice.setSubscriptionPlan(plan);
+        }
+
+        invoiceRepository.save(invoice);
     }
 
     public ChargingSession startSession(Long bookingId, Long spotId) {
@@ -136,6 +161,7 @@ public class ChargingSessionService {
             bookingRepository.save(booking);
         }
 
+        createInvoiceForSession(session);
         return chargingSessionRepository.save(session);
     }
 
@@ -165,4 +191,25 @@ public class ChargingSessionService {
 
         return chargingSessionRepository.save(session);
     }
+
+    public List<ChargingSessionResponse> getSessionsByVehicle(Long vehicleId) {
+        List<ChargingSession> sessions = chargingSessionRepository
+                .findByBooking_Vehicle_IdOrderByStartTimeDesc(vehicleId);
+
+        return sessions.stream()
+                .map(session -> ChargingSessionResponse.builder()
+                        .sessionId(session.getId())
+                        .stationName(session.getStation() != null ? session.getStation().getName() : null)
+                        .spotName(session.getSpot() != null ? session.getSpot().getSpotName() : null)
+                        .startTime(session.getStartTime())
+                        .endTime(session.getEndTime())
+                        .energyUsed(session.getEnergyUsed())
+                        .totalCost(session.getTotalCost())
+                        .status(session.getStatus().name())
+                        .build())
+                .toList();
+    }
+
+
+
 }

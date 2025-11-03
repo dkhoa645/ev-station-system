@@ -33,6 +33,12 @@ public class ChargingSessionController {
         }
     }
 
+    @GetMapping("/vehicle/{vehicleId}")
+    public ResponseEntity<?> getSessionsByVehicle(@PathVariable Long vehicleId) {
+        List<ChargingSessionResponse> history = chargingSessionService.getSessionsByVehicle(vehicleId);
+        return ResponseEntity.ok(history);
+    }
+
     @PostMapping("/start/{booking_id}")
     public ResponseEntity<?> startSession(
             @PathVariable("booking_id") Long bookingId,
