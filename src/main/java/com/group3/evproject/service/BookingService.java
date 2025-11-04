@@ -108,7 +108,6 @@ public class BookingService {
 
         //Chọn spot đầu tiên khả dụng
         ChargingSpot spot = availableSpots.get(0);
-        spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
         chargingSpotRepository.save(spot);
 
         // Tính phí
@@ -200,7 +199,7 @@ public class BookingService {
 
         // Nếu spot đang OCCUPIED thì trả lại AVAILABLE
         ChargingSpot spot = booking.getSpot();
-        if (spot != null && spot.getStatus() == ChargingSpot.SpotStatus.OCCUPIED) {
+        if (spot != null) {
             spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
             chargingSpotRepository.save(spot);
         }

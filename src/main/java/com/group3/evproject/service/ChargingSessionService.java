@@ -88,10 +88,6 @@ public class ChargingSessionService {
         ChargingSpot spot = chargingSpotRepository.findFirstByStationAndStatus(station, ChargingSpot.SpotStatus.AVAILABLE)
                 .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
 
-        // Đánh dấu spot đang bận
-        spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
-        chargingSpotRepository.save(spot);
-
         // Tạo session
         ChargingSession session = ChargingSession.builder()
                 .booking(booking)

@@ -47,8 +47,7 @@ public class ChargingSpot {
     }
 
     public enum SpotStatus {
-        AVAILABLE,  // sẵn sàng
-        OCCUPIED,   // đang được sử dụng
-        MAINTENANCE // đang bảo trì
+        AVAILABLE,
+        UNAVAILABLE
     }
 }
