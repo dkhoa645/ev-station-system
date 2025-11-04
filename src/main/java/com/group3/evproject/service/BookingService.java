@@ -24,6 +24,7 @@ public class BookingService {
     private final UserRepository userRepository;
     private final ChargingStationRepository chargingStationRepository;
     private final ChargingSpotRepository chargingSpotRepository;
+    private final ChargingSpotService chargingSpotService;
     private final VehicleRepository vehicleRepository;
     private static final double fee = 30000;
 
@@ -43,7 +44,7 @@ public class BookingService {
                 .orElseThrow(()-> new RuntimeException("Booking not found"));
         BookingResponse response = BookingResponse.builder()
                 .bookingId(booking.getId())
-                .reservationFee(BigDecimal.valueOf(booking.getReservationFee()))
+                .reservationFee(booking.getReservationFee())
                 .vehicleId(booking.getVehicle().getId())
                 .status(booking.getStatus())
                 .startTime(booking.getStartTime())
@@ -122,7 +123,7 @@ public class BookingService {
                 .timeToCharge(timeToCharge)
                 .endTime(endTime)
                 .status(Booking.BookingStatus.PENDING)
-                .reservationFee(Double.valueOf(reservationFee))
+                .reservationFee(BigDecimal.valueOf(reservationFee))
                 .build();
 
         return bookingRepository.save(booking);

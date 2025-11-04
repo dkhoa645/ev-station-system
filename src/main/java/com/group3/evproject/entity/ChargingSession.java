@@ -74,7 +74,6 @@ public class ChargingSession {
     @JsonBackReference
     private Invoice invoice;
 
-
     // 🧭 Trạng thái phiên sạc
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

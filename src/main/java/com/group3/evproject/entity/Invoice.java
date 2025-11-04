@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-
 @Entity
 @Table(name = "invoice")
 @Getter
@@ -25,6 +24,7 @@ public class Invoice {
 
     @OneToOne
     @JoinColumn(name = "session_id")
+    @JsonManagedReference
     ChargingSession session;
 
     @Column(name = "issue_date", nullable = false)
@@ -40,11 +40,6 @@ public class Invoice {
     @ManyToOne
     @JoinColumn(name = "subscription_plan_id")
     SubscriptionPlan subscriptionPlan;
-
-    @OneToOne
-    @JoinColumn(name = "session_id")
-    @JsonManagedReference
-    ChargingSession chargingSession;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

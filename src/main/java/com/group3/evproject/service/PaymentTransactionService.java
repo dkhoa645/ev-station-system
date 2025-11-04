@@ -1,6 +1,6 @@
 package com.group3.evproject.service;
 
-import com.group3.evproject.Enum.PaymentStatus;
+import com.group3.evproject.Enum.PaymentTransactionStatus;
 import com.group3.evproject.dto.response.BookingResponse;
 import com.group3.evproject.entity.PaymentTransaction;
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
@@ -11,7 +11,8 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentTransactionMapper;
 import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.PaymentTransactionRepository;
-//import com.group3.evproject.vnpay.VNPayUtil;
+import com.group3.evproject.utils.UserUtils;
+import com.group3.evproject.utils.VNPayUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -22,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,16 +40,17 @@ public class PaymentTransactionService {
     SubscriptionPlanService subscriptionPlanService;
     private final AuthenticationService authenticationService;
     private final UserService userService;
+    private final UserUtils userUtils;
 
-    public com.group3.evproject.entity.PaymentTransaction savePayment(com.group3.evproject.entity.PaymentTransaction paymentTransaction){
+    public PaymentTransaction savePayment(PaymentTransaction paymentTransaction){
         return paymentTransactionRepository.save(paymentTransaction);
     }
 
-    public com.group3.evproject.entity.PaymentTransaction findById(Long id){
+    public PaymentTransaction findById(Long id){
         return paymentTransactionRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Transaction "));
     }
-    public com.group3.evproject.entity.PaymentTransaction findByRef(String ref){
+    public PaymentTransaction findByRef(String ref){
         return paymentTransactionRepository.findByVnpTxnRef(ref)
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
     }
@@ -66,8 +67,8 @@ public class PaymentTransactionService {
                 .payment(payment)
                 .amount(amount)
                 .paymentMethod("VNPAY")
-//                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-//                .status(com.group3.evproject.Enum.PaymentTransaction.PENDING)
+                .vnpTxnRef(VNPayUtil.getRandomNumber(8))
+                .status(PaymentTransactionStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusMinutes(15))
                 .paidAt(null)
@@ -93,72 +94,81 @@ public class PaymentTransactionService {
         vehicleSubscriptionService.saveVehicle(vehicleSubscription);
 
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
-//        response.setVehicleSubscription(vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription));
+        response.setId(paymentTransaction.getId());
+        response.setType("VEHICLE_SUBSCRIPTION");
         return response;
     }
 
 
-//    public PaymentTransactionResponse createBookingPayment(Long id, HttpServletRequest request) {
-//            Booking booking = bookingService.findBookingById(id);
-//        if (!booking.getStatus().equals(Booking.BookingStatus.PENDING)) {
-//            throw new AppException(ErrorCode.PENDING_STATUS);
-//        }
-//        String username= authenticationService.extractUsernameFromRequest(request);
-//        User user = userService.getUserByUsername(username);
-//        PaymentTransaction paymentTransaction =
-////                savePayment(createPaymentTransaction(null,booking,null,booking.getReservationFee(),user));
-//        BookingResponse bookingResponse = BookingResponse.builder()
-//                .bookingId(booking.getId())
-//                .vehicleId(booking.getVehicle().getId())
-//                .stationName(booking.getStation().getName())
-//                .startTime(booking.getStartTime())
-//                .timeToCharge(booking.getTimeToCharge())
-////                .reservationFee(booking.getReservationFee())
-//                .endTime(booking.getEndTime())
-//                .status(booking.getStatus())
-//                .build();
-//        booking.getPaymentTransactions().add(paymentTransaction);
-//        bookingService.saveBooking(booking);
-//        PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
-////        response.setBooking(bookingResponse);
-//        return  response;
-//    }
-
-
+    public PaymentTransactionResponse createBookingPayment(Long id, HttpServletRequest request) {
+            Booking booking = bookingService.findBookingById(id);
+        if (!booking.getStatus().equals(Booking.BookingStatus.PENDING)) {
+            throw new AppException(ErrorCode.PENDING_STATUS);
+        }
+        String username= authenticationService.extractUsernameFromRequest(request);
+        User user = userService.getUserByUsername(username);
+        PaymentTransaction paymentTransaction =
+                savePayment(createPaymentTransaction(null,booking,null,booking.getReservationFee(),user));
+        BookingResponse bookingResponse = BookingResponse.builder()
+                .bookingId(booking.getId())
+                .vehicleId(booking.getVehicle().getId())
+                .stationName(booking.getStation().getName())
+                .startTime(booking.getStartTime())
+                .timeToCharge(booking.getTimeToCharge())
+                .reservationFee(booking.getReservationFee())
+                .endTime(booking.getEndTime())
+                .status(booking.getStatus())
+                .build();
+        booking.getPaymentTransactions().add(paymentTransaction);
+        bookingService.saveBooking(booking);
+        PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
+        response.setType("BOOKING");
+        return  response;
+    }
 
 
     @Transactional
-//    public String processSuccessfulPayment(String ref) {
-////        Tìm transaction có mã giao dịch ref
-//        com.group3.evproject.entity.PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
-//                .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
-//        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
-//        paymentTransaction.setPaidAt(now);
-//        paymentTransaction.setStatus(com.group3.evproject.Enum.PaymentTransaction.SUCCESS);
-//        //  Kiểm tra xem hóa đơn của object nào
-//        VehicleSubscription checkVehicleSubscription = paymentTransaction.getVehicleSubscription();
-//        Payment checkPayment = paymentTransaction.getPayment();
-//        Booking checkBooking = paymentTransaction.getBooking();
-////                  Cập nhật Subscription
-//        if (checkVehicleSubscription != null) {
-//            checkVehicleSubscription.setStartDate(now);
-//            checkVehicleSubscription.setEndDate(now.plusMonths(1));
-//            checkVehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
-////                      Tạo Payment tổng
-//            vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
-//        } else if (checkBooking != null) {
-//            checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
-//            bookingService.saveBooking(checkBooking);
-//            return "chargingSession";
-//        }
-//
-//
-//        return "Success";
-//    }
+    public String processSuccessfulPayment(String ref) {
+//        Tìm transaction có mã giao dịch ref
+        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
+                .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+        paymentTransaction.setPaidAt(now);
+        paymentTransaction.setStatus(PaymentTransactionStatus.SUCCESS);
+        //  Kiểm tra xem hóa đơn của object nào
+        VehicleSubscription checkVehicleSubscription = paymentTransaction.getVehicleSubscription();
+        Payment checkPayment = paymentTransaction.getPayment();
+        Booking checkBooking = paymentTransaction.getBooking();
+//                  Cập nhật Subscription
+        if (checkVehicleSubscription != null) {
+            checkVehicleSubscription.setStartDate(now);
+            checkVehicleSubscription.setEndDate(now.plusMonths(1));
+            checkVehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
+            vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
+            return "Success";
+        } else if (checkBooking != null) {
+            checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
+            bookingService.saveBooking(checkBooking);
+            return "chargingSession";
+        }
 
-    public List<PaymentTransactionResponse> getAll() {
-            return paymentTransactionRepository.findAll().stream()
-                    .map(paymentTransactionMapper :: toResponse)
+
+        return "fail";
+    }
+
+    public List<PaymentTransactionResponse> getByUser() {
+            User user = userUtils.getCurrentUser();
+            return paymentTransactionRepository.findByUser(user).stream()
+                    .map(entity -> {
+                        PaymentTransactionResponse response = paymentTransactionMapper.toResponse(entity);
+                        response.setId(entity.getId());
+                        String type ="";
+                        if(entity.getBooking() != null) type ="BOOKING";
+                        if(entity.getPayment() != null) type ="PAYMENT";
+                        if(entity.getVehicleSubscription() != null) type ="VEHICLE SUBSCRIPTION";
+                        response.setType(type);
+                        return response;
+                    })
                     .collect(Collectors.toList());
     }
 

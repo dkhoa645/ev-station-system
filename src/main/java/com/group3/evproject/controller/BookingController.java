@@ -52,7 +52,7 @@ public class BookingController {
                 .stationName(booking.getStation().getName())
                 .startTime(booking.getStartTime())
                 .timeToCharge(booking.getTimeToCharge())
-                .reservationFee(BigDecimal.valueOf(booking.getReservationFee()))
+                .reservationFee(booking.getReservationFee())
                 .endTime(booking.getEndTime())
                 .status(booking.getStatus())
                 .build();

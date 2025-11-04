@@ -38,14 +38,14 @@ public class PaymentTransactionController {
                 .build();
     }
 
-//    @PostMapping("/booking/{id}")
-//    public ApiResponse<PaymentTransactionResponse> createBooking(
-//            @PathVariable Long id,
-//            HttpServletRequest request) {
-//        return ApiResponse.<PaymentTransactionResponse>builder()
-//                .result(paymentTransactionService.createBookingPayment(id, request))
-//                .build();
-//    }
+    @PostMapping("/booking/{id}")
+    public ApiResponse<PaymentTransactionResponse> createBooking(
+            @PathVariable Long id,
+            HttpServletRequest request) {
+        return ApiResponse.<PaymentTransactionResponse>builder()
+                .result(paymentTransactionService.createBookingPayment(id, request))
+                .build();
+    }
 
 //    @PostMapping("payment/{id}")
 
@@ -58,28 +58,28 @@ public class PaymentTransactionController {
                 .build();
     }
 
-//    @GetMapping("/vn-pay-callback")
-//    public void payCallbackHandler(HttpServletResponse response, HttpServletRequest request) throws IOException {
-//            String status = request.getParameter("vnp_ResponseCode");
-//            String ref = request.getParameter("vnp_TxnRef");
-//            if (status.equals("00")) {
-//                String result = paymentTransactionService.processSuccessfulPayment(ref);
-//                if (result.equals("chargingSession")) {
-//                    response.sendRedirect("http://localhost:5173/chargingSession");
-//                }else if(result.equals("Success")) {
-//                    response.sendRedirect("http://localhost:5173/success");
-//                }
-//            } else {
-//                response.sendRedirect("http://localhost:5173/fail");
-//            }
-//    }
+    @GetMapping("/vn-pay-callback")
+    public void payCallbackHandler(HttpServletResponse response, HttpServletRequest request) throws IOException {
+            String status = request.getParameter("vnp_ResponseCode");
+            String ref = request.getParameter("vnp_TxnRef");
+            if (status.equals("00")) {
+                String result = paymentTransactionService.processSuccessfulPayment(ref);
+                if (result.equals("chargingSession")) {
+                    response.sendRedirect("http://localhost:5173/chargingSession");
+                }else if(result.equals("Success")) {
+                    response.sendRedirect("http://localhost:5173/success");
+                }
+            } else {
+                response.sendRedirect("http://localhost:5173/fail");
+            }
+    }
 
-//    @GetMapping
-//    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
-//        return ApiResponse.<List<PaymentTransactionResponse>>builder()
-//                .result(paymentTransactionService.getByUser())
-//                .build();
-//    }
+    @GetMapping
+    public ApiResponse<List<PaymentTransactionResponse>> getPaymentTransaction(){
+        return ApiResponse.<List<PaymentTransactionResponse>>builder()
+                .result(paymentTransactionService.getByUser())
+                .build();
+    }
 
 
 }

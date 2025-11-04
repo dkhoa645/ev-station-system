@@ -20,16 +20,9 @@ public class ChargingStationService {
 
     public ChargingStation createChargingStation(ChargingStation chargingStation) {
 
-        // Nếu status trống -> mặc định AVAILABLE
         if (chargingStation.getStatus() == null || chargingStation.getStatus().isEmpty()) {
             chargingStation.setStatus("AVAILABLE");
         }
-
-        // Khởi tạo các thông tin thống kê
-        chargingStation.setTotalSpots(0);
-        chargingStation.setTotalSpotsOnline(0);
-        chargingStation.setTotalSpotsOffline(0);
-
         return chargingStationRepository.save(chargingStation);
     }
 
