@@ -70,12 +70,13 @@ public class ChargingSessionController {
         try {
             Double ratePerKWh = endRequest.getRatePerKWh();
             Double batteryCapacity = endRequest.getBatteryCapacity();
+            Double percentBefore = endRequest.getPercentBefore();
 
             if (ratePerKWh == null || batteryCapacity == null) {
                 return ResponseEntity.badRequest().body("Missing required fields: ratePerKWh");
             }
 
-            ChargingSession session = chargingSessionService.endSession(ratePerKWh, batteryCapacity, sessionId);
+            ChargingSession session = chargingSessionService.endSession(ratePerKWh, batteryCapacity, sessionId, percentBefore);
 
             //Dùng Mapper để trả về DTO đầy đủ
             return ResponseEntity.ok(ChargingSessionMapper.toDetailResponse(session));

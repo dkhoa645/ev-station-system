@@ -101,7 +101,7 @@ public class ChargingSessionService {
         return chargingSessionRepository.save(session);
     }
 
-    public ChargingSession endSession(Double batteryCapacity, Double ratePerKWh, Long sessionId) {
+    public ChargingSession endSession(Double batteryCapacity, Double ratePerKWh, Long sessionId, Double percentBefore) {
 
         ChargingSession session = getSessionEntityById(sessionId);
 
@@ -121,7 +121,6 @@ public class ChargingSessionService {
         session.setEnergyAdded(energyAdded);
 
         //Tính % sau sạc
-        double percentBefore = session.getPercentBefore();
         double percentAfter = ((energyAdded / batteryCapacity) * 100) + percentBefore;
         if (percentAfter > 100) percentAfter = 100.0;
         session.setPercentBefore(percentBefore);

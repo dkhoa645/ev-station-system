@@ -18,4 +18,8 @@ public class EndRequest {
     @Schema(description = "Dung lượng pin xe", example = "10", required = true)
     @NotNull(message = "batteryCapacity is required")
     private Double batteryCapacity;
+
+    @Schema(description = "Dung lượng pin của xe trước khi sạc", example = "20", required = true)
+    @NotNull(message = "percentBefore is required")
+    private Double percentBefore;
 }
