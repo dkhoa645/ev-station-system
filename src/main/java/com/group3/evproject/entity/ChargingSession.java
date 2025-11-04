@@ -70,7 +70,7 @@ public class ChargingSession {
     @Column(name = "total_cost")
     Double totalCost;
 
-    @OneToOne(mappedBy = "session")
+    @OneToOne(mappedBy = "chargingSession")
     @JsonBackReference
     private Invoice invoice;
 
