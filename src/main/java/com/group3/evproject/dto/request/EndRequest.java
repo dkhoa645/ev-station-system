@@ -11,12 +11,11 @@ import lombok.*;
 @Builder
 @Schema
 public class EndRequest {
-    @Schema(description = "ID của phiên sạc", example = "5", required = true)
-    @NotNull(message = "sesionId is required")
-    private Long sessionId;
-
     @Schema(description = "Giá sạc", example = "5", required = true)
     @NotNull(message = "ratePerKWh is required")
     private Double ratePerKWh;
 
+    @Schema(description = "Dung lượng pin xe", example = "10", required = true)
+    @NotNull(message = "batteryCapacity is required")
+    private Double batteryCapacity;
 }

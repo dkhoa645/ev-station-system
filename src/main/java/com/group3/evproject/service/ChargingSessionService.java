@@ -101,10 +101,9 @@ public class ChargingSessionService {
         return chargingSessionRepository.save(session);
     }
 
-    public ChargingSession endSession(Long sessionId, Double ratePerKWh) {
-        ChargingSession session =getSessionEntityById(sessionId);
+    public ChargingSession endSession(Double batteryCapacity, Double ratePerKWh, Long sessionId) {
 
-
+        ChargingSession session = getSessionEntityById(sessionId);
 
         if (session.getStatus() != ChargingSession.Status.ACTIVE) {
             throw new RuntimeException("Only active sessions can be ended.");
@@ -122,13 +121,12 @@ public class ChargingSessionService {
         session.setEnergyAdded(energyAdded);
 
         //Tính % sau sạc
-        double batteryCapacity = session.getBatteryCapacity();
         double percentBefore = session.getPercentBefore();
         double percentAfter = ((energyAdded / batteryCapacity) * 100) + percentBefore;
         if (percentAfter > 100) percentAfter = 100.0;
         session.setPercentBefore(percentBefore);
         session.setPercentAfter(percentAfter);
-        session.setBatteryCapacity(batteryCapacity);
+        session.setBatteryCapacity(Double.valueOf(batteryCapacity));
 
         //Lượng điện đã sạc (kWh)
         double energyUsed = (percentAfter - percentBefore) * (batteryCapacity / 100);
