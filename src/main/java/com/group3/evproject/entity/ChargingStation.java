@@ -45,6 +45,8 @@ public class ChargingStation {
     Double latitude;
     Double longitude;
 
+    Double pricePerKw = 4500.0;
+
     @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     @JsonIgnore

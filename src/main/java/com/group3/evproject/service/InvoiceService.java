@@ -45,13 +45,13 @@ public class InvoiceService {
                         "Subscription plan not found with id: " + invoice.getSubscriptionPlan().getId()
                 ));
 
-        double finalCost = 0.0;
+        Double finalCost = 0.0;
         if (session.getTotalCost() != null && plan.getMultiplier() != null) {
-            BigDecimal totalCost = BigDecimal.valueOf(session.getTotalCost());
-            BigDecimal multiplier = plan.getMultiplier();
+            Double totalCost = Double.valueOf(session.getTotalCost());
+            Double multiplier = Double.valueOf(String.valueOf((plan.getMultiplier())));
 
             // phép nhân BigDecimal
-            finalCost = totalCost.multiply(multiplier).doubleValue();
+            finalCost = totalCost - (totalCost * multiplier) ;
         }
 
         invoice.setFinalCost(BigDecimal.valueOf(Double.valueOf(finalCost)));
