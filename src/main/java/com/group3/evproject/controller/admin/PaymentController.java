@@ -2,6 +2,7 @@ package com.group3.evproject.controller.admin;
 
 import com.group3.evproject.dto.request.PaymentCreationRequest;
 import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.dto.response.PaymentDetailResponse;
 import com.group3.evproject.dto.response.PaymentResponse;
 import com.group3.evproject.entity.Payment;
 import com.group3.evproject.service.PaymentService;
@@ -20,23 +21,23 @@ import java.util.List;
 public class PaymentController {
     PaymentService paymentService;
 
-    @GetMapping
-    public ApiResponse<List<PaymentResponse>> getPayment(){
-        return ApiResponse.<List<PaymentResponse>>builder()
-                .result(paymentService.getAll())
-                .build();
-    }
+//    @GetMapping
+//    public ApiResponse<List<PaymentResponse>> getPayment(){
+//        return ApiResponse.<List<PaymentResponse>>builder()
+//                .result(paymentService.getAll())
+//                .build();
+//    }
 
     @GetMapping("/company/{id}")
-    public ApiResponse<List<PaymentResponse>> getPaymentByCompany(@PathVariable Long id){
-        return ApiResponse.<List<PaymentResponse>>builder()
+    public ApiResponse<List<PaymentDetailResponse>> getPaymentByCompany(@PathVariable Long id){
+        return ApiResponse.<List<PaymentDetailResponse>>builder()
                 .result(paymentService.getByCompany(id))
                 .build();
     }
 
     @GetMapping("/user/{id}")
-    public ApiResponse<List<PaymentResponse>> getPaymentByUser(@PathVariable Long id){
-        return ApiResponse.<List<PaymentResponse>>builder()
+    public ApiResponse<List<PaymentDetailResponse>> getPaymentByUser(@PathVariable Long id){
+        return ApiResponse.<List<PaymentDetailResponse>>builder()
                 .result(paymentService.getByUser(id))
                 .build();
     }

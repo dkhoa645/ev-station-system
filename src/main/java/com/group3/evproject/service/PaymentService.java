@@ -2,6 +2,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.PaymentStatus;
 import com.group3.evproject.dto.request.PaymentCreationRequest;
+import com.group3.evproject.dto.response.PaymentDetailResponse;
 import com.group3.evproject.dto.response.PaymentResponse;
 import com.group3.evproject.entity.Company;
 import com.group3.evproject.entity.Payment;
@@ -22,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -103,14 +105,22 @@ public class PaymentService {
         return period;
     }
 
-
-    public List<PaymentResponse> getAll() {
-
+    public List<PaymentDetailResponse> getByCompany(Long id) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow( () ->  new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company"));
+        List<Payment> payments = paymentRepository.findByCompany(company);
+        List<PaymentDetailResponse> paymentResponseList = payments.stream()
+                .map(paymentMapper::toPaymentDetailResponse)
+                .collect(Collectors.toList());
+        return paymentResponseList;
     }
 
-    public List<PaymentResponse> getByCompany(Long id) {
-    }
-
-    public List<PaymentResponse> getByUser(Long id) {
+    public List<PaymentDetailResponse> getByUser(Long id) {
+        User user = userService.findById(id);
+        List<Payment> payments = paymentRepository.findByUser(user);
+        List<PaymentDetailResponse> paymentResponseList = payments.stream()
+                .map(paymentMapper::toPaymentDetailResponse)
+                .collect(Collectors.toList());
+        return paymentResponseList;
     }
 }

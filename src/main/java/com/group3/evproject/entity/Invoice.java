@@ -39,4 +39,5 @@ public class Invoice {
     @JoinColumn(name = "subscription_plan_id")
     SubscriptionPlan subscriptionPlan;
 
+
 }

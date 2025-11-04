@@ -2,6 +2,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.entity.Invoice;
+import com.group3.evproject.entity.Payment;
 import com.group3.evproject.entity.SubscriptionPlan;
 import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.InvoiceRepository;
@@ -20,6 +21,8 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final ChargingSessionRepository chargingSessionRepository;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
+
+    private final PaymentService paymentService;
 
     // Lấy tất cả hóa đơn
     public List<Invoice> getAllInvoices() {
@@ -53,7 +56,14 @@ public class InvoiceService {
         invoice.setSession(session);
         invoice.setSubscriptionPlan(plan);
 
+        Payment payment = paymentService.findByUser(invoice.getSession().getBooking().getUser());
 
+        List<Invoice> invoices = payment.getInvoices();
+        invoices.add(invoice);
+        payment.setInvoices(invoices);
+        paymentService.save(payment);
+
+        invoice.setPayment(payment);
         return invoiceRepository.save(invoice);
     }
 
