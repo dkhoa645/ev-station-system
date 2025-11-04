@@ -2,9 +2,11 @@ package com.group3.evproject.controller;
 import com.group3.evproject.entity.ChargingStation;
 import com.group3.evproject.service.ChargingStationService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.group3.evproject.dto.response.ChargingStationResponse;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,9 +27,27 @@ public class ChargingStationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ChargingStation> getChargingStationById(@PathVariable Long id) {
-        return ResponseEntity.ok(chargingStationService.getChargingStationById(id));
+    public ResponseEntity<ChargingStationResponse> getChargingStationById(@PathVariable Long id) {
+        ChargingStation station = chargingStationService.getChargingStationById(id);
+
+        // Map từ entity sang DTO
+        ChargingStationResponse response = ChargingStationResponse.builder()
+                .stationId(station.getId())
+                .stationName(station.getName())
+                .location(station.getLocation())
+                .status(station.getStatus())
+                .imageUrl(station.getImageUrl())
+                .totalSpotsOfline(station.getTotalSpotsOffline())
+                .totalSpotsOnline(station.getTotalSpotsOnline())
+                .totalSpots(station.getTotalSpots())
+                .powerCapacity(station.getPowerCapacity())
+                .latitude(station.getLatitude())
+                .longtitude(station.getLongitude())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
+
 
     @PostMapping
     public ResponseEntity<ChargingStation> createChargingStation(@RequestBody ChargingStation chargingStation) {
