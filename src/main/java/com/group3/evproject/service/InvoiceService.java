@@ -2,6 +2,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.entity.Invoice;
+import com.group3.evproject.entity.Payment;
 import com.group3.evproject.entity.SubscriptionPlan;
 import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.InvoiceRepository;
@@ -78,4 +79,36 @@ public class InvoiceService {
         }
         invoiceRepository.deleteById(id);
     }
+
+    public Invoice markAsPaid(Long invoiceId, Long paymentId) {
+        Invoice invoice = getInvoiceById(invoiceId);
+
+        if (invoice.getStatus() == Invoice.Status.CANCELLED) {
+            throw new IllegalArgumentException("Cannot mark a cancelled invoice as paid.");
+        }
+
+        invoice.setStatus(Invoice.Status.PAID);
+
+        // Nếu bạn có entity Payment thì liên kết nó vào
+        Payment payment = null;
+        if (paymentId != null) {
+            payment = new Payment();
+            payment.setId(paymentId);
+            invoice.setPayment(payment);
+        }
+
+        return invoiceRepository.save(invoice);
+    }
+
+    public Invoice cancelInvoice(Long invoiceId) {
+        Invoice invoice = getInvoiceById(invoiceId);
+
+        if (invoice.getStatus() == Invoice.Status.PAID) {
+            throw new IllegalArgumentException("Cannot cancel a paid invoice.");
+        }
+
+        invoice.setStatus(Invoice.Status.CANCELLED);
+        return invoiceRepository.save(invoice);
+    }
+
 }
