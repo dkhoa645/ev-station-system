@@ -1,5 +1,6 @@
 package com.group3.evproject.controller;
 
+import com.group3.evproject.dto.request.EndRequest;
 import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.mapper.ChargingSessionMapper;
 import com.group3.evproject.service.ChargingSessionService;
@@ -7,6 +8,7 @@ import com.group3.evproject.dto.response.ChargingSessionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.group3.evproject.dto.request.StartRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -42,11 +44,12 @@ public class ChargingSessionController {
     @PostMapping("/start/{booking_id}")
     public ResponseEntity<?> startSession(
             @PathVariable("booking_id") Long bookingId,
-            @RequestBody Map<String, Long> body) {
+            @RequestBody StartRequest startRequest) {
         try {
-            Long spotId = body.get("spotId");
-            if (spotId == null) {
-                return ResponseEntity.badRequest().body("Missing required field: spotId");
+            Long spotId = startRequest.getSpotId();
+            Double percentBefore = startRequest.getPercentBefore();
+            if (spotId == null || percentBefore == null) {
+                return ResponseEntity.badRequest().body("Missing required field: spotId, percentBefore");
             }
 
             ChargingSession session = chargingSessionService.startSession(bookingId, spotId);
@@ -63,17 +66,15 @@ public class ChargingSessionController {
     @PutMapping("/end/{session_id}")
     public ResponseEntity<?> endSession(
             @PathVariable("session_id") Long sessionId,
-            @RequestBody Map<String, Double> body) {
+            @RequestBody EndRequest endRequest) {
         try {
-            Double ratePerKWh = body.get("ratePerKWh");
-            Double percentBefore = body.get("percentBefore");
-            Double batteryCapacity = body.get("batteryCapacity");
+            Double ratePerKWh = endRequest.getRatePerKWh();
 
-            if (ratePerKWh == null || percentBefore == null || batteryCapacity == null) {
-                return ResponseEntity.badRequest().body("Missing required fields: ratePerKWh, percentBefore, batteryCapacity");
+            if (ratePerKWh == null) {
+                return ResponseEntity.badRequest().body("Missing required fields: ratePerKWh");
             }
 
-            ChargingSession session = chargingSessionService.endSession(sessionId, ratePerKWh, percentBefore, batteryCapacity);
+            ChargingSession session = chargingSessionService.endSession(sessionId, ratePerKWh);
 
             //Dùng Mapper để trả về DTO đầy đủ
             return ResponseEntity.ok(ChargingSessionMapper.toDetailResponse(session));
