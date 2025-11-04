@@ -1,8 +1,13 @@
 package com.group3.evproject.entity;
 
+import com.group3.evproject.Enum.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "payment")
@@ -10,20 +15,26 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Payment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
+    BigDecimal totalEnergy;
+    BigDecimal totalCost;
 
-    @ManyToOne @JoinColumn(name = "session_id")
-    ChargingSession session;
+    @Enumerated(EnumType.STRING)
+    PaymentStatus status;
+    LocalDateTime paidAt;
+    LocalDateTime period;
 
-    @ManyToOne @JoinColumn(name = "user_id")
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
+    List<Invoice> invoices ;
+
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
+    List<PaymentTransaction> paymentTransactions;
+
+    @ManyToOne()
+    @JoinColumn(name="user_id",nullable = true)
     User user;
 
-    @ManyToOne @JoinColumn(name = "company_id")
+    @ManyToOne()
+    @JoinColumn(name="company_id",nullable = true)
     Company company;
-
-    @ManyToOne @JoinColumn(name = "vehicle_subscription_id")
-    VehicleSubscription vehicleSubscription;
-
-    Double amount;
-    String status; // pending, paid, failed
 }

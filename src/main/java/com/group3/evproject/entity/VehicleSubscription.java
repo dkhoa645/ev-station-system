@@ -1,8 +1,12 @@
 package com.group3.evproject.entity;
 
+import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "vehicle_subscription")
@@ -10,16 +14,24 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleSubscription {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
 
-    @ManyToOne @JoinColumn(name = "vehicle_id")
+    @OneToOne
+    @JoinColumn(name = "vehicle_id", referencedColumnName = "id", nullable = false, unique = true)
     Vehicle vehicle;
 
-    @ManyToOne @JoinColumn(name = "subscription_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_id", nullable = false)
     SubscriptionPlan subscriptionPlan;
 
-    java.time.LocalDateTime startDate;
-    java.time.LocalDateTime endDate;
-    String status; // active, expired, cancelled
+    LocalDateTime startDate;
+    LocalDateTime endDate;
+    @Enumerated(EnumType.STRING)
+    VehicleSubscriptionStatus status; // active, expired, cancelled
+    @Column(name = "auto_renew")
+    boolean autoRenew;
+    @OneToMany(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
+    List<PaymentTransaction> paymentTransactions ;
+
 }
 

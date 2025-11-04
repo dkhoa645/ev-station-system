@@ -1,33 +1,54 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 @Entity
 @Table(name = "charging_spot")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ChargingSpot {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    private Long id;
 
-    // Tên của chỗ sạc
+    @Column(nullable = false, unique = true)
+    private String spotName;
+
+    @Column(name = "power_output")
+    private Double powerOutput;
+
+    //Enum trạng thái thực tế của điểm sạc
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    String name;
+    private SpotStatus status = SpotStatus.AVAILABLE;
 
-    // Trạng thái: AVAILABLE, IN_USE, MAINTENANCE, ...
-    @Column(nullable = false)
-    private String status;
-
-    // Công suất đầu ra của chỗ sạc (kW)
-    @Column(nullable = false)
-    Double powerOutput;
-
-    // Mỗi chỗ sạc thuộc về 1 trạm
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id", nullable = false)
-    ChargingStation station;
-}
+    @JsonBackReference
+    private ChargingStation station;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean available = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "spot_type", nullable = false)
+    private SpotType spotType;
+
+    public enum SpotType {
+        WALK_IN, // không cần đặt trước
+        BOOKING  // chỉ dành cho người đã đặt online
+    }
+
+    public enum SpotStatus {
+        AVAILABLE,  // sẵn sàng
+        OCCUPIED,   // đang được sử dụng
+        MAINTENANCE // đang bảo trì
+    }
+}

@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -39,4 +40,18 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     Set<Role> roles = new HashSet<>();
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    List<Vehicle> vehicles;
+
+    @ManyToOne()
+    @JoinColumn(name = "company_id",nullable = true)
+    Company company;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    List<Payment> payments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    List<PaymentTransaction> paymentTransactionList;
 }

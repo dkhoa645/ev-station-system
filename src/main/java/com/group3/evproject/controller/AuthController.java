@@ -28,9 +28,8 @@ public class AuthController {
     UserService userService;
     AuthenticationService authenticationService;
 
-
     @PostMapping("/login")
-    ApiResponse<AuthenticationResponse> authenticated(@RequestBody AuthenticationRequest request) {
+    ApiResponse<AuthenticationResponse> authenticated(@RequestBody @Valid AuthenticationRequest request) {
         var result = authenticationService.authenticated(request);
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(result)
@@ -52,14 +51,8 @@ public class AuthController {
                 .result(authenticationService.registerUser(request))
                 .build();
     }
-//    @GetMapping("/verify")
-//    public ApiResponse<String> verifyEmail(@RequestParam String token) {
-//        String message = authenticationService.verifyEmail(token);
-//        return ApiResponse.<String>builder()
-//                .result(message)
-//                .build();
-//    }
-    @GetMapping("/verify")
+
+    @GetMapping("/verifySuccess")
     public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
         String message = authenticationService.verifyEmail(token);
         if (message.contains("success")) {

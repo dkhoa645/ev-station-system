@@ -18,32 +18,37 @@ public class ChargingSpotController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ChargingSpot> getSpotById(@PathVariable Integer id) {
+    public ResponseEntity<ChargingSpot> getSpotById(@PathVariable Long id) {
         return ResponseEntity.ok(chargingSpotService.getSpotById(id));
     }
 
     @GetMapping("/station/{stationId}")
-    public ResponseEntity<List<ChargingSpot>> getSpotsByStationId(@PathVariable Integer stationId) {
+    public ResponseEntity<List<ChargingSpot>> getSpotsByStationId(@PathVariable Long stationId) {
         return ResponseEntity.ok(chargingSpotService.getSpotsByStationId(stationId));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<ChargingSpot>> getSpotsByStatus(@PathVariable String status) {
+    public ResponseEntity<List<ChargingSpot>> getSpotsByStatus(@PathVariable ChargingSpot.SpotStatus status) {
         return ResponseEntity.ok(chargingSpotService.getSpotsByStatus(status));
     }
 
-    @PostMapping
-    public ResponseEntity<ChargingSpot> createSpot(@RequestBody ChargingSpot chargingSpot) {
-        return ResponseEntity.ok(chargingSpotService.createSpot(chargingSpot));
+    @PostMapping("/create/{stationId}")
+    public ResponseEntity<?> createSpot(@PathVariable Long stationId,@RequestParam(required = false, defaultValue = "WALK_IN") ChargingSpot.SpotType spotType) {
+        try {
+            ChargingSpot newSpot = chargingSpotService.createSpot(stationId,spotType);
+            return ResponseEntity.ok(newSpot);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body("Error creating spot: " + ex.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ChargingSpot> updateSpot(@RequestBody ChargingSpot updatedSpot, @PathVariable Integer id) {
+    public ResponseEntity<ChargingSpot> updateSpot(@RequestBody ChargingSpot updatedSpot, @PathVariable Long id) {
         return ResponseEntity.ok(chargingSpotService.updateSpot(updatedSpot, id));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSpot(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteSpot(@PathVariable Long id) {
         chargingSpotService.deleteSpot(id);
         return ResponseEntity.noContent().build();
     }

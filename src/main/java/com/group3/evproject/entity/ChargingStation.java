@@ -1,5 +1,9 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,10 +14,11 @@ import java.util.List;
 @Table(name = "charging_station")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Schema
 public class ChargingStation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    private Long id;
 
     @Column(nullable = false)
     String name;
@@ -22,14 +27,26 @@ public class ChargingStation {
     String location;
 
     @Column(nullable = false)
-    String status;
+    String status = "AVAILABLE";
+
+    @Column(name = "image_url")
+    String imageUrl;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Integer totalSpotsOffline = 0;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Integer totalSpotsOnline = 0;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Integer totalSpots = 0;
 
     Double powerCapacity;
-    Integer availableSpots;
     Double latitude;
     Double longitude;
 
-    // Một trạm có nhiều chỗ sạc (spots)
-    @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @JsonIgnore
     List<ChargingSpot> spots;
 }
