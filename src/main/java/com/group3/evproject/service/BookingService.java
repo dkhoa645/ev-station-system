@@ -69,11 +69,24 @@ public class BookingService {
     }
 
     // Lấy bookings theo userId
-    public List<Booking> getBookingByUser(Long userId) {
+    public List<BookingResponse> getBookingResponseByUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("No user found for user id: " + userId));
-        return bookingRepository.findByUser(user);
+
+        return bookingRepository.findByUser(user).stream()
+                .map(b -> BookingResponse.builder()
+                        .bookingId(b.getId())
+                        .vehicleId(b.getVehicle() != null ? b.getVehicle().getId() : null)
+                        .stationName(b.getStation() != null ? b.getStation().getName() : null)
+                        .reservationFee(b.getReservationFee())
+                        .status(b.getStatus())
+                        .startTime(b.getStartTime())
+                        .timeToCharge(b.getTimeToCharge())
+                        .endTime(b.getEndTime())
+                        .build())
+                .toList();
     }
+
 
     // Lấy bookings theo stationId
     public List<Booking> getBookingByStation(Long stationId) {
