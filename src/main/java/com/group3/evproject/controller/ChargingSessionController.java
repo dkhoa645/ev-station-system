@@ -1,6 +1,7 @@
 package com.group3.evproject.controller;
 
 import com.group3.evproject.entity.ChargingSession;
+import com.group3.evproject.mapper.ChargingSessionMapper;
 import com.group3.evproject.service.ChargingSessionService;
 import com.group3.evproject.dto.response.ChargingSessionResponse;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/charging-sessions")
@@ -31,30 +33,58 @@ public class ChargingSessionController {
         }
     }
 
+    @GetMapping("/vehicle/{vehicleId}")
+    public ResponseEntity<?> getSessionsByVehicle(@PathVariable Long vehicleId) {
+        List<ChargingSessionResponse> history = chargingSessionService.getSessionsByVehicle(vehicleId);
+        return ResponseEntity.ok(history);
+    }
+
     @PostMapping("/start/{booking_id}")
-    public ResponseEntity<?> startSession(@PathVariable("booking_id") Long bookingId) {
+    public ResponseEntity<?> startSession(
+            @PathVariable("booking_id") Long bookingId,
+            @RequestBody Map<String, Long> body) {
         try {
-            ChargingSession session = chargingSessionService.startSession(bookingId);
-            return ResponseEntity.ok(session);
-        } catch (Exception ex) {
+            Long spotId = body.get("spotId");
+            if (spotId == null) {
+                return ResponseEntity.badRequest().body("Missing required field: spotId");
+            }
+
+            ChargingSession session = chargingSessionService.startSession(bookingId, spotId);
+            return ResponseEntity.ok(ChargingSessionMapper.toSimpleResponse(session));
+
+        } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body("Error starting session: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().body("Unexpected error: " + ex.getMessage());
         }
     }
 
-    @PostMapping("/end/{session_id}")
+
+    @PutMapping("/end/{session_id}")
     public ResponseEntity<?> endSession(
             @PathVariable("session_id") Long sessionId,
-            @RequestParam Double ratePerKWh,
-            @RequestParam Double percentBefore,
-            @RequestParam Double batteryCapacity
-    ) {
+            @RequestBody Map<String, Double> body) {
         try {
+            Double ratePerKWh = body.get("ratePerKWh");
+            Double percentBefore = body.get("percentBefore");
+            Double batteryCapacity = body.get("batteryCapacity");
+
+            if (ratePerKWh == null || percentBefore == null || batteryCapacity == null) {
+                return ResponseEntity.badRequest().body("Missing required fields: ratePerKWh, percentBefore, batteryCapacity");
+            }
+
             ChargingSession session = chargingSessionService.endSession(sessionId, ratePerKWh, percentBefore, batteryCapacity);
-            return ResponseEntity.ok(session);
-        } catch (Exception ex) {
+
+            //Dùng Mapper để trả về DTO đầy đủ
+            return ResponseEntity.ok(ChargingSessionMapper.toDetailResponse(session));
+
+        } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body("Error ending session: " + ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.internalServerError().body("Unexpected error: " + ex.getMessage());
         }
     }
+
 
     @PostMapping("/cancel/{session_id}")
     public ResponseEntity<?> cancelSession(@PathVariable("session_id") Long sessionId) {

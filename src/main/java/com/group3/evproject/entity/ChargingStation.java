@@ -2,6 +2,7 @@ package com.group3.evproject.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,12 +32,13 @@ public class ChargingStation {
     @Column(name = "image_url")
     String imageUrl;
 
-    @Column(name = "available_spots", nullable = false)
-    @JsonIgnore
-    Integer availableSpots = 0;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Integer totalSpotsOffline = 0;
 
-    @Column
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Integer totalSpotsOnline = 0;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Integer totalSpots = 0;
 
     Double powerCapacity;

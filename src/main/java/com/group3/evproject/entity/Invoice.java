@@ -1,11 +1,13 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "invoice")
@@ -38,5 +40,20 @@ public class Invoice {
     @ManyToOne
     @JoinColumn(name = "subscription_plan_id")
     SubscriptionPlan subscriptionPlan;
+
+    @OneToOne
+    @JoinColumn(name = "session_id")
+    @JsonManagedReference
+    ChargingSession chargingSession;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    Status status;
+
+    public enum Status {
+        PENDING,
+        PAID,
+        CANCELLED
+    }
 
 }
