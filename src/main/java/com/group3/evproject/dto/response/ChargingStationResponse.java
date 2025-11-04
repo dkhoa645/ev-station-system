@@ -41,7 +41,7 @@ public class ChargingStationResponse {
     private Double powerCapacity;
 
     @Schema(description = "Tiền kwh", example = "4500")
-    private Double pricePerKw;
+    private Double pricePerKwh;
 
     @Schema(description = "Vị trí kinh độ", example = "10.7945")
     private Double latitude;
