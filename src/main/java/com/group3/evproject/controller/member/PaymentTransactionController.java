@@ -34,7 +34,7 @@ public class PaymentTransactionController {
             @PathVariable Long id,
             HttpServletRequest request) {
         return ApiResponse.<PaymentTransactionResponse>builder()
-                .result(paymentTransactionService.createSubscriptionPayment(id, request))
+                .result(paymentTransactionService.createSubscriptionPayment(id))
                 .build();
     }
 
@@ -43,11 +43,18 @@ public class PaymentTransactionController {
             @PathVariable Long id,
             HttpServletRequest request) {
         return ApiResponse.<PaymentTransactionResponse>builder()
-                .result(paymentTransactionService.createBookingPayment(id, request))
+                .result(paymentTransactionService.createBookingPayment(id))
                 .build();
     }
 
-//    @PostMapping("payment/{id}")
+    @PostMapping("payment/{id}")
+    public ApiResponse<PaymentTransactionResponse> createPayment(
+            @PathVariable Long id
+    ){
+        return ApiResponse.<PaymentTransactionResponse>builder()
+                .result(paymentTransactionService.createForPayment(id))
+                .build();
+    }
 
     @PostMapping("/vn-pay")
     public ApiResponse<VNPayDTO> pay(
@@ -64,9 +71,9 @@ public class PaymentTransactionController {
             String ref = request.getParameter("vnp_TxnRef");
             if (status.equals("00")) {
                 String result = paymentTransactionService.processSuccessfulPayment(ref);
-                if (result.equals("chargingSession")) {
+                if (result.equals("bookingSuccess")) {
                     response.sendRedirect("http://localhost:5173/chargingSession");
-                }else if(result.equals("Success")) {
+                }else if(result.equals("subscriptionSuccess")) {
                     response.sendRedirect("http://localhost:5173/success");
                 }
             } else {

@@ -39,6 +39,10 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
 
+    public Payment findById(Long id){
+        return paymentRepository.findByid(id);
+    }
+
     public Payment createNew(User user, Company company){
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime period = getPeriod();

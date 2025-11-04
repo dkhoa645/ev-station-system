@@ -5,9 +5,10 @@ import com.group3.evproject.entity.Vehicle;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {VehicleModelMapper.class, VehicleSubscriptionMapper.class})
 public interface VehicleMapper {
     @Mapping(source = "model", target = "model")
+    @Mapping(source = "subscription", target = "vehicleSubscriptionResponse")
     VehicleResponse vehicleToVehicleResponse(Vehicle vehicle);
 
 
