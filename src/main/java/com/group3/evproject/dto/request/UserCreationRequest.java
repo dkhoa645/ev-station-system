@@ -2,6 +2,7 @@ package com.group3.evproject.dto.request;
 
 import java.time.LocalDate;
 
+import com.group3.evproject.Enum.RoleName;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -20,11 +21,10 @@ public class UserCreationRequest {
 
     @Size(min = 6, message = "PASSWORD_INVALID")
     String password;
-
+    @Size(min = 1, message = "NAME_INVALID")
     String name;
 
     @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$", message = "Email wrong format")
     String email;
-
 
 }

@@ -1,7 +1,8 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.admin;
 
 import com.group3.evproject.dto.request.SubscriptionPlanRequest;
 import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.dto.response.SubscriptionPlanResponse;
 import com.group3.evproject.entity.SubscriptionPlan;
 import com.group3.evproject.service.SubscriptionPlanService;
 import lombok.AccessLevel;
@@ -11,32 +12,32 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/subscription-plan")
 @RestController
+@RequestMapping("/admin/subscription-plan")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SubscriptionPlanController {
     SubscriptionPlanService subscriptionPlanService;
 
     @GetMapping
-    public ApiResponse<List<SubscriptionPlan>> getAllSubscriptionPlans() {
-        return ApiResponse.<List<SubscriptionPlan>>builder()
+    public ApiResponse<List<SubscriptionPlanResponse>> getAllSubscriptionPlans() {
+        return ApiResponse.<List<SubscriptionPlanResponse>>builder()
                 .result(subscriptionPlanService.getAll())
                 .build();
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<SubscriptionPlan> getSubscriptionPlanById(@PathVariable Long id) {
-        return ApiResponse.<SubscriptionPlan>builder()
+    public ApiResponse<SubscriptionPlanResponse> getSubscriptionPlanById(@PathVariable Long id) {
+        return ApiResponse.<SubscriptionPlanResponse>builder()
                 .result(subscriptionPlanService.getById(id))
                 .build();
     }
 
     @PostMapping
     public ApiResponse<SubscriptionPlan> createSubscriptionPlan(
-            @RequestBody SubscriptionPlan subscriptionPlan) {
+            @RequestBody SubscriptionPlanRequest subscriptionPlanRequest) {
         return ApiResponse.<SubscriptionPlan>builder()
-                .result(subscriptionPlanService.createPlan(subscriptionPlan))
+                .result(subscriptionPlanService.createPlan(subscriptionPlanRequest))
                 .build();
     }
 //

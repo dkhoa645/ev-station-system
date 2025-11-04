@@ -27,7 +27,7 @@ public class EmailService {
 
     public void sendVerificationEmail(String toEmail, String verificationToken)  {
         String subject = "Verify your EV Charge account";
-        String verifyUrl = "https://ev-station-system-production.up.railway.app/auth/verify?token=" + verificationToken;
+        String verifyUrl = "https://ev-station-system-production.up.railway.app/auth/verifySuccess?token=" + verificationToken;
 //        String verifyUrl = "http://localhost:8080//auth/verify?token=" + verificationToken;
         // Nội dung email dạng HTML
         String body = """

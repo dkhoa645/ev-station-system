@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -16,11 +18,21 @@ public class VehicleModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(name = "brand")
-    String brand;
+    @ManyToOne()
+    @JoinColumn(name = "brand_id")
+    VehicleBrand brand;
+
     @Column(name = "model_name")
     String modelName;
+
     String connector;
+
     @Column(name = "battery_capacity")
     Double batteryCapacity;
+
+    @Column(name = "img_url")
+    String url;
+
+    @OneToMany(mappedBy = "model",cascade = CascadeType.ALL)
+    List<Vehicle> vehicles;
 }
