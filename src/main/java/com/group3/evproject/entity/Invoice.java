@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Fetch;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,7 +38,7 @@ public class Invoice {
     @JoinColumn(name = "payment_id")
     Payment payment;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_plan_id")
     SubscriptionPlan subscriptionPlan;
 

@@ -29,8 +29,20 @@ public class BookingService {
     private static final double fee = 30000;
 
     // Lấy tất cả booking
-    public List<Booking> findAllBookings() {
-        return bookingRepository.findAll();
+    public List<BookingResponse> getAllBookingResponses() {
+        return bookingRepository.findAll().stream()
+                .map(b -> BookingResponse.builder()
+                        .bookingId(b.getId())
+                        .vehicleId(b.getVehicle() != null ? b.getVehicle().getId() : null)
+                        .stationName(b.getStation() != null ? b.getStation().getName() : null)
+                        .reservationFee(b.getReservationFee())
+                        .status(b.getStatus())
+                        .startTime(b.getStartTime())
+                        .timeToCharge(b.getTimeToCharge())
+                        .endTime(b.getEndTime())
+                        .build()
+                )
+                .toList();
     }
 
     public Booking findBookingById(Long id) {

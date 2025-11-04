@@ -45,6 +45,11 @@ public class InvoiceController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<List<Invoice>> getInvoiceByUserId(@PathVariable Long userId) {
+//        List<Invoice> invoices = invoiceService.getInvoiceByUserId(userId);
+//        return ResponseEntity.ok(invoices);
+//    }
 
     @PutMapping("/{invoiceId}/paid/{paymentId}")
     public ResponseEntity<?> markAsPaid(@PathVariable Long invoiceId, @PathVariable Long paymentId) {

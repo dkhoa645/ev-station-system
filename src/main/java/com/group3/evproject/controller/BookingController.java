@@ -21,9 +21,10 @@ public class BookingController {
     private final BookingService bookingService;
 
     @GetMapping
-    public ResponseEntity<List<Booking>> getAllBookings() {
-        return ResponseEntity.ok(bookingService.findAllBookings());
+    public ResponseEntity<List<BookingResponse>> getAllBookings() {
+        return ResponseEntity.ok(bookingService.getAllBookingResponses());
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<BookingResponse> getBookingById(@PathVariable Long id) {

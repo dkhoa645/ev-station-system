@@ -22,6 +22,7 @@ public class InvoiceService {
     private final ChargingSessionRepository chargingSessionRepository;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
 
+
     // Lấy tất cả hóa đơn
     public List<Invoice> getAllInvoices() {
         return invoiceRepository.findAll();
@@ -32,6 +33,11 @@ public class InvoiceService {
         return invoiceRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Invoice not found with id: " + id));
     }
+
+//    //lay hoa don theo userId
+//    public List<Invoice> getInvoiceByUserId(Long userId) {
+//        return invoiceRepository.findInvoiceByUserId(userId);
+//    }
 
     // Tạo mới hóa đơn
     public Invoice createInvoice(Invoice invoice) {
