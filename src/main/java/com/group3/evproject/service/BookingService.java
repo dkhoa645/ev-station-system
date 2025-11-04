@@ -56,8 +56,6 @@ public class BookingService {
         return response;
     }
 
-
-
     // Lấy bookings theo userId
     public List<Booking> getBookingByUser(Long userId) {
         User user = userRepository.findById(userId)
@@ -108,6 +106,7 @@ public class BookingService {
 
         //Chọn spot đầu tiên khả dụng
         ChargingSpot spot = availableSpots.get(0);
+        spot.setStatus(ChargingSpot.SpotStatus.UNAVAILABLE);
         chargingSpotRepository.save(spot);
 
         // Tính phí
@@ -199,7 +198,7 @@ public class BookingService {
 
         // Nếu spot đang OCCUPIED thì trả lại AVAILABLE
         ChargingSpot spot = booking.getSpot();
-        if (spot != null) {
+        if (spot != null && spot.getStatus() == ChargingSpot.SpotStatus.UNAVAILABLE) {
             spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
             chargingSpotRepository.save(spot);
         }

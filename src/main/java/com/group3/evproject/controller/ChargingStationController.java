@@ -48,7 +48,6 @@ public class ChargingStationController {
         return ResponseEntity.ok(response);
     }
 
-
     @PostMapping
     public ResponseEntity<ChargingStation> createChargingStation(@RequestBody ChargingStation chargingStation) {
         ChargingStation createdStation = chargingStationService.createChargingStation(chargingStation);
