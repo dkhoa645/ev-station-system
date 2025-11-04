@@ -30,7 +30,6 @@ public class ChargingStationController {
     public ResponseEntity<ChargingStationResponse> getChargingStationById(@PathVariable Long id) {
         ChargingStation station = chargingStationService.getChargingStationById(id);
 
-        // Map từ entity sang DTO
         ChargingStationResponse response = ChargingStationResponse.builder()
                 .stationId(station.getId())
                 .stationName(station.getName())
@@ -41,12 +40,14 @@ public class ChargingStationController {
                 .totalSpotsOnline(station.getTotalSpotsOnline())
                 .totalSpots(station.getTotalSpots())
                 .powerCapacity(station.getPowerCapacity())
+                .pricePerKwh(station.getPricePerKwh())
                 .latitude(station.getLatitude())
                 .longtitude(station.getLongitude())
                 .build();
 
         return ResponseEntity.ok(response);
     }
+
 
     @PostMapping
     public ResponseEntity<ChargingStation> createChargingStation(@RequestBody ChargingStation chargingStation) {
