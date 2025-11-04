@@ -43,7 +43,7 @@ public class BookingService {
                 .orElseThrow(()-> new RuntimeException("Booking not found"));
         BookingResponse response = BookingResponse.builder()
                 .bookingId(booking.getId())
-                .reservationFee(BigDecimal.valueOf(booking.getReservationFee()))
+                .reservationFee(booking.getReservationFee())
                 .vehicleId(booking.getVehicle().getId())
                 .status(booking.getStatus())
                 .startTime(booking.getStartTime())
@@ -122,7 +122,7 @@ public class BookingService {
                 .timeToCharge(timeToCharge)
                 .endTime(endTime)
                 .status(Booking.BookingStatus.PENDING)
-                .reservationFee(Double.valueOf(reservationFee))
+                .reservationFee(BigDecimal.valueOf(reservationFee))
                 .build();
 
         return bookingRepository.save(booking);
