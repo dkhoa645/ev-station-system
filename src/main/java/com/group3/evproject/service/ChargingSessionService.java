@@ -113,7 +113,7 @@ public class ChargingSessionService {
         session.setEndTime(endTime);
 
         //Tính thời gian sạc (giờ)
-        double durationHours = Duration.between(session.getStartTime(), endTime).toMinutes() / 60.0;
+        double durationHours = Duration.between(session.getStartTime(), endTime).toSeconds() / 3600.0;
         session.setChargingDuration(durationHours);
 
         //Tính số điện đã vào xe (kWh)
