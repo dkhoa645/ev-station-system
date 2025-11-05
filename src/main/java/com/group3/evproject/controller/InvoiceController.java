@@ -32,9 +32,14 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceService.getInvoicesByUserId(userId));
     }
 
-    @GetMapping("/booking/{bookingId}")
-    public ResponseEntity<List<Invoice>> getInvoicesByBooking(@PathVariable Long bookingId) {
-        return ResponseEntity.ok(invoiceService.getInvoicesByBookingId(bookingId));
+    @GetMapping("/vehicle/{vehicleId}")
+    public ResponseEntity<List<Invoice>> getInvoicesByVehicle(@PathVariable Long VehicleId) {
+        return ResponseEntity.ok(invoiceService.getInvoicesByVehicle(VehicleId));
+    }
+
+    @GetMapping("/Status")
+    public ResponseEntity<List<Invoice>> getInvoicesByStatus (String status) {
+        return ResponseEntity.ok(invoiceService.getPedingInvoices(status));
     }
 
     @PostMapping

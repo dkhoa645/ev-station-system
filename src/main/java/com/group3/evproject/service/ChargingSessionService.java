@@ -98,6 +98,11 @@ public class ChargingSessionService {
                 .status(ChargingSession.Status.ACTIVE)
                 .build();
 
+        if (spot.getSpotType() == ChargingSpot.SpotType.WALK_IN) {
+            spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
+            chargingSpotRepository.save(spot);
+        }
+
         return chargingSessionRepository.save(session);
     }
 
