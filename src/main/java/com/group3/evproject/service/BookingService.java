@@ -129,10 +129,6 @@ public class BookingService {
             throw new RuntimeException("No available booking-type charging spots at this station");
         }
 
-        //Chọn spot đầu tiên khả dụng
-        ChargingSpot spot = availableSpots.get(0);
-        spot.setStatus(ChargingSpot.SpotStatus.UNAVAILABLE);
-        chargingSpotRepository.save(spot);
 
         // Tính phí
         double hours = Duration.between(timeToCharge, endTime).toMinutes() / 60.0;
@@ -142,7 +138,6 @@ public class BookingService {
         Booking booking = Booking.builder()
                 .user(user)
                 .station(station)
-                .spot(spot)
                 .vehicle(vehicle)
                 .paymentTransactions(new ArrayList<>())
                 .timeToCharge(timeToCharge)
