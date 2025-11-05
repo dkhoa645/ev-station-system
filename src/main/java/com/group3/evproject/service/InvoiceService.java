@@ -3,7 +3,6 @@ package com.group3.evproject.service;
 import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.entity.Invoice;
 import com.group3.evproject.entity.Payment;
-import com.group3.evproject.entity.SubscriptionPlan;
 import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.InvoiceRepository;
 import com.group3.evproject.repository.SubscriptionPlanRepository;
@@ -21,61 +20,41 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final ChargingSessionRepository chargingSessionRepository;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
-
+    private final PaymentService paymentService;
 
     // Lấy tất cả hóa đơn
     public List<Invoice> getAllInvoices() {
         return invoiceRepository.findAll();
     }
 
-    // Lấy hóa đơn theo ID
-    public Invoice getInvoiceById(Long id) {
-        return invoiceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Invoice not found with id: " + id));
+    public Invoice getInvoiceBySessionId(Long sessionId) {
+        return invoiceRepository.findBySession_Id(sessionId)
+                .orElseThrow(() -> new RuntimeException("Invoice not found for session id: " + sessionId));
     }
 
-//    //lay hoa don theo userId
-//    public List<Invoice> getInvoiceByUserId(Long userId) {
-//        return invoiceRepository.findInvoiceByUserId(userId);
-//    }
+    public List<Invoice> getInvoicesByUserId(Long userId) {
+        return invoiceRepository.findByUserId(userId);
+    }
 
-    // Tạo mới hóa đơn
+    public List<Invoice> getInvoicesByBookingId(Long bookingId) {
+        return invoiceRepository.findByBookingId(bookingId);
+    }
+
     public Invoice createInvoice(Invoice invoice) {
-        ChargingSession session = chargingSessionRepository.findById(invoice.getSession().getId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Session not found with id: " + invoice.getSession().getId()
-                ));
 
-        SubscriptionPlan plan = subscriptionPlanRepository.findById(invoice.getSubscriptionPlan().getId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Subscription plan not found with id: " + invoice.getSubscriptionPlan().getId()
-                ));
+        //tìm payment theo user
+        Payment payment = paymentService.findByUser(invoice.getSession().getBooking().getUser());
 
-        Double finalCost = 0.0;
-        if (session.getTotalCost() != null && plan.getMultiplier() != null) {
-            Double totalCost = Double.valueOf(session.getTotalCost());
-            Double multiplier = Double.valueOf(String.valueOf((plan.getMultiplier())));
+        //payment  vào invoice, add invoice vào payment
+        invoice.setPayment(payment);
+        payment.getInvoices().add(invoice);
 
-            // phép nhân BigDecimal
-            finalCost = totalCost - (totalCost * multiplier) ;
-        }
+        //cập nhật tổng chi phí
+        BigDecimal totalCost = payment.getTotalCost().add(invoice.getFinalCost());
+        payment.setTotalCost(totalCost);
 
-        invoice.setFinalCost(BigDecimal.valueOf(Double.valueOf(finalCost)));
-
-        invoice.setSession(session);
-        invoice.setSubscriptionPlan(plan);
-
-        return invoiceRepository.save(invoice);
-    }
-
-    // Cập nhật hóa đơn
-    public Invoice updateInvoice(Long id, Invoice newInvoice) {
-        Invoice existing = getInvoiceById(id);
-        existing.setFinalCost(newInvoice.getFinalCost());
-        existing.setIssueDate(newInvoice.getIssueDate());
-        existing.setSession(newInvoice.getSession());
-        existing.setPayment(newInvoice.getPayment());
-        return invoiceRepository.save(existing);
+        paymentService.save(payment);
+        return invoice;
     }
 
     // Xóa hóa đơn
@@ -84,37 +63,6 @@ public class InvoiceService {
             throw new EntityNotFoundException("Invoice not found with id: " + id);
         }
         invoiceRepository.deleteById(id);
-    }
-
-    public Invoice markAsPaid(Long invoiceId, Long paymentId) {
-        Invoice invoice = getInvoiceById(invoiceId);
-
-        if (invoice.getStatus() == Invoice.Status.CANCELLED) {
-            throw new IllegalArgumentException("Cannot mark a cancelled invoice as paid.");
-        }
-
-        invoice.setStatus(Invoice.Status.PAID);
-
-        // Nếu bạn có entity Payment thì liên kết nó vào
-        Payment payment = null;
-        if (paymentId != null) {
-            payment = new Payment();
-            payment.setId(paymentId);
-            invoice.setPayment(payment);
-        }
-
-        return invoiceRepository.save(invoice);
-    }
-
-    public Invoice cancelInvoice(Long invoiceId) {
-        Invoice invoice = getInvoiceById(invoiceId);
-
-        if (invoice.getStatus() == Invoice.Status.PAID) {
-            throw new IllegalArgumentException("Cannot cancel a paid invoice.");
-        }
-
-        invoice.setStatus(Invoice.Status.CANCELLED);
-        return invoiceRepository.save(invoice);
     }
 
 }

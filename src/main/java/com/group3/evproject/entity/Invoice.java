@@ -1,5 +1,6 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,6 +37,7 @@ public class Invoice {
 
     @ManyToOne
     @JoinColumn(name = "payment_id")
+    @JsonBackReference
     Payment payment;
 
     @ManyToOne(fetch = FetchType.LAZY)
