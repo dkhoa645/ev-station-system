@@ -1,5 +1,7 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +22,7 @@ public class VehicleModel {
 
     @ManyToOne()
     @JoinColumn(name = "brand_id")
+    @JsonBackReference
     VehicleBrand brand;
 
     @Column(name = "model_name")
@@ -34,5 +37,6 @@ public class VehicleModel {
     String url;
 
     @OneToMany(mappedBy = "model",cascade = CascadeType.ALL)
+    @JsonManagedReference
     List<Vehicle> vehicles;
 }

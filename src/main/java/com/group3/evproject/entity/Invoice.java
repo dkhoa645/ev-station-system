@@ -1,5 +1,6 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,7 +25,7 @@ public class Invoice {
 
     @OneToOne
     @JoinColumn(name = "session_id")
-    @JsonManagedReference
+    @JsonManagedReference(value = "invoice-session")
     ChargingSession session;
 
     @Column(name = "issue_date", nullable = false)
@@ -35,6 +36,7 @@ public class Invoice {
 
     @ManyToOne
     @JoinColumn(name = "payment_id")
+    @JsonBackReference
     Payment payment;
 
     @ManyToOne(fetch = FetchType.LAZY)

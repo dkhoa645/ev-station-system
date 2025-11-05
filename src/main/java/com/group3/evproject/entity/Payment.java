@@ -1,17 +1,28 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.group3.evproject.Enum.PaymentStatus;
+import com.group3.evproject.entity.Company;
+import com.group3.evproject.entity.Invoice;
+import com.group3.evproject.entity.PaymentTransaction;
+import com.group3.evproject.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "payment")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Payment {
     @Id
@@ -23,11 +34,13 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     PaymentStatus status;
     LocalDateTime paidAt;
-    @Column(unique = true)
     LocalDateTime period;
 
-    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
-    List<Invoice> invoices;
+    //orphanRemoval = true: Nếu xóa invoice khỏi list thì nó tự xóa DB
+    //Khởi tạo new ArrayList<>() tránh NullPointerException
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    List<Invoice> invoices = new ArrayList<>();
 
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
     List<PaymentTransaction> paymentTransactions;
@@ -39,20 +52,6 @@ public class Payment {
     @ManyToOne()
     @JoinColumn(name = "company_id", nullable = true)
     Company company;
-
-
-    public void addInvoice(Invoice invoice) {
-        if (invoice == null) return;
-
-        invoice.setPayment(this);
-
-        this.invoices.add(invoice);
-
-        if (invoice.getFinalCost() != null) {
-            this.totalCost = this.totalCost.add(invoice.getFinalCost());
-        }
-        if (invoice.getSession().getEnergyUsed() != null) {
-            this.totalEnergy = this.totalEnergy.add(BigDecimal.valueOf(invoice.getSession().getEnergyUsed()));
-        }
-    }
 }
+
+

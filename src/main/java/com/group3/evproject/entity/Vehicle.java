@@ -1,6 +1,8 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -25,9 +27,11 @@ public class Vehicle {
     String licensePlate;
 
     @ManyToOne @JoinColumn(name = "model_id")
+    @JsonBackReference
     VehicleModel model;
 
     @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     VehicleSubscription subscription;
 
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.REMOVE, orphanRemoval = true)
