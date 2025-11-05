@@ -10,16 +10,9 @@ import java.util.Optional;
 
 public interface InvoiceRepository  extends JpaRepository<Invoice,Long> {
 
-    //lấy invoice theo userId
-    @Query("SELECT i from Invoice i where i.payment.user.Id = :userId")
-    List<Invoice> findByUserId(@Param("userId") Long userId);
-
-    //lấy invoice theo sessionId
+    List<Invoice> findBySession_Booking_User_Id(Long userId);
     Optional<Invoice> findBySession_Id (Long sessionId);
-
-    //lấy invoice theo bookingId
-    @Query("SELECT i FROM Invoice i WHERE i.session.booking.id = :bookingId")
-    List<Invoice> findByBookingId(@Param("bookingId") Long bookingId);
-
+    List<Invoice> findBySession_Booking_Vehicle_Id (Long vehicleId);
+    List<Invoice> findByStatus (Invoice.Status status);
 
 }

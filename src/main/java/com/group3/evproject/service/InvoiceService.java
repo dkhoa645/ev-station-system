@@ -33,11 +33,15 @@ public class InvoiceService {
     }
 
     public List<Invoice> getInvoicesByUserId(Long userId) {
-        return invoiceRepository.findByUserId(userId);
+        return invoiceRepository.findBySession_Booking_User_Id(userId);
     }
 
-    public List<Invoice> getInvoicesByBookingId(Long bookingId) {
-        return invoiceRepository.findByBookingId(bookingId);
+    public List<Invoice> getInvoicesByVehicle(Long vehicleId) {
+        return invoiceRepository.findBySession_Booking_Vehicle_Id(vehicleId);
+    }
+
+    public List<Invoice> getPedingInvoices (String status) {
+        return invoiceRepository.findByStatus(Invoice.Status.PENDING);
     }
 
     public Invoice createInvoice(Invoice invoice) {
