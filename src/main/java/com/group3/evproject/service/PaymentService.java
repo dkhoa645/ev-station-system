@@ -2,10 +2,13 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.PaymentStatus;
 import com.group3.evproject.dto.request.PaymentCreationRequest;
+import com.group3.evproject.dto.response.PaymentDetailResponse;
 import com.group3.evproject.dto.response.PaymentResponse;
 import com.group3.evproject.entity.Company;
 import com.group3.evproject.entity.Payment;
 import com.group3.evproject.entity.User;
+import com.group3.evproject.exception.AppException;
+import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentMapper;
 import com.group3.evproject.repository.CompanyRepository;
 import com.group3.evproject.repository.PaymentRepository;
@@ -20,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,10 @@ public class PaymentService {
 
     public Payment save(Payment payment){
         return paymentRepository.save(payment);
+    }
+
+    public Payment findById(Long id){
+        return paymentRepository.findByid(id);
     }
 
     public Payment createNew(User user, Company company){
@@ -52,15 +60,32 @@ public class PaymentService {
     }
 
     public PaymentResponse createPayment(PaymentCreationRequest request) {
+        Payment payment = null;
+        //Check user có gói chưa
+        if(request.getUserId() != null ) {
             User user = userService.findById(request.getUserId());
-
+            if(!user.getPayments().stream().filter(paymentCheck ->
+                    paymentCheck.getPeriod().equals(getPeriod())).findFirst().isEmpty()) {
+                payment = createNew(user, null);
+            }else{
+                throw new AppException(ErrorCode.RESOURCES_EXISTS,"Payment");
+            }
+        }
+        //Check company
+        if(request.getCompanyId() != null ) {
             Company company = companyRepository.findById(request.getCompanyId()).orElse(null);
+            if(company.getPayment().stream().filter(paymentCheck ->
+                    paymentCheck.getPeriod().equals(getPeriod())).findFirst().isEmpty()){
+                payment = createNew(null, company);
+            }else{
+                throw new AppException(ErrorCode.RESOURCES_EXISTS,"Payment");
+            }
+        }
+        if(payment==null) throw new RuntimeException("Payment must not be null");
 
-            Payment payment = createNew(user, company);
+        Payment saved = paymentRepository.save(payment);
 
-            Payment saved = paymentRepository.save(payment);
-
-            return paymentMapper.toPaymentResponse(saved);
+        return paymentMapper.toPaymentResponse(saved);
     }
 
     public Payment findByUser(User user){
@@ -84,4 +109,22 @@ public class PaymentService {
         return period;
     }
 
+    public List<PaymentDetailResponse> getByCompany(Long id) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow( () ->  new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company"));
+        List<Payment> payments = paymentRepository.findByCompany(company);
+        List<PaymentDetailResponse> paymentResponseList = payments.stream()
+                .map(paymentMapper::toPaymentDetailResponse)
+                .collect(Collectors.toList());
+        return paymentResponseList;
+    }
+
+    public List<PaymentDetailResponse> getByUser(Long id) {
+        User user = userService.findById(id);
+        List<Payment> payments = paymentRepository.findByUser(user);
+        List<PaymentDetailResponse> paymentResponseList = payments.stream()
+                .map(paymentMapper::toPaymentDetailResponse)
+                .collect(Collectors.toList());
+        return paymentResponseList;
+    }
 }

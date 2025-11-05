@@ -20,12 +20,7 @@ public class MemberVehicleController {
 
     VehicleService vehicleService;
 
-    @GetMapping("/all")
-    public ApiResponse<List<VehicleResponse>> getVehicles() {
-        return ApiResponse.<List<VehicleResponse>>builder()
-                .result(vehicleService.getAllVehicles())
-                .build();
-    }
+
 
     @GetMapping("/{id}")
     public ApiResponse<VehicleResponse> getVehicleById(@PathVariable Long id) {
@@ -34,7 +29,7 @@ public class MemberVehicleController {
                 .build();
     }
 
-    @GetMapping("/for-user")
+    @GetMapping()
     public ApiResponse<List<VehicleResponse>> getUserVehicle(HttpServletRequest request) {
     return ApiResponse.<List<VehicleResponse>>builder()
             .result(vehicleService.getByUser(request))

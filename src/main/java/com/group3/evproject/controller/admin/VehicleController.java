@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/vehicle")
+@RequestMapping("/admin/vehicle")
 @RequiredArgsConstructor
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -33,13 +33,6 @@ public class VehicleController {
                 .result(vehicleService.getById(id))
                 .build();
     }
-
-    @GetMapping("/for-user")
-    public ApiResponse<List<VehicleResponse>> getUserVehicle(HttpServletRequest request) {
-    return ApiResponse.<List<VehicleResponse>>builder()
-            .result(vehicleService.getByUser(request))
-            .build();
-}
 
     @PostMapping()
     public ApiResponse<VehicleResponse> registerVehicle(

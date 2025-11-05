@@ -1,10 +1,9 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.admin;
 
 import com.group3.evproject.dto.request.CompanyCreationRequest;
 import com.group3.evproject.dto.request.CompanyUpdateRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.CompanyResponse;
-import com.group3.evproject.entity.Company;
 import com.group3.evproject.service.CompanyService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
