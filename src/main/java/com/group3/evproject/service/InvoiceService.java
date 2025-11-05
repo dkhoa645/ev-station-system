@@ -5,6 +5,8 @@ import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.entity.Invoice;
 import com.group3.evproject.entity.Payment;
 import com.group3.evproject.entity.SubscriptionPlan;
+import com.group3.evproject.exception.AppException;
+import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.InvoiceRepository;
 import com.group3.evproject.repository.SubscriptionPlanRepository;
@@ -50,7 +52,7 @@ public class InvoiceService {
     public Invoice createInvoice(Long invoiceId) {
 
         Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElse(null);
+                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_EXISTS,"Invoice"));
 
         //tìm payment theo user
         Payment payment = paymentService.findByUser(invoice.getSession().getBooking().getUser());

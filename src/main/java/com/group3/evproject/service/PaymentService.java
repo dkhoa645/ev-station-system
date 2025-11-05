@@ -95,10 +95,10 @@ public class PaymentService {
         Company company = user.getCompany();
         if(company!=null){
             payment = paymentRepository.findByCompanyAndPeriod(company,finalPeriod);
-            payment = createNew(null, company);
+            if(payment==null)payment = createNew(null, company);
         }else{
             payment = paymentRepository.findByUserAndPeriod(user,finalPeriod);
-            payment = createNew(user,null);
+            if(payment==null)payment = createNew(user,null);
         }
         return payment;
     }
