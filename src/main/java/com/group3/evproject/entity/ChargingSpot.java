@@ -42,12 +42,13 @@ public class ChargingSpot {
     private SpotType spotType;
 
     public enum SpotType {
-        WALK_IN, // không cần đặt trước
-        BOOKING  // chỉ dành cho người đã đặt online
+        WALK_IN,
+        BOOKING
     }
 
     public enum SpotStatus {
         AVAILABLE,
-        UNAVAILABLE
+        UNAVAILABLE,
+        OCCUPIED
     }
 }
