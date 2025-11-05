@@ -1,5 +1,6 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -21,5 +22,6 @@ public class VehicleBrand {
     String name;
 
     @OneToMany(mappedBy = "brand",cascade = CascadeType.ALL)
+    @JsonManagedReference
     List<VehicleModel> models;
 }

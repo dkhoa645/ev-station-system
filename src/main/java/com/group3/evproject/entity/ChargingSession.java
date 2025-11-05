@@ -1,6 +1,7 @@
 package com.group3.evproject.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -71,7 +72,7 @@ public class ChargingSession {
     Double totalCost;
 
     @OneToOne(mappedBy = "session")
-    @JsonBackReference
+    @JsonBackReference(value = "invoice-session")
     private Invoice invoice;
 
     // 🧭 Trạng thái phiên sạc

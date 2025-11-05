@@ -1,5 +1,7 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,10 +10,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "subscription_plan")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+
 public class SubscriptionPlan {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -33,6 +37,8 @@ public class SubscriptionPlan {
     )
     @Column(name = "description")
     List<String> description;
+
     @OneToMany(mappedBy = "subscriptionPlan")
+    @JsonBackReference
     List<VehicleSubscription> vehicleSubscriptions = new ArrayList<>();
 }
