@@ -183,20 +183,19 @@ public class AuthenticationService {
         }
 //        Tạo gói trả sau khi tạo tài khoản
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime period = LocalDateTime.of(now.getYear(), now.getMonth(), 25, 0, 0);
-        if (now.getDayOfMonth() > 25) {
-            period = period.plusMonths(1);
-        }
+        LocalDateTime period = paymentService.getPeriod();
         paymentService.save(Payment.builder()
                         .status(PaymentStatus.UNPAID)
                         .totalCost(BigDecimal.ZERO)
                         .totalEnergy(BigDecimal.ZERO)
+                        .paidCost(BigDecimal.ZERO)
                         .invoices(new ArrayList<>())
                         .paymentTransactions(new ArrayList<>())
                         .user(user)
                         .period(period)
                 .build());
 
+//        Thay đổi verified
         user.setVerified(true);
         user.setVerificationToken(null);
         userRepository.save(user);

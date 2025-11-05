@@ -20,8 +20,6 @@ public class MemberVehicleController {
 
     VehicleService vehicleService;
 
-
-
     @GetMapping("/{id}")
     public ApiResponse<VehicleResponse> getVehicleById(@PathVariable Long id) {
         return ApiResponse.<VehicleResponse>builder()

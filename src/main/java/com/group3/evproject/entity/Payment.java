@@ -30,6 +30,7 @@ public class Payment {
     Long id;
     BigDecimal totalEnergy;
     BigDecimal totalCost;
+    BigDecimal paidCost;
 
     @Enumerated(EnumType.STRING)
     PaymentStatus status;

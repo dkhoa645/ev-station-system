@@ -91,13 +91,13 @@ public class VehicleService  {
                         .paymentTransactions(new ArrayList<>())
                         .build());
 //        4.Tạo Response
-//        VehicleSubscriptionResponse vehicleSubscriptionResponse =
-//                vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription);
+        VehicleSubscriptionResponse vehicleSubscriptionResponse =
+                vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription);
 //        vehicleSubscriptionResponse.setSubscriptionPlanResponse(
 //                subscriptionPlanMapper.toSubscriptionPlanResponse(subscriptionPlan));
 
         VehicleResponse vehicleResponse = vehicleMapper.vehicleToVehicleResponse(vehicle);
-//        vehicleResponse.setVehicleSubscriptionResponse(vehicleSubscriptionResponse);
+        vehicleResponse.setVehicleSubscriptionResponse(vehicleSubscriptionResponse);
 //        vehicleResponse.setModel(vehicleModelMapper.toVehicleModelResponse(vehicleModel));
         return vehicleResponse;
     }

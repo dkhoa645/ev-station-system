@@ -44,20 +44,20 @@ public class PaymentService {
     }
 
     public Payment createNew(User user, Company company){
-        LocalDateTime now = LocalDateTime.now();
         LocalDateTime period = getPeriod();
-        Payment payment = Payment.builder()
+        return Payment.builder()
                 .user(user)
                 .company(company)
                 .totalEnergy(BigDecimal.ZERO)
                 .totalCost(BigDecimal.ZERO)
+                .paidCost(BigDecimal.ZERO)
                 .status(PaymentStatus.UNPAID)
                 .period(period)
                 .invoices(new ArrayList<>())
                 .paymentTransactions(new ArrayList<>())
                 .build();
-        return payment;
     }
+
 
     public PaymentResponse createPayment(PaymentCreationRequest request) {
         Payment payment = null;
@@ -88,14 +88,17 @@ public class PaymentService {
         return paymentMapper.toPaymentResponse(saved);
     }
 
+
     public Payment findByUser(User user){
         final LocalDateTime finalPeriod = getPeriod();
         Payment payment = null;
         Company company = user.getCompany();
         if(company!=null){
             payment = paymentRepository.findByCompanyAndPeriod(company,finalPeriod);
+            payment = createNew(null, company);
         }else{
             payment = paymentRepository.findByUserAndPeriod(user,finalPeriod);
+            payment = createNew(user,null);
         }
         return payment;
     }
@@ -127,4 +130,6 @@ public class PaymentService {
                 .collect(Collectors.toList());
         return paymentResponseList;
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.Enum.PaymentStatus;
 import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.entity.Invoice;
 import com.group3.evproject.entity.Payment;
@@ -54,7 +55,9 @@ public class InvoiceService {
         //cập nhật tổng chi phí
         BigDecimal totalCost = payment.getTotalCost().add(invoice.getFinalCost());
         payment.setTotalCost(totalCost);
-
+        payment.setTotalEnergy(payment.getTotalEnergy()
+                .add(BigDecimal.valueOf(invoice.getSession().getEnergyUsed())));
+        payment.setStatus(PaymentStatus.UNPAID);
         paymentService.save(payment);
         return invoice;
     }

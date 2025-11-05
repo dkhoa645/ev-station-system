@@ -16,7 +16,8 @@ public class PaymentDetailResponse {
     Long id;
     BigDecimal totalEnergy;
     BigDecimal totalCost;
-    PaymentStatus paymentStatus;
+    BigDecimal paidCost;
+    PaymentStatus status;
     LocalDateTime paidAt;
     LocalDateTime period;
 }

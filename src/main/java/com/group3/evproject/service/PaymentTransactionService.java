@@ -134,7 +134,7 @@ public class PaymentTransactionService {
             throw new AppException(ErrorCode.PENDING_STATUS,"UNPAID");
         }
 
-        BigDecimal amount = payment.getTotalCost();
+        BigDecimal amount = payment.getTotalCost().subtract(payment.getPaidCost());
 
         PaymentTransaction paymentTransaction =
                 savePayment(createPaymentTransaction(null,null,payment,amount,user));
@@ -172,6 +172,7 @@ public class PaymentTransactionService {
             bookingService.saveBooking(checkBooking);
             return "bookingSuccess";
         } else if (checkPayment != null) {
+            checkPayment.setPaidCost(checkPayment.getPaidCost().add(checkPayment.getTotalCost()));
             checkPayment.setStatus(PaymentStatus.PAID);
             paymentService.save(checkPayment);
         }
