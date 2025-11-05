@@ -26,7 +26,7 @@ public class Invoice {
 
     @OneToOne
     @JoinColumn(name = "session_id")
-    @JsonManagedReference
+    @JsonManagedReference(value = "invoice-session")
     ChargingSession session;
 
     @Column(name = "issue_date", nullable = false)

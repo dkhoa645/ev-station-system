@@ -1,5 +1,7 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,18 +20,23 @@ public class VehicleSubscription {
 
     @OneToOne
     @JoinColumn(name = "vehicle_id", referencedColumnName = "id", nullable = false, unique = true)
+    @JsonBackReference
     Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id", nullable = false)
+    @JsonManagedReference
     SubscriptionPlan subscriptionPlan;
 
     LocalDateTime startDate;
     LocalDateTime endDate;
+
     @Enumerated(EnumType.STRING)
     VehicleSubscriptionStatus status; // active, expired, cancelled
+
     @Column(name = "auto_renew")
     boolean autoRenew;
+
     @OneToMany(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
     List<PaymentTransaction> paymentTransactions ;
 
