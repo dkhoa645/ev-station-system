@@ -47,7 +47,10 @@ public class InvoiceService {
         return invoiceRepository.findByStatus(Invoice.Status.PENDING);
     }
 
-    public Invoice createInvoice(Invoice invoice) {
+    public Invoice createInvoice(Long invoiceId) {
+
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElse(null);
 
         //tìm payment theo user
         Payment payment = paymentService.findByUser(invoice.getSession().getBooking().getUser());

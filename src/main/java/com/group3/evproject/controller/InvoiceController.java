@@ -43,8 +43,8 @@ public class InvoiceController {
     }
 
     @PostMapping
-    public ResponseEntity<Invoice> createInvoice(@RequestBody Invoice invoice) {
-        Invoice saved = invoiceService.createInvoice(invoice);
+    public ResponseEntity<Invoice> createInvoice(@PathVariable Long id) {
+        Invoice saved = invoiceService.createInvoice(id);
         return ResponseEntity.ok(saved);
     }
 
