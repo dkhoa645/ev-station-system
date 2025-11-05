@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -46,18 +47,56 @@ public class InvoiceService {
 
     public Invoice createInvoice(Invoice invoice) {
 
+        ChargingSession session = chargingSessionRepository.findById(invoice.getSession().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Session not found"));
+        invoice.setSession(session);
+
         //tìm payment theo user
         Payment payment = paymentService.findByUser(invoice.getSession().getBooking().getUser());
+        if (payment == null) {
+            throw  new EntityNotFoundException("Payment record not found for user: " + session.getBooking().getUser().getId());
+        }
 
         //payment  vào invoice, add invoice vào payment
         invoice.setPayment(payment);
         payment.getInvoices().add(invoice);
 
-        //cập nhật tổng chi phí
-        BigDecimal totalCost = payment.getTotalCost().add(invoice.getFinalCost());
-        payment.setTotalCost(totalCost);
+        //tính finalCost
+        BigDecimal baseCost = BigDecimal.valueOf(invoice.getSession().getTotalCost());
+        BigDecimal multiplier = BigDecimal.ONE;
 
+        if (invoice.getSubscriptionPlan() != null && invoice.getSubscriptionPlan().getDiscount() != null) {
+            BigDecimal discount = invoice.getSubscriptionPlan().getDiscount();
+            multiplier = BigDecimal.ONE.subtract(discount.divide(BigDecimal.valueOf(100)));
+        }
+
+        BigDecimal calculatedFinalCost = baseCost.multiply( multiplier);
+        invoice.setFinalCost(calculatedFinalCost);
+
+        if (payment.getTotalCost() == null) {
+            payment.setTotalCost(BigDecimal.ZERO);
+        }
+
+        //cong them vao payment
+        payment.setTotalCost(payment.getTotalCost().add(calculatedFinalCost));
+
+        //ngay xuat hoa don
+        if (invoice.getIssueDate() == null) {
+            invoice.setIssueDate(LocalDateTime.now());
+        }
+
+        //tinh trang hoa don
+        if (invoice.getStatus() == null) {
+            invoice.setStatus(Invoice.Status.PENDING);
+        }
+        invoiceRepository.save(invoice);
         paymentService.save(payment);
+
+        System.out.println("   Created invoice for session " + session.getId());
+        System.out.println("   Base cost: " + baseCost);
+        System.out.println("   Final cost (after discount): " + calculatedFinalCost);
+        System.out.println("   Payment total cost: " + payment.getTotalCost());
+
         return invoice;
     }
 

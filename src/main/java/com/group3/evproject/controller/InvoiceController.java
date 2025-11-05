@@ -37,7 +37,7 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceService.getInvoicesByVehicle(VehicleId));
     }
 
-    @GetMapping("/Status")
+    @GetMapping("/status")
     public ResponseEntity<List<Invoice>> getInvoicesByStatus (String status) {
         return ResponseEntity.ok(invoiceService.getPedingInvoices(status));
     }
