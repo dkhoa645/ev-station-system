@@ -2,6 +2,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.entity.Invoice;
+import com.group3.evproject.entity.Payment;
 import com.group3.evproject.entity.SubscriptionPlan;
 import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.InvoiceRepository;
