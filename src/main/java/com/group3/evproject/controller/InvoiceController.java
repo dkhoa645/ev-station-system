@@ -59,6 +59,21 @@ public class InvoiceController {
         }
     }
 
+    @PostMapping("/{id}")
+    public ResponseEntity<?> payInvoice(@PathVariable Long id) {
+        try {
+            Invoice paidInvoice = invoiceService.payInvoice(id);
+            return ResponseEntity.ok(paidInvoice);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Payment processing failed: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteInvoice(@PathVariable Long id) {
         try {
