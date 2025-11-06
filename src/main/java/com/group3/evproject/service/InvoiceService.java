@@ -1,10 +1,8 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.PaymentStatus;
-import com.group3.evproject.entity.ChargingSession;
-import com.group3.evproject.entity.Invoice;
-import com.group3.evproject.entity.Payment;
-import com.group3.evproject.entity.SubscriptionPlan;
+import com.group3.evproject.Enum.VehicleSubscriptionStatus;
+import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.repository.ChargingSessionRepository;
@@ -16,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -50,35 +50,60 @@ public class InvoiceService {
     }
 
     @Transactional
-    public Invoice createInvoice(Long invoiceId) {
+    public Invoice createInvoice(Long sessionId) {
+        ChargingSession session = chargingSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("Session not found with ID: " + sessionId));
 
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_EXISTS,"Invoice"));
-
-        //tìm payment theo user
-        Payment payment = paymentService.findByUser(invoice.getSession().getBooking().getUser());
-
-        //cập nhật tổng chi phí
-        BigDecimal baseCost = invoice.getFinalCost() != null ? invoice.getFinalCost() : BigDecimal.ZERO;
-        BigDecimal multiplier = BigDecimal.ONE;
-        if (invoice.getSubscriptionPlan() != null && invoice.getSubscriptionPlan().getMultiplier() != null) {
-            multiplier = invoice.getSubscriptionPlan().getMultiplier();
+        // Kiểm tra xem invoice đã tồn tại chưa
+        if (invoiceRepository.findBySession_Id(sessionId).isPresent()) {
+            throw new IllegalStateException("Invoice already exists for this session.");
         }
-        BigDecimal discountFinalCost = baseCost.multiply(multiplier);
-        invoice.setFinalCost(discountFinalCost);
 
-        //payment  vào invoice, add invoice vào payment
-        invoice.setPayment(payment);
-        payment.getInvoices().add(invoice);
+        Vehicle vehicle = session.getBooking() != null ? session.getBooking().getVehicle() : null;
+        SubscriptionPlan plan = null;
 
-        //cap nhat tong hoa don
-        payment.setTotalCost(payment.getTotalCost().add(discountFinalCost));
-        payment.setTotalEnergy(payment.getTotalEnergy().add(BigDecimal.valueOf(invoice.getSession().getEnergyUsed())));
-        payment.setStatus(PaymentStatus.UNPAID);
+        //Lấy SubscriptionPlan nếu xe đang có gói đang hoạt động
+        if (vehicle != null && vehicle.getSubscription() != null) {
+            VehicleSubscription vehicleSub = vehicle.getSubscription();
+            boolean isActive = vehicleSub.getStatus() == VehicleSubscriptionStatus.ACTIVE &&
+                    (vehicleSub.getEndDate() == null || vehicleSub.getEndDate().isAfter(LocalDateTime.now()));
 
-        paymentService.save(payment);
-        return invoice;
+            if (isActive) {
+                plan = vehicleSub.getSubscriptionPlan();
+            }
+        }
+
+        //ính chi phí
+        BigDecimal baseCost = BigDecimal.valueOf(session.getTotalCost() != null ? session.getTotalCost() : 0.0);
+        BigDecimal multiplier = (plan != null && plan.getMultiplier() != null)
+                ? plan.getMultiplier()
+                : BigDecimal.ONE;
+
+        BigDecimal finalCost = baseCost.multiply(multiplier).setScale(2, RoundingMode.HALF_UP);
+
+        //Tạo invoice mới
+        Invoice invoice = Invoice.builder()
+                .session(session)
+                .subscriptionPlan(plan)
+                .issueDate(LocalDateTime.now())
+                .finalCost(finalCost)
+                .status(Invoice.Status.PENDING)
+                .build();
+
+        Invoice saved = invoiceRepository.save(invoice);
+
+        //Log để debug dễ dàng
+        System.out.println("=== Invoice Created ===");
+        System.out.println("Session ID   : " + sessionId);
+        System.out.println("Base Cost    : " + baseCost);
+        System.out.println("Multiplier   : " + multiplier);
+        System.out.println("Final Cost   : " + finalCost);
+        System.out.println("Plan         : " + (plan != null ? plan.getName() : "No Plan"));
+        System.out.println("=======================");
+
+        return saved;
     }
+
 
     // Xóa hóa đơn
     public void deleteInvoice(Long id) {

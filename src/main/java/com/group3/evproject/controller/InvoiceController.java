@@ -4,6 +4,7 @@ import com.group3.evproject.entity.Invoice;
 import com.group3.evproject.service.InvoiceService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +25,13 @@ public class InvoiceController {
     }
 
     @GetMapping("/session/{sessionId}")
-    public ResponseEntity<Invoice> getInvoiceBySession(@PathVariable Long sessionId) {
-        return ResponseEntity.ok(invoiceService.getInvoiceBySessionId(sessionId));
+    public ResponseEntity<?> getInvoiceBySession(@PathVariable Long sessionId) {
+        try {
+            Invoice invoice = invoiceService.getInvoiceBySessionId(sessionId);
+            return ResponseEntity.ok(invoice);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @GetMapping("/user/{userId}")
@@ -43,10 +49,14 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceService.getPedingInvoices(status));
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<Invoice> createInvoice(@PathVariable Long id) {
-        Invoice saved = invoiceService.createInvoice(id);
-        return ResponseEntity.ok(saved);
+    @PostMapping("/session/{sessionId}")
+    public ResponseEntity<?> createInvoice(@PathVariable Long sessionId) {
+        try {
+            Invoice saved = invoiceService.createInvoice(sessionId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (EntityNotFoundException | IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -55,7 +65,7 @@ public class InvoiceController {
             invoiceService.deleteInvoice(id);
             return ResponseEntity.ok("Invoice deleted successfully");
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }
