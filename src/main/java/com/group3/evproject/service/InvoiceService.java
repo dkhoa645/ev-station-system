@@ -26,7 +26,6 @@ public class InvoiceService {
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final PaymentService paymentService;
 
-
     // Lấy tất cả hóa đơn
     public List<Invoice> getAllInvoices() {
         return invoiceRepository.findAll();
@@ -71,7 +70,6 @@ public class InvoiceService {
         return invoice;
     }
 
-
     // Xóa hóa đơn
     public void deleteInvoice(Long id) {
         if (!invoiceRepository.existsById(id)) {
@@ -79,7 +77,5 @@ public class InvoiceService {
         }
         invoiceRepository.deleteById(id);
     }
-
-
 
 }

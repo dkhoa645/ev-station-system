@@ -77,6 +77,7 @@ public class BookingService {
                 .map(b -> BookingResponse.builder()
                         .bookingId(b.getId())
                         .vehicleId(b.getVehicle() != null ? b.getVehicle().getId() : null)
+                        .stationId(b.getStation() != null ? b.getStation().getId() : null)
                         .stationName(b.getStation() != null ? b.getStation().getName() : null)
                         .reservationFee(b.getReservationFee())
                         .status(b.getStatus())
