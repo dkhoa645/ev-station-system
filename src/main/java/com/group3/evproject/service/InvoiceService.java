@@ -1,10 +1,8 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.PaymentStatus;
-import com.group3.evproject.entity.ChargingSession;
-import com.group3.evproject.entity.Invoice;
-import com.group3.evproject.entity.Payment;
-import com.group3.evproject.entity.SubscriptionPlan;
+import com.group3.evproject.Enum.VehicleSubscriptionStatus;
+import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.repository.ChargingSessionRepository;
@@ -51,8 +49,30 @@ public class InvoiceService {
         return invoiceRepository.findByStatus(Invoice.Status.PENDING);
     }
 
+    public Invoice createInvoice(Long invoiceId) {
+
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_EXISTS,"Invoice"));
+
+        //tìm payment theo user
+        Payment payment = paymentService.findByUser(invoice.getSession().getBooking().getUser());
+
+        //payment  vào invoice, add invoice vào payment
+        invoice.setPayment(payment);
+        payment.getInvoices().add(invoice);
+
+        //cập nhật tổng chi phí
+        BigDecimal totalCost = payment.getTotalCost().add(invoice.getFinalCost());
+        payment.setTotalCost(totalCost);
+        payment.setTotalEnergy(payment.getTotalEnergy()
+                .add(BigDecimal.valueOf(invoice.getSession().getEnergyUsed())));
+        payment.setStatus(PaymentStatus.UNPAID);
+        paymentService.save(payment);
+        return invoice;
+    }
+
     @Transactional
-    public Invoice createInvoice(Long sessionId) {
+    public Invoice createInvoiceBySessionId(Long sessionId) {
         ChargingSession session = chargingSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new EntityNotFoundException("Session not found with ID: " + sessionId));
 

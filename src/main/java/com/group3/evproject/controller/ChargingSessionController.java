@@ -47,8 +47,7 @@ public class ChargingSessionController {
             @RequestBody StartRequest startRequest) {
         try {
             Long spotId = startRequest.getSpotId();
-            Double percentBefore = startRequest.getPercentBefore();
-            if (spotId == null || percentBefore == null) {
+            if (spotId == null) {
                 return ResponseEntity.badRequest().body("Missing required field: spotId, percentBefore");
             }
 

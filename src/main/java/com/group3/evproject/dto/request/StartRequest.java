@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 @Schema
 public class StartRequest {
+
     @Schema(description = "ID của spot tại trạm", example = "5", required = true)
     @NotNull(message = "spotId is required")
     private Long spotId;
