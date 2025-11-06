@@ -52,7 +52,7 @@ public class InvoiceController {
     @PostMapping("/session/{sessionId}")
     public ResponseEntity<?> createInvoiceBySessionId(@PathVariable Long sessionId) {
         try {
-            Invoice saved = invoiceService.createInvoice(sessionId);
+            Invoice saved = invoiceService.createInvoiceBySessionId(sessionId);
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (EntityNotFoundException | IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
