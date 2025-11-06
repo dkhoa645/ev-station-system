@@ -91,16 +91,6 @@ public class InvoiceService {
                 .build();
 
         Invoice saved = invoiceRepository.save(invoice);
-
-        //Log để debug dễ dàng
-        System.out.println("=== Invoice Created ===");
-        System.out.println("Session ID   : " + sessionId);
-        System.out.println("Base Cost    : " + baseCost);
-        System.out.println("Multiplier   : " + multiplier);
-        System.out.println("Final Cost   : " + finalCost);
-        System.out.println("Plan         : " + (plan != null ? plan.getName() : "No Plan"));
-        System.out.println("=======================");
-
         return saved;
     }
 
@@ -112,5 +102,53 @@ public class InvoiceService {
         }
         invoiceRepository.deleteById(id);
     }
+
+    @Transactional
+    public Invoice payInvoice(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new EntityNotFoundException("Invoice not found with id: " + invoiceId));
+
+        // Nếu đã thanh toán rồi thì không cho thanh toán lại
+        if (invoice.getStatus() == Invoice.Status.PAID) {
+            throw new IllegalStateException("Invoice has already been paid.");
+        }
+
+        // Xác định user hoặc company
+        User user = null;
+        Company company = null;
+        if (invoice.getSession() != null && invoice.getSession().getBooking() != null) {
+            user = invoice.getSession().getBooking().getUser();
+            if (user != null) {
+                company = user.getCompany();
+            }
+        }
+
+        // Tìm hoặc tạo Payment tương ứng
+        Payment payment;
+        if (user != null) {
+            payment = paymentService.findByUser(user);
+        } else if (company != null) {
+            payment = paymentService.createNew(null, company);
+        } else {
+            throw new IllegalStateException("Cannot determine user or company for this invoice.");
+        }
+
+        // Cập nhật thông tin thanh toán
+        payment.getInvoices().add(invoice);
+        payment.setTotalCost(payment.getTotalCost().add(invoice.getFinalCost()));
+        payment.setPaidCost(payment.getPaidCost().add(invoice.getFinalCost()));
+
+        // Nếu đủ điều kiện, cập nhật trạng thái payment
+        payment.setStatus(PaymentStatus.PAID);
+        paymentService.save(payment);
+
+        // Cập nhật invoice
+        invoice.setPayment(payment);
+        invoice.setStatus(Invoice.Status.PAID);
+        invoice.setPaymentDate(LocalDateTime.now());
+
+        return invoiceRepository.save(invoice);
+    }
+
 
 }

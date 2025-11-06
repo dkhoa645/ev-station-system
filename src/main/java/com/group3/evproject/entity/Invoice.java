@@ -39,6 +39,9 @@ public class Invoice {
     @JsonBackReference
     Payment payment;
 
+    @Column(name = "payment_date")
+    LocalDateTime paymentDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_plan_id")
     SubscriptionPlan subscriptionPlan;
