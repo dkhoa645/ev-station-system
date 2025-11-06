@@ -1,8 +1,6 @@
 package com.group3.evproject.service;
 
-import com.group3.evproject.entity.ChargingSession;
-import com.group3.evproject.entity.Invoice;
-import com.group3.evproject.entity.Payment;
+import com.group3.evproject.entity.*;
 import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.InvoiceRepository;
 import com.group3.evproject.repository.SubscriptionPlanRepository;
@@ -11,8 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static java.rmi.server.LogStream.log;
 
 @Service
 @RequiredArgsConstructor
@@ -57,28 +58,42 @@ public class InvoiceService {
             throw  new EntityNotFoundException("Payment record not found for user: " + session.getBooking().getUser().getId());
         }
 
+        SubscriptionPlan plan = null;
+        if (invoice.getSubscriptionPlan() != null && invoice.getSubscriptionPlan().getId() != null) {
+            plan = subscriptionPlanRepository.findById(invoice.getSubscriptionPlan().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Subscription plan not found with id: " + invoice.getSubscriptionPlan().getId()));
+            invoice.setSubscriptionPlan(plan);
+            System.out.println("Plan:" + plan);
+        }else{
+            System.out.println("plan == null");
+        }
+
         //payment  vào invoice, add invoice vào payment
         invoice.setPayment(payment);
         payment.getInvoices().add(invoice);
 
         //tính finalCost
-        BigDecimal baseCost = BigDecimal.valueOf(invoice.getSession().getTotalCost());
-        BigDecimal multiplier = BigDecimal.ONE;
+        Double baseCost = invoice.getSession().getTotalCost();
+        Double finalCost = baseCost;
 
-        if (invoice.getSubscriptionPlan() != null && invoice.getSubscriptionPlan().getDiscount() != null) {
-            BigDecimal discount = invoice.getSubscriptionPlan().getDiscount();
-            multiplier = BigDecimal.ONE.subtract(discount.divide(BigDecimal.valueOf(100)));
+        if (plan != null) {
+            double discount = (plan.getDiscount() != null) ? plan.getDiscount().doubleValue() : 0.0;
+            double multiplier = (plan.getMultiplier() != null) ? plan.getMultiplier().doubleValue() : 1.0;
+
+            // Nếu có discount, giảm giá trước
+            if (discount > 0) {
+                finalCost = finalCost * (1 - discount / 100);
+            }
+
+            // Áp dụng multiplier (ví dụ: 0.64)
+            if (multiplier > 0) {
+                finalCost = finalCost * multiplier;
+            }
+        }else{
+            System.out.println( "not plan");
         }
-
-        BigDecimal calculatedFinalCost = baseCost.multiply( multiplier);
-        invoice.setFinalCost(calculatedFinalCost);
-
-        if (payment.getTotalCost() == null) {
-            payment.setTotalCost(BigDecimal.ZERO);
-        }
-
-        //cong them vao payment
-        payment.setTotalCost(payment.getTotalCost().add(calculatedFinalCost));
+        finalCost = Math.round(finalCost * 100.0) / 100.0;
+        invoice.setFinalCost(BigDecimal.valueOf(finalCost));
 
         //ngay xuat hoa don
         if (invoice.getIssueDate() == null) {
@@ -92,10 +107,6 @@ public class InvoiceService {
         invoiceRepository.save(invoice);
         paymentService.save(payment);
 
-        System.out.println("   Created invoice for session " + session.getId());
-        System.out.println("   Base cost: " + baseCost);
-        System.out.println("   Final cost (after discount): " + calculatedFinalCost);
-        System.out.println("   Payment total cost: " + payment.getTotalCost());
 
         return invoice;
     }
