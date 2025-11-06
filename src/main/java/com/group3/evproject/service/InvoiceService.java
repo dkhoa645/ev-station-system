@@ -11,6 +11,7 @@ import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.InvoiceRepository;
 import com.group3.evproject.repository.SubscriptionPlanRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,7 @@ public class InvoiceService {
         return invoiceRepository.findByStatus(Invoice.Status.PENDING);
     }
 
+    @Transactional
     public Invoice createInvoice(Long invoiceId) {
 
         Invoice invoice = invoiceRepository.findById(invoiceId)
@@ -56,16 +58,24 @@ public class InvoiceService {
         //tìm payment theo user
         Payment payment = paymentService.findByUser(invoice.getSession().getBooking().getUser());
 
+        //cập nhật tổng chi phí
+        BigDecimal baseCost = invoice.getFinalCost() != null ? invoice.getFinalCost() : BigDecimal.ZERO;
+        BigDecimal multiplier = BigDecimal.ONE;
+        if (invoice.getSubscriptionPlan() != null && invoice.getSubscriptionPlan().getMultiplier() != null) {
+            multiplier = invoice.getSubscriptionPlan().getMultiplier();
+        }
+        BigDecimal discountFinalCost = baseCost.multiply(multiplier);
+        invoice.setFinalCost(discountFinalCost);
+
         //payment  vào invoice, add invoice vào payment
         invoice.setPayment(payment);
         payment.getInvoices().add(invoice);
 
-        //cập nhật tổng chi phí
-        BigDecimal totalCost = payment.getTotalCost().add(invoice.getFinalCost());
-        payment.setTotalCost(totalCost);
-        payment.setTotalEnergy(payment.getTotalEnergy()
-                .add(BigDecimal.valueOf(invoice.getSession().getEnergyUsed())));
+        //cap nhat tong hoa don
+        payment.setTotalCost(payment.getTotalCost().add(discountFinalCost));
+        payment.setTotalEnergy(payment.getTotalEnergy().add(BigDecimal.valueOf(invoice.getSession().getEnergyUsed())));
         payment.setStatus(PaymentStatus.UNPAID);
+
         paymentService.save(payment);
         return invoice;
     }
