@@ -56,6 +56,7 @@ public class BookingService {
                 .orElseThrow(()-> new RuntimeException("Booking not found"));
         BookingResponse response = BookingResponse.builder()
                 .bookingId(booking.getId())
+                .stationId(booking.getStation().getId())
                 .reservationFee(booking.getReservationFee())
                 .vehicleId(booking.getVehicle().getId())
                 .status(booking.getStatus())
