@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,32 +41,17 @@ public class VehicleService  {
     VehicleModelMapper vehicleModelMapper;
 
     public List<VehicleResponse> getAllVehicles() {
-        List<Vehicle> vehicles = vehicleRepository.findAll();
-        List<VehicleResponse> list = new ArrayList<>();
-        for (Vehicle vehicle : vehicles) {
-            VehicleResponse vehicleResponse = vehicleMapper.vehicleToVehicleResponse(vehicle);
-            vehicleResponse.setModel(vehicleModelMapper.toVehicleModelResponse(vehicle.getModel()));
-            vehicleResponse.setVehicleSubscriptionResponse(
-                    vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicle.getSubscription()));
-            list.add(vehicleResponse);
-        }
-        return list;
+        return vehicleRepository.findAll()
+                .stream()
+                .map(vehicleMapper::vehicleToVehicleResponse)
+                .collect(Collectors.toList());
     }
 
     public VehicleResponse getById(Long id) {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
-        VehicleSubscription vehicleSubscription = vehicle.getSubscription();
-        SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
-
-        VehicleSubscriptionResponse vehicleSubscriptionResponse =
-                vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription);
-        vehicleSubscriptionResponse.setSubscriptionPlanResponse(
-                subscriptionPlanMapper.toSubscriptionPlanResponse(subscriptionPlan));
         VehicleResponse response =
                 vehicleMapper.vehicleToVehicleResponse(vehicle);
-        response.setModel(vehicleModelMapper.toVehicleModelResponse(vehicle.getModel()));
-        response.setVehicleSubscriptionResponse(vehicleSubscriptionResponse);
         return  response;
         }
 
@@ -106,12 +93,12 @@ public class VehicleService  {
 //        4.Tạo Response
         VehicleSubscriptionResponse vehicleSubscriptionResponse =
                 vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vehicleSubscription);
-        vehicleSubscriptionResponse.setSubscriptionPlanResponse(
-                subscriptionPlanMapper.toSubscriptionPlanResponse(subscriptionPlan));
+//        vehicleSubscriptionResponse.setSubscriptionPlanResponse(
+//                subscriptionPlanMapper.toSubscriptionPlanResponse(subscriptionPlan));
 
         VehicleResponse vehicleResponse = vehicleMapper.vehicleToVehicleResponse(vehicle);
         vehicleResponse.setVehicleSubscriptionResponse(vehicleSubscriptionResponse);
-        vehicleResponse.setModel(vehicleModelMapper.toVehicleModelResponse(vehicleModel));
+//        vehicleResponse.setModel(vehicleModelMapper.toVehicleModelResponse(vehicleModel));
         return vehicleResponse;
     }
 
@@ -122,14 +109,7 @@ public class VehicleService  {
         List<Vehicle> list = vehicleRepository.findByUser(user);
         List<VehicleResponse> responses = new ArrayList<>();
         for(Vehicle vehicle : list) {
-            VehicleResponse response = vehicleMapper.vehicleToVehicleResponse(vehicle);
-            response.setModel(vehicleModelMapper.toVehicleModelResponse(vehicle.getModel()));
-            VehicleSubscription vs = vehicle.getSubscription();
-            SubscriptionPlan sp = vs.getSubscriptionPlan();
-            VehicleSubscriptionResponse vsr = vehicleSubscriptionMapper.toVehicleSubscriptionResponse(vs);
-            vsr.setSubscriptionPlanResponse(
-                    subscriptionPlanMapper.toSubscriptionPlanResponse(sp));
-            response.setVehicleSubscriptionResponse(vsr);
+            VehicleResponse response = vehicleMapper.vehicleToVehicleResponse(vehicle);;
             responses.add(response);
         }
         return responses;

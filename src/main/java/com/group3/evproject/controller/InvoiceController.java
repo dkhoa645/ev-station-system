@@ -43,9 +43,9 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceService.getPedingInvoices(status));
     }
 
-    @PostMapping
-    public ResponseEntity<Invoice> createInvoice(@RequestBody Invoice invoice) {
-        Invoice saved = invoiceService.createInvoice(invoice);
+    @PostMapping("/{id}")
+    public ResponseEntity<Invoice> createInvoice(@PathVariable Long id) {
+        Invoice saved = invoiceService.createInvoice(id);
         return ResponseEntity.ok(saved);
     }
 

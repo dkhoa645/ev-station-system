@@ -17,6 +17,7 @@ import org.springframework.web.client.RestClient;
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MemberUserController {
+
     UserService userService;
 
     @GetMapping()

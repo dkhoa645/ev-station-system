@@ -1,5 +1,6 @@
 package com.group3.evproject.service;
 
+import com.group3.evproject.Enum.PaymentStatus;
 import com.group3.evproject.Enum.PaymentTransactionStatus;
 import com.group3.evproject.dto.response.BookingResponse;
 import com.group3.evproject.entity.PaymentTransaction;
@@ -36,11 +37,12 @@ public class PaymentTransactionService {
     VehicleSubscriptionMapper vehicleSubscriptionMapper;
     PaymentService paymentService;
     BookingService bookingService;
+    UserUtils userUtils;
 
     SubscriptionPlanService subscriptionPlanService;
-    private final AuthenticationService authenticationService;
-    private final UserService userService;
-    private final UserUtils userUtils;
+    AuthenticationService authenticationService;
+    UserService userService;
+
 
     public PaymentTransaction savePayment(PaymentTransaction paymentTransaction){
         return paymentTransactionRepository.save(paymentTransaction);
@@ -78,15 +80,14 @@ public class PaymentTransactionService {
     }
 
     @Transactional
-    public PaymentTransactionResponse createSubscriptionPayment(Long id, HttpServletRequest request) {
+    public PaymentTransactionResponse createSubscriptionPayment(Long id) {
         VehicleSubscription vehicleSubscription = vehicleSubscriptionService.findById(id);
         if (!vehicleSubscription.getStatus().equals(VehicleSubscriptionStatus.PENDING)) {
                 throw  new AppException(ErrorCode.PENDING_STATUS);
         }
         SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
         BigDecimal amount = subscriptionPlan.getPrice();
-        String username= authenticationService.extractUsernameFromRequest(request);
-        User user = userService.getUserByUsername(username);
+        User user = userUtils.getCurrentUser();
         PaymentTransaction paymentTransaction =
                 savePayment(createPaymentTransaction(vehicleSubscription,null,null,amount,user));
 
@@ -95,18 +96,17 @@ public class PaymentTransactionService {
 
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
         response.setId(paymentTransaction.getId());
-        response.setType("VEHICLE_SUBSCRIPTION");
+        response.setType("VEHICLE SUBSCRIPTION");
         return response;
     }
 
 
-    public PaymentTransactionResponse createBookingPayment(Long id, HttpServletRequest request) {
+    public PaymentTransactionResponse createBookingPayment(Long id) {
             Booking booking = bookingService.findBookingById(id);
         if (!booking.getStatus().equals(Booking.BookingStatus.PENDING)) {
-            throw new AppException(ErrorCode.PENDING_STATUS);
+            throw new AppException(ErrorCode.PENDING_STATUS,"PENDING");
         }
-        String username= authenticationService.extractUsernameFromRequest(request);
-        User user = userService.getUserByUsername(username);
+        User user = userUtils.getCurrentUser();
         PaymentTransaction paymentTransaction =
                 savePayment(createPaymentTransaction(null,booking,null,booking.getReservationFee(),user));
         BookingResponse bookingResponse = BookingResponse.builder()
@@ -127,6 +127,27 @@ public class PaymentTransactionService {
     }
 
 
+    public PaymentTransactionResponse createForPayment(Long id) {
+        User user = userUtils.getCurrentUser();
+        Payment payment = paymentService.findById(id);
+        if (!payment.getStatus().equals(PaymentStatus.UNPAID)) {
+            throw new AppException(ErrorCode.PENDING_STATUS,"UNPAID");
+        }
+
+        BigDecimal amount = payment.getTotalCost().subtract(payment.getPaidCost());
+
+        PaymentTransaction paymentTransaction =
+                savePayment(createPaymentTransaction(null,null,payment,amount,user));
+
+        payment.getPaymentTransactions().add(paymentTransaction);
+        paymentService.save(payment);
+
+        PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
+        response.setId(paymentTransaction.getId());
+        response.setType("PAYMENT");
+        return response;
+    }
+
     @Transactional
     public String processSuccessfulPayment(String ref) {
 //        Tìm transaction có mã giao dịch ref
@@ -136,23 +157,25 @@ public class PaymentTransactionService {
         paymentTransaction.setPaidAt(now);
         paymentTransaction.setStatus(PaymentTransactionStatus.SUCCESS);
         //  Kiểm tra xem hóa đơn của object nào
-        VehicleSubscription checkVehicleSubscription = paymentTransaction.getVehicleSubscription();
+        VehicleSubscription checkSubscription = paymentTransaction.getVehicleSubscription();
         Payment checkPayment = paymentTransaction.getPayment();
         Booking checkBooking = paymentTransaction.getBooking();
 //                  Cập nhật Subscription
-        if (checkVehicleSubscription != null) {
-            checkVehicleSubscription.setStartDate(now);
-            checkVehicleSubscription.setEndDate(now.plusMonths(1));
-            checkVehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
-            vehicleSubscriptionService.saveVehicle(checkVehicleSubscription);
-            return "Success";
+        if (checkSubscription != null) {
+            checkSubscription.setStartDate(now);
+            checkSubscription.setEndDate(now.plusMonths(1));
+            checkSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
+            vehicleSubscriptionService.saveVehicle(checkSubscription);
+            return "subscriptionSuccess";
         } else if (checkBooking != null) {
             checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
             bookingService.saveBooking(checkBooking);
-            return "chargingSession";
+            return "bookingSuccess";
+        } else if (checkPayment != null) {
+            checkPayment.setPaidCost(checkPayment.getPaidCost().add(checkPayment.getTotalCost()));
+            checkPayment.setStatus(PaymentStatus.PAID);
+            paymentService.save(checkPayment);
         }
-
-
         return "fail";
     }
 
@@ -171,6 +194,7 @@ public class PaymentTransactionService {
                     })
                     .collect(Collectors.toList());
     }
+
 
 
 //            PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(

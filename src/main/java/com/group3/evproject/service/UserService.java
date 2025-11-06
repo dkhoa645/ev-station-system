@@ -141,6 +141,7 @@ public class UserService {
     public UserResponse updateMember(@Valid UserUpdateRequest userUpdateRequest) {
         User user = userUtils.getCurrentUser();
         userMapper.updateUserFromRequest(userUpdateRequest, user);
+        user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
         return userMapper.toUserResponse(userRepository.save(user));
     }
 

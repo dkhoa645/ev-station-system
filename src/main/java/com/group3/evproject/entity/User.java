@@ -41,8 +41,7 @@ public class User {
     )
     Set<Role> roles = new HashSet<>();
 
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Vehicle> vehicles;
 
     @ManyToOne()
@@ -52,6 +51,6 @@ public class User {
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<Payment> payments;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     List<PaymentTransaction> paymentTransactionList;
 }
