@@ -141,7 +141,6 @@ public class BookingService {
         Booking booking = Booking.builder()
                 .user(user)
                 .station(station)
-                .station(station).id(station.getId())
                 .vehicle(vehicle)
                 .paymentTransactions(new ArrayList<>())
                 .timeToCharge(timeToCharge)

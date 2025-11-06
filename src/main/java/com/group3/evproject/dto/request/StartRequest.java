@@ -11,9 +11,11 @@ import lombok.*;
 @Builder
 @Schema
 public class StartRequest {
-
     @Schema(description = "ID của spot tại trạm", example = "5", required = true)
     @NotNull(message = "spotId is required")
     private Long spotId;
 
+    @Schema(description = "Lượng pin ban đầu", example = "5", required = true)
+    @NotNull(message = "percentBefore is required")
+    private Double percentBefore;;
 }
