@@ -7,11 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.group3.evproject.dto.response.ChargingSessionResponse;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +18,8 @@ public class ChargingSessionService {
 
     private final ChargingSessionRepository chargingSessionRepository;
     private final ChargingSpotRepository chargingSpotRepository;
-    private final ChargingStationRepository chargingStationRepository;
     private final BookingRepository bookingRepository;
-    private final InvoiceRepository invoiceRepository;
-    private final VehicleRepository vehicleRepository;
+    private final InvoiceService invoiceService;
 
     public List<ChargingSession> getAllSessions() {
         return chargingSessionRepository.findAll();
@@ -53,29 +49,6 @@ public class ChargingSessionService {
                 .totalCost(session.getTotalCost())
                 .status(session.getStatus().name())
                 .build();
-    }
-
-    private void createInvoiceForSession(ChargingSession session) {
-        Invoice invoice = new Invoice();
-        invoice.setSession(session);
-        invoice.setIssueDate(LocalDateTime.now());
-        invoice.setFinalCost(BigDecimal.valueOf(session.getTotalCost()));
-        invoice.setStatus(Invoice.Status.PENDING);
-
-        SubscriptionPlan plan = null;
-        if (session.getBooking() != null && session.getBooking().getVehicle() != null) {
-            Vehicle vehicle = session.getBooking().getVehicle();
-            if (vehicle.getSubscription() != null &&
-                    vehicle.getSubscription().getSubscriptionPlan() != null) {
-                plan = vehicle.getSubscription().getSubscriptionPlan();
-            }
-        }
-
-        if (plan != null) {
-            invoice.setSubscriptionPlan(plan);
-        }
-
-        invoiceRepository.save(invoice);
     }
 
     public ChargingSession startSession(Long bookingId, Long spotId) {
@@ -157,7 +130,7 @@ public class ChargingSessionService {
             bookingRepository.save(booking);
         }
 
-        createInvoiceForSession(session);
+        invoiceService.createInvoice(sessionId);
         return chargingSessionRepository.save(session);
     }
 
