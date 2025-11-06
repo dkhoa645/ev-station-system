@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class ChargingSessionStaffController {
     private final ChargingSessionService chargingSessionService;
 
-    @PostMapping("/start/{booking_id}")
+    @PostMapping("/start")
     public ResponseEntity<?> startSession(@RequestBody StartRequestForStaff startRequestForStaff) {
         try {
             Long spotId = startRequestForStaff.getSpotId();
