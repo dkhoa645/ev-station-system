@@ -203,10 +203,8 @@ public class ChargingSessionService {
 
         //Giải phóng spot
         ChargingSpot spot = session.getSpot();
-        if (spot != null) {
-            spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-            chargingSpotRepository.save(spot);
-        }
+        spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
+        chargingSpotRepository.save(spot);
 
         invoiceService.createInvoiceBySessionId(sessionId);
 
