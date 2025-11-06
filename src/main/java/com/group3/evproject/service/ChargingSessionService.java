@@ -130,7 +130,7 @@ public class ChargingSessionService {
             bookingRepository.save(booking);
         }
 
-        invoiceService.createInvoice(sessionId);
+        invoiceService.createInvoiceBySessionId(sessionId);
         return chargingSessionRepository.save(session);
     }
 

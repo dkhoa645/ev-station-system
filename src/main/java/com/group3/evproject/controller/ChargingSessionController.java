@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import com.group3.evproject.dto.request.StartRequest;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/charging-sessions")
@@ -61,7 +60,6 @@ public class ChargingSessionController {
             return ResponseEntity.internalServerError().body("Unexpected error: " + ex.getMessage());
         }
     }
-
 
     @PutMapping("/end/{session_id}")
     public ResponseEntity<?> endSession(
