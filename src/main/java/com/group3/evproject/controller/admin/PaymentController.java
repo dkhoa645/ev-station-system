@@ -21,27 +21,26 @@ import java.util.List;
 public class PaymentController {
     PaymentService paymentService;
 
-//    @GetMapping
-//    public ApiResponse<List<PaymentResponse>> getPayment(){
-//        return ApiResponse.<List<PaymentResponse>>builder()
-//                .result(paymentService.getAll())
-//                .build();
-//    }
+    @GetMapping
+    public ApiResponse<List<PaymentDetailResponse>> getPayment(){
+        return ApiResponse.<List<PaymentDetailResponse>>builder()
+                .result(paymentService.getAll())
+                .build();
+    }
 
     @GetMapping("/company/{id}")
     public ApiResponse<List<PaymentDetailResponse>> getPaymentByCompany(@PathVariable Long id){
         return ApiResponse.<List<PaymentDetailResponse>>builder()
-                .result(paymentService.getByCompany(id))
+                .result(paymentService.getCompany(id))
                 .build();
     }
 
     @GetMapping("/user/{id}")
     public ApiResponse<List<PaymentDetailResponse>> getPaymentByUser(@PathVariable Long id){
         return ApiResponse.<List<PaymentDetailResponse>>builder()
-                .result(paymentService.getByUser(id))
+                .result(paymentService.getUser(id))
                 .build();
     }
-
 
     @PostMapping
     public ApiResponse<PaymentResponse> createPayment(@RequestBody PaymentCreationRequest request) {

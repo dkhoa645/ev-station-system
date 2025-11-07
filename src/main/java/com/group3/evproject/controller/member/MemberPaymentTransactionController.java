@@ -24,7 +24,7 @@ import java.util.List;
 @RequestMapping("member/payment-transaction")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
-public class PaymentTransactionController {
+public class MemberPaymentTransactionController {
     VNPayService paymentService;
     PaymentTransactionService paymentTransactionService;
     BookingService bookingService;

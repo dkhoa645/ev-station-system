@@ -1,4 +1,4 @@
-package com.group3.evproject.controller;
+package com.group3.evproject.controller.auth;
 
 import com.group3.evproject.dto.request.AuthenticationRequest;
 import com.group3.evproject.dto.request.IntrospectRequest;
