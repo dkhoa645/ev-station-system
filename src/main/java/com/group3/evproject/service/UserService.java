@@ -5,9 +5,7 @@ import com.group3.evproject.dto.request.AdminUserCreationRequest;
 import com.group3.evproject.dto.request.UserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.UserResponse;
-import com.group3.evproject.entity.Company;
-import com.group3.evproject.entity.Role;
-import com.group3.evproject.entity.User;
+import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.CompanyMapper;
@@ -129,13 +127,12 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long userId) {
-        if(userRepository.existsById(userId)) {
-            userRepository.deleteById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
+
+            userRepository.delete(user);
         }
-        else {
-            throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User");
-        }
-    }
+
 
     @Transactional
     public UserResponse updateMember(@Valid UserUpdateRequest userUpdateRequest) {

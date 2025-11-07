@@ -71,9 +71,9 @@ public class ChargingSession {
     @Column(name = "total_cost")
     Double totalCost;
 
-    @OneToOne(mappedBy = "session")
+    @OneToOne(mappedBy = "session",cascade = CascadeType.ALL)
     @JsonBackReference(value = "invoice-session")
-    private Invoice invoice;
+    Invoice invoice;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

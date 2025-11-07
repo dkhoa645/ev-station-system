@@ -35,7 +35,7 @@ public class Vehicle {
     VehicleSubscription subscription;
 
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<Booking> bookings;
+    List<Booking> bookings;
 
 }
 
