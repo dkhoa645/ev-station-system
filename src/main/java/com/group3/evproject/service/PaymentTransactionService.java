@@ -172,7 +172,7 @@ public class PaymentTransactionService {
             bookingService.saveBooking(checkBooking);
             return "bookingSuccess";
         } else if (checkPayment != null) {
-            checkPayment.setPaidCost(checkPayment.getPaidCost().add(checkPayment.getTotalCost()));
+            checkPayment.setPaidCost(checkPayment.getPaidCost().add(paymentTransaction.getAmount()));
             checkPayment.setStatus(PaymentStatus.PAID);
             paymentService.save(checkPayment);
         }
