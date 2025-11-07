@@ -2,7 +2,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.RoleName;
 import com.group3.evproject.dto.request.AdminUserCreationRequest;
-import com.group3.evproject.dto.request.UserCreationRequest;
+import com.group3.evproject.dto.request.CompanyUserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.UserResponse;
 import com.group3.evproject.entity.*;
@@ -11,7 +11,6 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.CompanyMapper;
 import com.group3.evproject.mapper.UserMapper;
 import com.group3.evproject.repository.CompanyRepository;
-import com.group3.evproject.repository.RoleRepository;
 import com.group3.evproject.repository.UserRepository;
 import com.group3.evproject.utils.UserUtils;
 import jakarta.transaction.Transactional;
@@ -23,10 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,7 +61,7 @@ public class UserService {
         if(userCreationRequest.getRole().equals(RoleName.ADMIN)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
-        User user = userMapper.toUserFormAdmin(userCreationRequest);
+        User user = userMapper.toUserFromAdmin(userCreationRequest);
         user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
         if(userRepository.existsByUsername(user.getUsername())){
                 throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
@@ -89,27 +85,6 @@ public class UserService {
         userResponse.setRoles(roles.stream().map(Role::getName).collect(Collectors.toSet()));
         return userResponse;
     }
-
-//    @Transactional
-//    public UserResponse registerUser(UserCreationRequest userCreationRequest) {
-//        User user = userMapper.toUser(userCreationRequest);
-//        user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
-//
-//        Role userRole = roleRepository.findByName("USER");
-//        if(user.getRoles() == null) {
-//            user.setRoles(new HashSet<>());
-//        }
-//
-//        user.getRoles().add(userRole);
-//
-//        if(userRepository.existsByUsername(user.getUsername())){
-//            throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
-//        }
-//        if(userRepository.existsByEmail(user.getEmail())){
-//            throw new AppException(ErrorCode.RESOURCES_EXISTS,"Email");
-//        }
-//        return userMapper.toUserResponse(userRepository.save(user));
-//    }
 
     public UserResponse getUserById(@PathVariable Long id) {
         return userMapper.toUserResponse(userRepository.findById(id)
@@ -161,5 +136,41 @@ public class UserService {
         return userRepository.findById(userId).orElse(null);
     }
 
+    public List<UserResponse> getAllCompanyUsers() {
+        User user = userUtils.getCurrentUser();
+        return userRepository
+                .findByCompanyIdAndIdNot(user.getCompany().getId(),user.getId())
+                .stream()
+                .map(userMapper::toUserResponse)
+                .collect(Collectors.toList());
+    }
 
+    @Transactional
+    public UserResponse createCompanyUser(CompanyUserCreationRequest userCreationRequest) {
+
+        User user = userMapper.toUserFromCompany(userCreationRequest);
+        user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
+        if(userRepository.existsByUsername(user.getUsername())){
+            throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
+        }
+        if(userRepository.existsByEmail(user.getEmail())){
+            throw new AppException(ErrorCode.RESOURCES_EXISTS, "Email");
+        }
+
+        User userCurrent = userUtils.getCurrentUser();
+        Company company = userCurrent.getCompany();
+
+        Role role = roleService.findByName(RoleName.DRIVER);
+        Set<Role>roles = new HashSet<>();
+        roles.add(role);
+
+        user.setCompany(company);
+        user.setRoles(roles);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        UserResponse userResponse = userMapper.toUserResponse(userRepository.save(user));
+        userResponse.setCompanyResponse(companyMapper.toCompanyResponse(company));
+        userResponse.setRoles(roles.stream().map(Role::getName).collect(Collectors.toSet()));
+        return userResponse;
+    }
 }

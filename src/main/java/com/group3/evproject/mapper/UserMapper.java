@@ -1,6 +1,7 @@
 package com.group3.evproject.mapper;
 
 import com.group3.evproject.dto.request.AdminUserCreationRequest;
+import com.group3.evproject.dto.request.CompanyUserCreationRequest;
 import com.group3.evproject.dto.request.UserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.UserResponse;
@@ -19,6 +20,7 @@ public interface UserMapper {
     void updateUserFromRequest(UserUpdateRequest request, @MappingTarget User user);
 
     @Mapping(target="roles",ignore = true)
-    User toUserFormAdmin(AdminUserCreationRequest adminUserCreationRequest);
+    User toUserFromAdmin(AdminUserCreationRequest adminUserCreationRequest);
 
+    User toUserFromCompany(CompanyUserCreationRequest companyUserCreationRequest);
 }

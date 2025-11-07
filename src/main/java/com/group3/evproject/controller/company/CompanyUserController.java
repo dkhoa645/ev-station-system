@@ -1,6 +1,7 @@
 package com.group3.evproject.controller.company;
 
 import com.group3.evproject.dto.request.AdminUserCreationRequest;
+import com.group3.evproject.dto.request.CompanyUserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.UserResponse;
@@ -21,10 +22,10 @@ import java.util.List;
 public class CompanyUserController {
     UserService userService;
 
-    @GetMapping
-    ApiResponse<List<UserResponse>>  getAllUsers() {
+    @GetMapping("/get-user-info")
+    ApiResponse<List<UserResponse>>  getUsers() {
         return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getAllUsers())
+                .result(userService.getAllCompanyUsers())
                 .build();
     }
 
@@ -36,9 +37,9 @@ public class CompanyUserController {
     }
 
     @PostMapping
-    ApiResponse<UserResponse> createUser(@RequestBody @Valid AdminUserCreationRequest request) {
+    ApiResponse<UserResponse> createUser(@RequestBody @Valid CompanyUserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
-                .result(userService.createUser(request))
+                .result(userService.createCompanyUser(request))
                 .build();
     }
 

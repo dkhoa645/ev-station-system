@@ -18,9 +18,9 @@ public class CompanyPaymentController {
     PaymentService paymentService;
 
     @GetMapping
-    public ApiResponse<List<PaymentDetailResponse>> getPaymentByCompany(@PathVariable Long id){
+    public ApiResponse<List<PaymentDetailResponse>> getPayment(){
         return ApiResponse.<List<PaymentDetailResponse>>builder()
-                .result(paymentService.getForCompany(id))
+                .result(paymentService.getForCompany())
                 .build();
     }
 

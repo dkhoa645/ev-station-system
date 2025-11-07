@@ -90,7 +90,6 @@ public class PaymentService {
         return paymentMapper.toPaymentResponse(saved);
     }
 
-
     public Payment findByUser(User user){
         final LocalDateTime finalPeriod = getPeriod();
         Payment payment = null;
@@ -114,50 +113,36 @@ public class PaymentService {
         return period;
     }
 
-    public List<PaymentDetailResponse> getCompany(Long id) {
-        Company company = companyRepository.findById(id)
-                .orElseThrow( () ->  new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company"));
-        List<Payment> payments = paymentRepository.findByCompany(company);
-        List<PaymentDetailResponse> paymentResponseList = payments.stream()
-                .map(paymentMapper::toPaymentDetailResponse)
-                .collect(Collectors.toList());
-        return paymentResponseList;
-    }
-
-    public List<PaymentDetailResponse> getUser(Long id) {
-        User user = userService.findById(id);
-        List<Payment> payments = paymentRepository.findByUser(user);
-        List<PaymentDetailResponse> paymentResponseList = payments.stream()
-                .map(paymentMapper::toPaymentDetailResponse)
-                .collect(Collectors.toList());
-        return paymentResponseList;
-    }
-
     public List<PaymentDetailResponse> getAll() {
         return paymentRepository.findAll()
                 .stream().map(paymentMapper::toPaymentDetailResponse)
-                .collect(Collectors.toList());
-    }
+                .collect(Collectors.toList());}
 
-
-    public List<PaymentDetailResponse> getForCompany(Long id) {
-        User user = userUtils.getCurrentUser();
+    public List<PaymentDetailResponse> getCompany(Long id) {
         Company company = companyRepository.findById(id)
                 .orElseThrow( () ->  new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company"));
-        List<Payment> payments = paymentRepository.findByCompany(company);
-        List<PaymentDetailResponse> paymentResponseList = payments.stream()
+        return paymentRepository.findByCompany(company).stream()
                 .map(paymentMapper::toPaymentDetailResponse)
-                .collect(Collectors.toList());
-        return paymentResponseList;
-    }
+                .collect(Collectors.toList());}
+
+    public List<PaymentDetailResponse> getUser(Long id) {
+        User user = userService.findById(id);
+        return paymentRepository.findByUser(user).stream()
+                .map(paymentMapper::toPaymentDetailResponse)
+                .collect(Collectors.toList());}
+
+    public List<PaymentDetailResponse> getForCompany() {
+        User user = userUtils.getCurrentUser();
+        return paymentRepository.findByCompany(user.getCompany()).stream()
+                .map(paymentMapper::toPaymentDetailResponse)
+                .collect(Collectors.toList());}
 
     public List<PaymentDetailResponse> getForUser() {
         User user = userUtils.getCurrentUser();
-        List<Payment> payments = paymentRepository.findByUser(user);
-        List<PaymentDetailResponse> paymentResponseList = payments.stream()
+        return paymentRepository.findByUser(user)
+                .stream()
                 .map(paymentMapper::toPaymentDetailResponse)
-                .collect(Collectors.toList());
-        return paymentResponseList;
-    }
+                .collect(Collectors.toList());}
+
 
 }
