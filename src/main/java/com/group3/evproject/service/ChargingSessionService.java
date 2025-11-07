@@ -130,7 +130,84 @@ public class ChargingSessionService {
             bookingRepository.save(booking);
         }
 
-        invoiceService.createInvoice(sessionId);
+        invoiceService.createInvoiceBySessionId(sessionId);
+        return chargingSessionRepository.save(session);
+    }
+
+    public ChargingSession startSessionForStaff (Long spotId,Double percentBefore) {
+
+        // Tìm spot khả dụng
+        ChargingSpot spot = chargingSpotRepository.findById(spotId)
+                .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
+        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
+            throw new RuntimeException("Spot is not available");
+        }
+
+        ChargingStation station = spot.getStation();
+
+        // Tạo session
+        ChargingSession session = ChargingSession.builder()
+                .spot(spot)
+                .station(station)
+                .startTime(LocalDateTime.now())
+                .powerOutput(station.getPowerCapacity())
+                .percentBefore(percentBefore)
+                .status(ChargingSession.Status.ACTIVE)
+                .build();
+
+        if (spot.getSpotType() == ChargingSpot.SpotType.WALK_IN) {
+            spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
+            chargingSpotRepository.save(spot);
+        }
+
+        return chargingSessionRepository.save(session);
+    }
+
+    public ChargingSession endSessionForStaff (Double batteryCapacity, Double ratePerKWh, Long sessionId, Double percentBefore) {
+
+        ChargingSession session = getSessionEntityById(sessionId);
+
+        if (session.getStatus() != ChargingSession.Status.ACTIVE) {
+            throw new RuntimeException("Only active sessions can be ended.");
+        }
+
+        LocalDateTime endTime = LocalDateTime.now();
+        session.setEndTime(endTime);
+
+        //Tính thời gian sạc (giờ)
+        double durationHours = Duration.between(session.getStartTime(), endTime).toSeconds() / 3600.0;
+        session.setChargingDuration(durationHours);
+
+        //Tính số điện đã vào xe (kWh)
+        double energyAdded = session.getPowerOutput() * durationHours;
+        session.setEnergyAdded(energyAdded);
+
+        //Tính % sau sạc
+        double percentAfter = ((energyAdded / batteryCapacity) * 100) + percentBefore;
+        if (percentAfter > 100) percentAfter = 100.0;
+        session.setPercentBefore(percentBefore);
+        session.setPercentAfter(percentAfter);
+        session.setBatteryCapacity(Double.valueOf(batteryCapacity));
+
+        //Lượng điện đã sạc (kWh)
+        double energyUsed = (percentAfter - percentBefore) * (batteryCapacity / 100);
+        session.setEnergyUsed(energyUsed);
+
+        //Tính chi phí sạc
+        session.setRatePerKWh(ratePerKWh);
+        double totalCost = energyUsed * ratePerKWh;
+        session.setTotalCost(Double.valueOf(totalCost));
+
+        //Cập nhật trạng thái
+        session.setStatus(ChargingSession.Status.COMPLETED);
+
+        //Giải phóng spot
+        ChargingSpot spot = session.getSpot();
+        spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
+        chargingSpotRepository.save(spot);
+
+        invoiceService.createInvoiceBySessionId(sessionId);
+
         return chargingSessionRepository.save(session);
     }
 

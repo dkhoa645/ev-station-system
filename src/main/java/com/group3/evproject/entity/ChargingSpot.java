@@ -25,7 +25,7 @@ public class ChargingSpot {
 
     //Enum trạng thái thực tế của điểm sạc
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "spot_status", nullable = false)
     private SpotStatus status = SpotStatus.AVAILABLE;
 
     @ManyToOne(fetch = FetchType.LAZY)

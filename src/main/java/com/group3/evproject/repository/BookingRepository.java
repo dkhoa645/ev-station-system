@@ -18,6 +18,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     //lay danh sach booking theo tram sac
     List<Booking> findByStation(ChargingStation station);
 
+    //lay danh sach booking theo id tram sac
+    Optional<Booking> findByStationId(Long stationId);
+
     //lay danh booking theo user + status
     List<Booking> findByUserAndStatus(User user, Booking.BookingStatus status);
 
