@@ -50,9 +50,9 @@ public class SecurityConfig {
                         .anyRequest().permitAll()
                 )
                 .httpBasic(withDefaults()); // HTTP Basic mặc định
-        http.oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwtConfigurer ->
-                                jwtConfigurer.decoder(jwtDecoder())
+        http.oauth2ResourceServer(oauth2 ->
+                        oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                                .decoder(jwtDecoder())
                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 );
 
