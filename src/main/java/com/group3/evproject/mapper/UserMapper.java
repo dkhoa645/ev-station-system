@@ -4,6 +4,7 @@ import com.group3.evproject.dto.request.AdminUserCreationRequest;
 import com.group3.evproject.dto.request.CompanyUserCreationRequest;
 import com.group3.evproject.dto.request.UserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
+import com.group3.evproject.dto.response.CompanyUserResponse;
 import com.group3.evproject.dto.response.UserResponse;
 import com.group3.evproject.entity.User;
 import org.mapstruct.Mapper;
@@ -23,4 +24,6 @@ public interface UserMapper {
     User toUserFromAdmin(AdminUserCreationRequest adminUserCreationRequest);
 
     User toUserFromCompany(CompanyUserCreationRequest companyUserCreationRequest);
+
+    CompanyUserResponse toCompanyUserResponse(UserResponse userResponse);
 }

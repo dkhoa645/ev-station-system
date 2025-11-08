@@ -22,7 +22,7 @@ import java.util.List;
 public class CompanyUserController {
     UserService userService;
 
-    @GetMapping("/get-info")
+    @GetMapping("/all")
     ApiResponse<List<UserResponse>>  getUsers() {
         return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getAllCompanyUsers())

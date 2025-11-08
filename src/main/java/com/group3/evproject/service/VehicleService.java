@@ -133,6 +133,13 @@ public class VehicleService  {
         throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle");
     }
 
+    public List<VehicleResponse> getCompanyVehicles() {
+        return vehicleRepository.findAll()
+                .stream()
+                .map(vehicleMapper::vehicleToVehicleResponse)
+                .collect(Collectors.toList());
+    }
+
 
 //    @Transactional
 //    public VehicleResponse updateUserVehicle(Long id, HttpServletRequest request) {

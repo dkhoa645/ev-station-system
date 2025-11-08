@@ -4,6 +4,7 @@ import com.group3.evproject.Enum.RoleName;
 import com.group3.evproject.dto.request.AdminUserCreationRequest;
 import com.group3.evproject.dto.request.CompanyUserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
+import com.group3.evproject.dto.response.CompanyUserResponse;
 import com.group3.evproject.dto.response.UserResponse;
 import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
@@ -58,6 +59,8 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.findById(id)
                 .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"User")));
     }
+
+
 
     @Transactional
     public UserResponse createUser(AdminUserCreationRequest userCreationRequest) {
