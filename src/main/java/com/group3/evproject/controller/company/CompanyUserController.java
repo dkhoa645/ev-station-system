@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@RequestMapping("/company/user")
+@RequestMapping("/api/company/user")
 @RequiredArgsConstructor
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

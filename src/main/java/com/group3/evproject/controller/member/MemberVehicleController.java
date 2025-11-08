@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/member/vehicle")
+@RequestMapping("/api/member/vehicle")
 @RequiredArgsConstructor
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

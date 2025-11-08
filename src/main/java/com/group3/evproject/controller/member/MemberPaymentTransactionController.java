@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("member/payment-transaction")
+@RequestMapping("api/member/payment-transaction")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
 public class MemberPaymentTransactionController {
