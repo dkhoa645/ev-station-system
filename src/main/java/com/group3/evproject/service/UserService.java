@@ -37,7 +37,6 @@ public class UserService {
     CompanyRepository companyRepository;
     CompanyMapper companyMapper;
 
-
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(entity -> {
@@ -55,6 +54,10 @@ public class UserService {
                 .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS));
     }
 
+    public UserResponse getUserById(@PathVariable Long id) {
+        return userMapper.toUserResponse(userRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"User")));
+    }
 
     @Transactional
     public UserResponse createUser(AdminUserCreationRequest userCreationRequest) {
@@ -86,9 +89,12 @@ public class UserService {
         return userResponse;
     }
 
-    public UserResponse getUserById(@PathVariable Long id) {
-        return userMapper.toUserResponse(userRepository.findById(id)
-                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"User")));
+    public void save(User user) {
+        userRepository.save(user);
+    }
+
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     //ADMIN
@@ -107,7 +113,6 @@ public class UserService {
 
             userRepository.delete(user);
         }
-
 
     @Transactional
     public UserResponse updateMember(@Valid UserUpdateRequest userUpdateRequest) {
@@ -173,4 +178,6 @@ public class UserService {
         userResponse.setRoles(roles.stream().map(Role::getName).collect(Collectors.toSet()));
         return userResponse;
     }
+
+
 }
