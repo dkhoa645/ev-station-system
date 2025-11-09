@@ -30,6 +30,10 @@ public class Vehicle {
     @JsonBackReference
     VehicleModel model;
 
+    @ManyToOne
+    @JoinColumn(name = "company_id",nullable = true)
+    Company company;
+
     @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     VehicleSubscription subscription;

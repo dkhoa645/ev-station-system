@@ -3,8 +3,6 @@ package com.group3.evproject.service;
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.request.SubscriptionRequest;
 import com.group3.evproject.dto.response.VehicleResponse;
-import com.group3.evproject.dto.response.VehicleSubscriptionResponse;
-import com.group3.evproject.entity.SubscriptionPlan;
 import com.group3.evproject.entity.User;
 import com.group3.evproject.entity.Vehicle;
 import com.group3.evproject.entity.VehicleSubscription;
@@ -12,6 +10,7 @@ import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.VehicleMapper;
 import com.group3.evproject.repository.VehicleSubscriptionRepository;
+import com.group3.evproject.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -19,18 +18,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VehicleSubscriptionService {
     VehicleSubscriptionRepository vehicleSubscriptionRepository;
-    AuthenticationService authenticationService;
     UserService userService;
     SubscriptionPlanService subscriptionPlanService;
     private final VehicleService vehicleService;
     VehicleMapper vehicleMapper;
+    private final UserUtils userUtils;
 
     public VehicleSubscription findById(Long id){
         return vehicleSubscriptionRepository.findById(id)
@@ -38,15 +35,16 @@ public class VehicleSubscriptionService {
     }
 
     @Transactional
-    public VehicleSubscription saveVehicle(VehicleSubscription vehicleSubscription){
+    public VehicleSubscription saveVehicleSubscription(VehicleSubscription vehicleSubscription){
         return vehicleSubscriptionRepository
                 .save(vehicleSubscription);
     }
 
-    public User isFromUser(HttpServletRequest request,Long id){
+    public User isFromUser(Long id){
         VehicleSubscription vs = findById(id);
         Vehicle vehicle = vs.getVehicle();
-        String username = authenticationService.extractUsernameFromRequest(request);
+        User user = userUtils.getCurrentUser();
+        String username = user.getUsername();
         if(vehicle.getUser().getUsername().equals(username))
             return userService.getUserByUsername(username);
         return null;

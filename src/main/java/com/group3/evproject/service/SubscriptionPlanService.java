@@ -79,4 +79,9 @@ public class SubscriptionPlanService {
 
         return subscriptionPlanMapper.toSubscriptionPlanResponse(subscriptionPlan);
     }
+
+    public SubscriptionPlan findByName(String name) {
+        return subscriptionPlanRepository.findByName(name)
+                .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Subscription"));
+    }
 }

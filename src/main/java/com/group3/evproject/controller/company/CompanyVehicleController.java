@@ -1,5 +1,7 @@
 package com.group3.evproject.controller.company;
 
+import com.group3.evproject.dto.request.CompanyUserCreationRequest;
+import com.group3.evproject.dto.request.CompanyVehicleCreationRequest;
 import com.group3.evproject.dto.request.VehicleRegisterRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.VehicleResponse;
@@ -23,7 +25,7 @@ public class CompanyVehicleController {
     @GetMapping("/all")
     public ApiResponse<List<VehicleResponse>> getVehicles() {
         return ApiResponse.<List<VehicleResponse>>builder()
-                .result(vehicleService.getAllVehicles())
+                .result(vehicleService.getAllCompanyVehicles())
                 .build();
     }
 
@@ -35,12 +37,11 @@ public class CompanyVehicleController {
     }
 
     @PostMapping()
-    public ApiResponse<VehicleResponse> registerVehicle(
-            @RequestBody VehicleRegisterRequest vehicleRegisterRequest,
-            HttpServletRequest request)
-    {
+    public ApiResponse<VehicleResponse> createVehicle(
+            @RequestBody CompanyVehicleCreationRequest companyVehicleCreationRequest
+    ) {
         return ApiResponse.<VehicleResponse>builder()
-                .result(vehicleService.registerVehicle(request, vehicleRegisterRequest))
+                .result(vehicleService.createCompanyVehicle(companyVehicleCreationRequest))
                 .build();
     }
 

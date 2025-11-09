@@ -13,6 +13,7 @@ import com.group3.evproject.mapper.CompanyMapper;
 import com.group3.evproject.mapper.UserMapper;
 import com.group3.evproject.repository.CompanyRepository;
 import com.group3.evproject.repository.UserRepository;
+import com.group3.evproject.utils.PasswordUntil;
 import com.group3.evproject.utils.UserUtils;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -37,6 +38,7 @@ public class UserService {
     UserUtils userUtils;
     CompanyRepository companyRepository;
     CompanyMapper companyMapper;
+    VehicleService vehicleService;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -154,16 +156,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse createCompanyUser(CompanyUserCreationRequest userCreationRequest) {
-
-        User user = userMapper.toUserFromCompany(userCreationRequest);
-        user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
-        if(userRepository.existsByUsername(user.getUsername())){
-            throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
-        }
-        if(userRepository.existsByEmail(user.getEmail())){
+    public CompanyUserResponse createCompanyUser(CompanyUserCreationRequest userCreationRequest) {
+        if(userRepository.existsByEmail(userCreationRequest.getEmail())){
             throw new AppException(ErrorCode.RESOURCES_EXISTS, "Email");
         }
+
+        String password = PasswordUntil.generateSecurePassword(10);
 
         User userCurrent = userUtils.getCurrentUser();
         Company company = userCurrent.getCompany();
@@ -172,14 +170,25 @@ public class UserService {
         Set<Role>roles = new HashSet<>();
         roles.add(role);
 
-        user.setCompany(company);
-        user.setRoles(roles);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Vehicle vehicle = vehicleService.findById(userCreationRequest.getVehicleId());
+        List<Vehicle> vehicles = new ArrayList<>();
+        vehicles.add(vehicle);
 
-        UserResponse userResponse = userMapper.toUserResponse(userRepository.save(user));
-        userResponse.setCompanyResponse(companyMapper.toCompanyResponse(company));
-        userResponse.setRoles(roles.stream().map(Role::getName).collect(Collectors.toSet()));
-        return userResponse;
+        User user = User.builder()
+                .name(userCreationRequest.getName())
+                .email(userCreationRequest.getEmail())
+                .username(userCreationRequest.getName())
+                .password(passwordEncoder.encode(password))
+                .vehicles(vehicles)
+                .roles(roles)
+                .company(company)
+                .verified(true)
+                .build();
+
+        CompanyUserResponse companyUserResponse = userMapper.toCompanyUserResponse(
+                userRepository.save(user));
+
+        return companyUserResponse;
     }
 
 

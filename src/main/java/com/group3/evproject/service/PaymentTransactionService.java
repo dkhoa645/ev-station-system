@@ -14,7 +14,6 @@ import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.PaymentTransactionRepository;
 import com.group3.evproject.utils.UserUtils;
 import com.group3.evproject.utils.VNPayUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -92,7 +91,7 @@ public class PaymentTransactionService {
                 savePayment(createPaymentTransaction(vehicleSubscription,null,null,amount,user));
 
         vehicleSubscription.getPaymentTransactions().add(paymentTransaction);
-        vehicleSubscriptionService.saveVehicle(vehicleSubscription);
+        vehicleSubscriptionService.saveVehicleSubscription(vehicleSubscription);
 
         PaymentTransactionResponse response = paymentTransactionMapper.toResponse(paymentTransaction);
         response.setId(paymentTransaction.getId());
@@ -165,7 +164,7 @@ public class PaymentTransactionService {
             checkSubscription.setStartDate(now);
             checkSubscription.setEndDate(now.plusMonths(1));
             checkSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
-            vehicleSubscriptionService.saveVehicle(checkSubscription);
+            vehicleSubscriptionService.saveVehicleSubscription(checkSubscription);
             return "subscriptionSuccess";
         } else if (checkBooking != null) {
             checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);

@@ -25,5 +25,5 @@ public interface UserMapper {
 
     User toUserFromCompany(CompanyUserCreationRequest companyUserCreationRequest);
 
-    CompanyUserResponse toCompanyUserResponse(UserResponse userResponse);
+    CompanyUserResponse toCompanyUserResponse(User user);
 }

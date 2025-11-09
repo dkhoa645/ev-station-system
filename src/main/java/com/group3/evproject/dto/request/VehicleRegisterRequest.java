@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 public class VehicleRegisterRequest {
     private Long modelId;
     private String licensePlate;
-    // thêm thông tin gói đăng ký
     private Long subscriptionPlanId; // bắt buộc chọn gói
 }

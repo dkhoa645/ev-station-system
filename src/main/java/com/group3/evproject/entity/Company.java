@@ -20,4 +20,6 @@ public class Company {
     List<User> user;
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     List<Payment> payment;
+    @OneToMany(mappedBy = "company",cascade = CascadeType.ALL)
+    List<Vehicle> vehicles;
 }

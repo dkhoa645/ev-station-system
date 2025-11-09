@@ -14,6 +14,7 @@ import com.group3.evproject.mapper.CompanyMapper;
 import com.group3.evproject.repository.CompanyRepository;
 
 import com.group3.evproject.utils.PasswordUntil;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -36,6 +37,7 @@ public class CompanyService {
     EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public CompanyResponse createCompany(CompanyCreationRequest companyCreationRequest) {
         if(companyRepository.existsByContactEmail(companyCreationRequest.getContactEmail()))
             throw new AppException(ErrorCode.RESOURCES_EXISTS,"Company Email");
@@ -68,11 +70,11 @@ public class CompanyService {
                 .password(passwordEncoder.encode(password))
                 .name(company.getName())
                 .roles(roles)
+                .company(company)
                 .verified(true)
                 .build();
 
         userService.save(user);
-
         List<User> users = new ArrayList<>();
         users.add(user);
         company.setUser(users);
@@ -91,6 +93,7 @@ public class CompanyService {
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company")));
     }
 
+    @Transactional
     public CompanyResponse updateCompany(Long id ,CompanyUpdateRequest companyUpdateRequest) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company"));
@@ -98,6 +101,7 @@ public class CompanyService {
         return companyMapper.toCompanyResponse(companyRepository.save(company));
     }
 
+    @Transactional
     public String deleteCompany(Long id) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company"));

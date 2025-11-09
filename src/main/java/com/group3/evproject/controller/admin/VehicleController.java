@@ -36,11 +36,10 @@ public class VehicleController {
 
     @PostMapping()
     public ApiResponse<VehicleResponse> registerVehicle(
-            @RequestBody VehicleRegisterRequest vehicleRegisterRequest,
-            HttpServletRequest request)
+            @RequestBody VehicleRegisterRequest vehicleRegisterRequest)
     {
         return ApiResponse.<VehicleResponse>builder()
-                .result(vehicleService.registerVehicle(request, vehicleRegisterRequest))
+                .result(vehicleService.registerVehicle(vehicleRegisterRequest))
                 .build();
     }
 

@@ -4,6 +4,7 @@ import com.group3.evproject.dto.request.AdminUserCreationRequest;
 import com.group3.evproject.dto.request.CompanyUserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.dto.response.CompanyUserResponse;
 import com.group3.evproject.dto.response.UserResponse;
 import com.group3.evproject.service.UserService;
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ import java.util.List;
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CompanyUserController {
+
     UserService userService;
 
     @GetMapping("/all")
@@ -37,8 +39,8 @@ public class CompanyUserController {
     }
 
     @PostMapping
-    ApiResponse<UserResponse> createUser(@RequestBody @Valid CompanyUserCreationRequest request) {
-        return ApiResponse.<UserResponse>builder()
+    ApiResponse<CompanyUserResponse> createUser(@RequestBody @Valid CompanyUserCreationRequest request) {
+        return ApiResponse.<CompanyUserResponse>builder()
                 .result(userService.createCompanyUser(request))
                 .build();
     }
