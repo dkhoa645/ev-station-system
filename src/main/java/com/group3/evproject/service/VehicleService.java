@@ -87,7 +87,7 @@ public class VehicleService  {
                         .startDate(null)
                         .endDate(null)
                         .status(VehicleSubscriptionStatus.PENDING)
-                        .autoRenew(false)
+                        .autoRenew(true)
                         .paymentTransactions(new ArrayList<>())
                         .build());
 //        4.Tạo Response
@@ -138,6 +138,15 @@ public class VehicleService  {
                 .stream()
                 .map(vehicleMapper::vehicleToVehicleResponse)
                 .collect(Collectors.toList());
+    }
+
+    public Vehicle findById(Long vehicleId) {
+        return vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
+    }
+
+    public Vehicle saveVehicle(Vehicle vehicle) {
+        return vehicleRepository.save(vehicle);
     }
 
 
