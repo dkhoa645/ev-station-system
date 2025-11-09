@@ -19,7 +19,7 @@ public enum ErrorCode {
     TOKEN_INVALID(1012,"Token is invalid" , HttpStatus.BAD_REQUEST),
     SUBSCRIPTION_REQUIRED(1013,"Subscription required" , HttpStatus.BAD_REQUEST),
     PENDING_STATUS(1014,"Only transactions with {0} status can be paid",HttpStatus.BAD_REQUEST),
-
+    VEHICLE_REGISTED(1015,"Vehicle already registered" , HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode httpStatusCode) {

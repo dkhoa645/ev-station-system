@@ -4,8 +4,10 @@ import com.group3.evproject.dto.request.AdminUserCreationRequest;
 import com.group3.evproject.dto.request.CompanyUserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.dto.response.CompanyResponse;
 import com.group3.evproject.dto.response.CompanyUserResponse;
 import com.group3.evproject.dto.response.UserResponse;
+import com.group3.evproject.service.CompanyService;
 import com.group3.evproject.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -23,11 +25,19 @@ import java.util.List;
 public class CompanyUserController {
 
     UserService userService;
+    CompanyService companyService;
 
     @GetMapping("/all")
-    ApiResponse<List<UserResponse>>  getUsers() {
-        return ApiResponse.<List<UserResponse>>builder()
+    ApiResponse<List<CompanyUserResponse>>  getUsers() {
+        return ApiResponse.<List<CompanyUserResponse>>builder()
                 .result(userService.getAllCompanyUsers())
+                .build();
+    }
+
+    @GetMapping("/info")
+    ApiResponse<CompanyResponse>  getCompanyInfo() {
+        return ApiResponse.<CompanyResponse>builder()
+                .result(companyService.getCompanyInfo())
                 .build();
     }
 
@@ -56,9 +66,8 @@ public class CompanyUserController {
 
     @DeleteMapping("/{userId}")
     ApiResponse<String> deleteUser(@PathVariable Long userId) {
-        userService.deleteUser(userId);
         return ApiResponse.<String>builder()
-                .result("User has been deleted")
+                .result(userService.deleteCompanyUser(userId))
                 .build();
     }
 

@@ -1,6 +1,7 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.RoleName;
+import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.request.AdminUserCreationRequest;
 import com.group3.evproject.dto.request.CompanyUserCreationRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
@@ -11,6 +12,7 @@ import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.CompanyMapper;
 import com.group3.evproject.mapper.UserMapper;
+import com.group3.evproject.mapper.VehicleMapper;
 import com.group3.evproject.repository.CompanyRepository;
 import com.group3.evproject.repository.UserRepository;
 import com.group3.evproject.utils.PasswordUntil;
@@ -24,6 +26,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +43,8 @@ public class UserService {
     CompanyRepository companyRepository;
     CompanyMapper companyMapper;
     VehicleService vehicleService;
+    EmailService emailService;
+    private final VehicleMapper vehicleMapper;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -115,7 +121,6 @@ public class UserService {
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
-
             userRepository.delete(user);
         }
 
@@ -146,12 +151,17 @@ public class UserService {
         return userRepository.findById(userId).orElse(null);
     }
 
-    public List<UserResponse> getAllCompanyUsers() {
+    public List<CompanyUserResponse> getAllCompanyUsers() {
         User user = userUtils.getCurrentUser();
         return userRepository
                 .findByCompanyIdAndIdNot(user.getCompany().getId(),user.getId())
                 .stream()
-                .map(userMapper::toUserResponse)
+                .map( userEach -> {
+                    CompanyUserResponse companyUserResponse = userMapper.toCompanyUserResponse(userEach);
+                    Vehicle vehicleForResponse = userEach.getVehicles().stream().findFirst().get();
+                    companyUserResponse.setVehicleResponse(vehicleMapper.vehicleToVehicleResponse(vehicleForResponse));
+                    return companyUserResponse;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -171,6 +181,14 @@ public class UserService {
         roles.add(role);
 
         Vehicle vehicle = vehicleService.findById(userCreationRequest.getVehicleId());
+        if(vehicle.getUser()!=null)
+            throw new AppException(ErrorCode.VEHICLE_REGISTED);
+        VehicleSubscription vehicleSubscription = vehicle.getSubscription();
+        vehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+        vehicleSubscription.setStartDate(now);
+        vehicleSubscription.setEndDate(now.plusYears(1));
+
         List<Vehicle> vehicles = new ArrayList<>();
         vehicles.add(vehicle);
 
@@ -185,11 +203,25 @@ public class UserService {
                 .verified(true)
                 .build();
 
-        CompanyUserResponse companyUserResponse = userMapper.toCompanyUserResponse(
-                userRepository.save(user));
+        emailService.sendDriverEmail(userCreationRequest.getEmail(),password,company.getName());
+        userRepository.save(user);
+
+        CompanyUserResponse companyUserResponse = userMapper.toCompanyUserResponse(user);
+        Vehicle vehicleForResponse = vehicles.stream().findFirst().get();
+        companyUserResponse.setVehicleResponse(vehicleMapper.vehicleToVehicleResponse(vehicleForResponse));
 
         return companyUserResponse;
     }
 
 
+    public String deleteCompanyUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
+        user.getVehicles().stream().forEach(vehicle -> {
+            vehicle.setUser(null);
+        });
+        user.getVehicles().clear();
+        userRepository.save(user);
+        return "User has been deleted successfully";
+    }
 }

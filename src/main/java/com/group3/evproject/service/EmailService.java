@@ -123,6 +123,54 @@ public class EmailService {
     }
 
 
+    public void sendDriverEmail(String toEmail, String password, String companyName) {
+        String subject = "Tài khoản tài xế của bạn đã được tạo - EV Charge";
+        String body = """
+    <html>
+    <body style="font-family: Arial, sans-serif; color: #333; background-color: #f4f4f4; padding: 20px;">
+        <div style="
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            background-color: #ffffff;
+        ">
+            <h2 style="color: #2E86C1;">Xin chào Quý tài xế,</h2>
+            <p>Bạn đã được công ty <b>%s</b> tạo tài khoản tài xế trên hệ thống <b>EV Charge</b>.</p>
+            
+            <p>Thông tin đăng nhập của bạn:</p>
+            <ul style="background-color: #f0f8ff; padding: 15px; border-radius: 5px;">
+                <li><b>Email:</b> %s</li>
+                <li><b>Mật khẩu tạm thời:</b> %s</li>
+            </ul>
+
+            <p>Vui lòng đăng nhập vào hệ thống và <b>đổi mật khẩu</b> sau lần đầu tiên.</p>
+
+            <hr style="border: none; border-top: 1px solid #eee;" />
+            <p style="font-size: 12px; color: #999;">Đội ngũ EV Charge</p>
+        </div>
+    </body>
+    </html>
+    """.formatted(companyName, toEmail, password);
+
+        Email from = new Email("vietanh.hotrokekhai@gmail.com");
+        Email recipient = new Email(toEmail);
+        Content content = new Content("text/html", body);
+        Mail mail = new Mail(from, subject, recipient, content);
+
+        SendGrid sg = new SendGrid(sendGridApiKey);
+        Request request = new Request();
+
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            sg.api(request);
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to send email", ex);
+        }
+    }
 
 
 

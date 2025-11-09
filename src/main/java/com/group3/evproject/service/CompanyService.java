@@ -14,6 +14,7 @@ import com.group3.evproject.mapper.CompanyMapper;
 import com.group3.evproject.repository.CompanyRepository;
 
 import com.group3.evproject.utils.PasswordUntil;
+import com.group3.evproject.utils.UserUtils;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class CompanyService {
     RoleService roleService;
     EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final UserUtils userUtils;
 
     @Transactional
     public CompanyResponse createCompany(CompanyCreationRequest companyCreationRequest) {
@@ -112,5 +114,11 @@ public class CompanyService {
 
     public Company findById(Long companyId) {
         return companyRepository.findById(companyId).orElse(null);
+    }
+
+    public CompanyResponse getCompanyInfo() {
+        User user = userUtils.getCurrentUser();
+        return companyMapper.toCompanyResponse(companyRepository.findById(user.getCompany().getId())
+                .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company")));
     }
 }

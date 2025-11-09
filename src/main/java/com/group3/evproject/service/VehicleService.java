@@ -148,23 +148,31 @@ public class VehicleService  {
     @Transactional
     public VehicleResponse createCompanyVehicle(CompanyVehicleCreationRequest companyVehicleCreationRequest) {
 
+
         SubscriptionPlan subscriptionPlan = subscriptionPlanService.findByName("COMPANY");
-        VehicleSubscription vehicleSubscription = vehicleSubscriptionRepository.save(VehicleSubscription.builder()
+
+        VehicleSubscription vehicleSubscription = VehicleSubscription.builder()
                 .subscriptionPlan(subscriptionPlan)
                 .status(VehicleSubscriptionStatus.PENDING)
                 .autoRenew(true)
                 .startDate(null)
                 .endDate(null)
-                .build());
+                .build();
 
         User user = userUtils.getCurrentUser();
+
         Vehicle vehicle = Vehicle.builder()
                 .company(user.getCompany())
-                .subscription(vehicleSubscription)
                 .licensePlate(companyVehicleCreationRequest.getLicensePlate())
                 .model(vehicleModelService.getModelById(companyVehicleCreationRequest.getModelId()))
+                .subscription(vehicleSubscription)
                 .build();
-        return vehicleMapper.vehicleToVehicleResponse(vehicleRepository.save(vehicle));
+
+        vehicleSubscription.setVehicle(vehicle);
+
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+
+        return vehicleMapper.vehicleToVehicleResponse(savedVehicle);
     }
 
 

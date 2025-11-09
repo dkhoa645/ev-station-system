@@ -18,6 +18,6 @@ public class CompanyUserResponse {
     String email;
     String username;
     String name;
-    List<Vehicle> vehicles;
+    VehicleResponse vehicleResponse;
 
 }
