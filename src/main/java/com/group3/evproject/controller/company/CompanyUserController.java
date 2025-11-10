@@ -2,6 +2,7 @@ package com.group3.evproject.controller.company;
 
 import com.group3.evproject.dto.request.AdminUserCreationRequest;
 import com.group3.evproject.dto.request.CompanyUserCreationRequest;
+import com.group3.evproject.dto.request.CompanyUserUpdateRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.CompanyResponse;
@@ -61,6 +62,13 @@ public class CompanyUserController {
              @RequestBody @Valid UserUpdateRequest userUpdateRequest) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUser(userId, userUpdateRequest))
+                .build();
+    }
+
+    @PutMapping("/password")
+    ApiResponse<UserResponse> updateCompany(CompanyUserUpdateRequest companyUserUpdateRequest) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.updateCompanyPass(companyUserUpdateRequest))
                 .build();
     }
 

@@ -4,6 +4,7 @@ import com.group3.evproject.Enum.RoleName;
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.request.AdminUserCreationRequest;
 import com.group3.evproject.dto.request.CompanyUserCreationRequest;
+import com.group3.evproject.dto.request.CompanyUserUpdateRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.CompanyUserResponse;
 import com.group3.evproject.dto.response.UserResponse;
@@ -223,5 +224,12 @@ public class UserService {
         user.getVehicles().clear();
         userRepository.save(user);
         return "User has been deleted successfully";
+    }
+
+    public UserResponse updateCompanyPass(CompanyUserUpdateRequest companyUserUpdateRequest) {
+        User user = userUtils.getCurrentUser();
+        user.setPassword(passwordEncoder.encode(companyUserUpdateRequest.getPassword()));
+        userRepository.save(user);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 }
