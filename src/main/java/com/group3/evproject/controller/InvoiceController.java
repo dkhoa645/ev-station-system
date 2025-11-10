@@ -1,5 +1,6 @@
 package com.group3.evproject.controller;
 
+import com.group3.evproject.dto.response.InvoiceResponse;
 import com.group3.evproject.entity.Invoice;
 import com.group3.evproject.service.InvoiceService;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,8 +21,9 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
 
     @GetMapping
-    public ResponseEntity<List<Invoice>> getAllInvoices() {
-        return ResponseEntity.ok(invoiceService.getAllInvoices());
+    public ResponseEntity<List<InvoiceResponse>> getAllInvoices() {
+        List<InvoiceResponse> invoices = invoiceService.getAllInvoices();
+        return ResponseEntity.ok(invoices);
     }
 
     @GetMapping("/session/{sessionId}")

@@ -39,7 +39,7 @@ public class ChargingSessionStaffController {
         }
     }
 
-    @PostMapping("/end/{session_id}")
+    @PutMapping("/end/{session_id}")
     public ResponseEntity<?> endSession(
             @PathVariable("session_id") Long sessionId,
             @RequestBody EndRequestForStaff endRequestForStaff) {

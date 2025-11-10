@@ -2,6 +2,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.entity.*;
 import com.group3.evproject.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ public class ChargingSessionService {
     private final ChargingSpotRepository chargingSpotRepository;
     private final BookingRepository bookingRepository;
     private final InvoiceService invoiceService;
+    private final PaymentService paymentService;
+    private final InvoiceRepository invoiceRepository;
 
     public List<ChargingSession> getAllSessions() {
         return chargingSessionRepository.findAll();
@@ -57,9 +60,20 @@ public class ChargingSessionService {
 
         ChargingStation station = booking.getStation();
 
+        if (chargingSessionRepository.existsByBookingAndStatus(booking, ChargingSession.Status.ACTIVE)) {
+            throw new RuntimeException("Booking is already active.");
+        }
+
         // Tìm spot khả dụng
-        ChargingSpot spot = chargingSpotRepository.findFirstByStationAndStatus(station, ChargingSpot.SpotStatus.AVAILABLE)
-                .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
+        ChargingSpot spot = chargingSpotRepository.findById(spotId).orElseThrow(() -> new RuntimeException("Spot not found with id: " + spotId));
+
+        if (chargingSessionRepository.existsBySpotAndStatus(spot, ChargingSession.Status.ACTIVE)) {
+            throw new RuntimeException("Spot is already in use.");
+        }
+
+        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
+            throw new RuntimeException("Spot is not available.");
+        }
 
         // Tạo session
         ChargingSession session = ChargingSession.builder()
@@ -139,6 +153,11 @@ public class ChargingSessionService {
         // Tìm spot khả dụng
         ChargingSpot spot = chargingSpotRepository.findById(spotId)
                 .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
+
+        if (chargingSessionRepository.existsBySpotAndStatus(spot, ChargingSession.Status.ACTIVE)) {
+            throw new RuntimeException("This spot already has an active charging session.");
+        }
+
         if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
             throw new RuntimeException("Spot is not available");
         }
@@ -206,7 +225,12 @@ public class ChargingSessionService {
         spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
         chargingSpotRepository.save(spot);
 
+        Invoice invoice = invoiceService.createInvoiceBySessionId(sessionId);
+
         invoiceService.createInvoiceBySessionId(sessionId);
+
+        Payment payment = invoice.getPayment();
+        paymentService.processPayment(payment, invoice.getFinalCost());
 
         return chargingSessionRepository.save(session);
     }
@@ -249,4 +273,12 @@ public class ChargingSessionService {
                 .toList();
     }
 
+    public void deleteSession(Long sessionId) {
+        ChargingSession session = chargingSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("Session not found with id: "));
+       if (session.getInvoice() != null) {
+           invoiceRepository.delete(session.getInvoice());
+       }
+        chargingSessionRepository.delete(session);
+    }
 }
