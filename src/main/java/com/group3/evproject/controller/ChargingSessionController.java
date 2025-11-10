@@ -20,7 +20,7 @@ public class ChargingSessionController {
     private final ChargingSessionService chargingSessionService;
 
     @GetMapping
-    public ResponseEntity<List<ChargingSession>> getAllSessions() {
+    public ResponseEntity<List<ChargingSessionResponse>> getAllSessions() {
         return ResponseEntity.ok(chargingSessionService.getAllSessions());
     }
 
@@ -95,5 +95,11 @@ public class ChargingSessionController {
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body("Error cancelling session: " + ex.getMessage());
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteSession(@PathVariable Long id) {
+            chargingSessionService.deleteSession(id);
+            return ResponseEntity.ok("Charging session with ID " + id + " deleted successfully.");
     }
 }

@@ -90,6 +90,7 @@ public class PaymentService {
         return paymentMapper.toPaymentResponse(saved);
     }
 
+
     public Payment findByUser(User user){
         final LocalDateTime finalPeriod = getPeriod();
         Payment payment = null;
@@ -143,6 +144,21 @@ public class PaymentService {
                 .stream()
                 .map(paymentMapper::toPaymentDetailResponse)
                 .collect(Collectors.toList());}
+    public Payment processPayment(Payment payment, BigDecimal amount){
+        if (payment.getStatus() == PaymentStatus.PAID) {
+            throw new RuntimeException("Payment is already paid");
+    }
+        //cập nhật số tiền đã trả
+        BigDecimal newPaidCost = payment.getPaidCost().add(amount);
+        payment.setPaidCost(newPaidCost);
 
+        //trả đủ -> paid
+        if (newPaidCost.compareTo(payment.getPaidCost()) >= 0) {
+            payment.setStatus(PaymentStatus.PAID);
+        }else {
+            payment.setStatus(PaymentStatus.UNPAID);
+        }
+        return  paymentRepository.save(payment);
+    }
 
 }

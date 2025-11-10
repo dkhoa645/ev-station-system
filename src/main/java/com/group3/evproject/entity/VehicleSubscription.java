@@ -38,6 +38,7 @@ public class VehicleSubscription {
     boolean autoRenew;
 
     @OneToMany(mappedBy = "vehicleSubscription", cascade = CascadeType.ALL)
+    @JsonManagedReference
     List<PaymentTransaction> paymentTransactions ;
 
 }
