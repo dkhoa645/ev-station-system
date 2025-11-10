@@ -1,6 +1,8 @@
 package com.group3.evproject.service;
+import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.entity.ChargingSpot;
 import com.group3.evproject.entity.ChargingStation;
+import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.ChargingSpotRepository;
 import com.group3.evproject.repository.ChargingStationRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import java.util.List;
 public class ChargingSpotService {
     private final ChargingSpotRepository chargingSpotRepository;
     private final ChargingStationRepository chargingStationRepository;
+    private final ChargingSessionRepository chargingSessionRepository;
 
     public List<ChargingSpot> getAllSpots(){
         return chargingSpotRepository.findAll();
@@ -72,6 +75,12 @@ public class ChargingSpotService {
     public void deleteSpot(Long id) {
         ChargingSpot spot = chargingSpotRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Charging Spot not found with id: " + id));
+
+        List<ChargingSession> sessions = chargingSessionRepository.findBySpotId(spot.getId());
+        for (ChargingSession chargingSession : sessions) {
+            chargingSession.setSpot(null);
+        }
+        chargingSessionRepository.saveAll(sessions);
 
         ChargingStation station = spot.getStation();
         chargingSpotRepository.delete(spot);

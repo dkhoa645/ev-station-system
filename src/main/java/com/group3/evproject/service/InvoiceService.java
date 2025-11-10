@@ -145,11 +145,23 @@ public class InvoiceService {
     }
 
     // Xóa hóa đơn
+    @Transactional
     public void deleteInvoice(Long id) {
-        if (!invoiceRepository.existsById(id)) {
-            throw new EntityNotFoundException("Invoice not found with id: " + id);
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Invoice not found with id: " + id));
+
+        ChargingSession session = invoice.getSession();
+        if (session != null) {
+            session.setInvoice(null);
+            chargingSessionRepository.save(session);
         }
-        invoiceRepository.deleteById(id);
+
+        Payment payment = invoice.getPayment();
+        if (payment != null) {
+            payment.getInvoices().remove(invoice);
+        }
+
+        invoiceRepository.delete(invoice);
     }
 
 }

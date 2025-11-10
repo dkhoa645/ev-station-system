@@ -245,10 +245,8 @@ public class ChargingSessionService {
         spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
         chargingSpotRepository.save(spot);
 
+        //tạo invoice và thanh toán
         Invoice invoice = invoiceService.createInvoiceBySessionId(sessionId);
-
-        invoiceService.createInvoiceBySessionId(sessionId);
-
         Payment payment = invoice.getPayment();
         paymentService.processPayment(payment, invoice.getFinalCost());
 
