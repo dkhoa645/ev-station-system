@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Schema
-public class EndRequest {
+public class EndRequestForMember {
     @Schema(description = "Giá sạc", example = "5000", required = true)
     @NotNull(message = "ratePerKWh is required")
     private Double ratePerKWh;
