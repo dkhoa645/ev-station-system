@@ -2,6 +2,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.entity.*;
 import com.group3.evproject.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ public class ChargingSessionService {
     private final ChargingSpotRepository chargingSpotRepository;
     private final BookingRepository bookingRepository;
     private final InvoiceService invoiceService;
+    private final PaymentService paymentService;
+    private final InvoiceRepository invoiceRepository;
 
     public List<ChargingSession> getAllSessions() {
         return chargingSessionRepository.findAll();
@@ -222,7 +225,12 @@ public class ChargingSessionService {
         spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
         chargingSpotRepository.save(spot);
 
+        Invoice invoice = invoiceService.createInvoiceBySessionId(sessionId);
+
         invoiceService.createInvoiceBySessionId(sessionId);
+
+        Payment payment = invoice.getPayment();
+        paymentService.processPayment(payment, invoice.getFinalCost());
 
         return chargingSessionRepository.save(session);
     }
@@ -265,4 +273,12 @@ public class ChargingSessionService {
                 .toList();
     }
 
+    public void deleteSession(Long sessionId) {
+        ChargingSession session = chargingSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new EntityNotFoundException("Session not found with id: "));
+       if (session.getInvoice() != null) {
+           invoiceRepository.delete(session.getInvoice());
+       }
+        chargingSessionRepository.delete(session);
+    }
 }

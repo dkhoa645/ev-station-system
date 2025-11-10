@@ -96,4 +96,10 @@ public class ChargingSessionController {
             return ResponseEntity.badRequest().body("Error cancelling session: " + ex.getMessage());
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteSession(@PathVariable Long id) {
+            chargingSessionService.deleteSession(id);
+            return ResponseEntity.ok("Charging session with ID " + id + " deleted successfully.");
+    }
 }

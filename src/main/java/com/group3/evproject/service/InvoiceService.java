@@ -2,6 +2,8 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.PaymentStatus;
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
+import com.group3.evproject.dto.response.ChargingSessionSimpleResponse;
+import com.group3.evproject.dto.response.InvoiceResponse;
 import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
@@ -18,6 +20,8 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.antlr.v4.runtime.tree.xpath.XPath.findAll;
+
 @Service
 @RequiredArgsConstructor
 public class InvoiceService {
@@ -28,8 +32,32 @@ public class InvoiceService {
     private final PaymentService paymentService;
 
     // Lấy tất cả hóa đơn
-    public List<Invoice> getAllInvoices() {
-        return invoiceRepository.findAll();
+    public List<InvoiceResponse> getAllInvoices() {
+        List<Invoice> invoices = invoiceRepository.findAll();
+
+        return invoices.stream().map(invoice -> {
+            ChargingSession chargingSession = invoice.getSession();
+
+            ChargingSessionSimpleResponse sessionSimpleResponse = null;
+            if (chargingSession != null) {
+                sessionSimpleResponse = ChargingSessionSimpleResponse.builder()
+                        .sessionId(chargingSession.getId())
+                        .stationName(chargingSession.getBooking() != null && chargingSession.getStation() != null ? chargingSession.getBooking().getStation().getName() : null)
+                        .stationId(chargingSession.getBooking() != null && chargingSession.getStation() != null ? chargingSession.getBooking().getStation().getId() : null)
+                        .spotName(chargingSession.getSpot() != null ? chargingSession.getSpot().getSpotName() : null)
+                        .bookingId(chargingSession.getBooking() != null ? chargingSession.getBooking().getId() : null)
+                        .startTime(chargingSession.getStartTime())
+                        .status(chargingSession.getStatus() != null ? chargingSession.getStatus().name() : null)
+                        .build();
+            }
+            return InvoiceResponse.builder()
+                    .id(invoice.getId())
+                    .issueDate(invoice.getIssueDate())
+                    .finalCost(invoice.getFinalCost())
+                    .status(invoice.getStatus().name())
+                    .session(sessionSimpleResponse)
+                    .build();
+        }).toList();
     }
 
     public Invoice getInvoiceBySessionId(Long sessionId) {
@@ -95,7 +123,7 @@ public class InvoiceService {
             }
         }
 
-        //ính chi phí
+        //tính chi phí
         BigDecimal baseCost = BigDecimal.valueOf(session.getTotalCost() != null ? session.getTotalCost() : 0.0);
         BigDecimal multiplier = (plan != null && plan.getMultiplier() != null)
                 ? plan.getMultiplier()

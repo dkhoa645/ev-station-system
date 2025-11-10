@@ -2,6 +2,7 @@ package com.group3.evproject.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.group3.evproject.Enum.PaymentTransactionStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,6 +25,7 @@ public class PaymentTransaction {
     Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_subscription_id", nullable = true)
+    @JsonBackReference
     VehicleSubscription vehicleSubscription;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,6 +39,7 @@ public class PaymentTransaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     User user;
 
     @Column(nullable = false, precision = 10, scale = 2)

@@ -3,6 +3,7 @@ package com.group3.evproject.dto.response;
 import com.group3.evproject.entity.ChargingSession;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -11,14 +12,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ChargingSessionSimpleResponse {
+public class InvoiceResponse {
 
-    Long sessionId;
-    String stationName;
-    Long stationId;
-    String spotName;
-    Long bookingId;
-    LocalDateTime startTime;
+    Long id;
+    LocalDateTime issueDate;
+    BigDecimal finalCost;
     String status;
-
+    ChargingSessionSimpleResponse session;
 }

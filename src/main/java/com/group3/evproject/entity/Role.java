@@ -1,5 +1,6 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.group3.evproject.Enum.RoleName;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,5 +30,6 @@ public class Role {
     RoleName name;
 
     @ManyToMany(mappedBy = "roles")
+    @JsonIgnore
     Set<User> users = new HashSet<>();
 }
