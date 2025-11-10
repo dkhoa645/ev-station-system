@@ -80,7 +80,7 @@ public class InvoiceService {
     public Invoice createInvoice(Long invoiceId) {
 
         Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_EXISTS,"Invoice"));
+                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Invoice"));
 
         //tìm payment theo user
         Payment payment = paymentService.findByUser(invoice.getSession().getBooking().getUser());

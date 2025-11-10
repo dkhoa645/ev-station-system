@@ -62,13 +62,18 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
+
         return userRepository.findByUsername(username)
                 .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS));
     }
 
     public UserResponse getUserById(@PathVariable Long id) {
-        return userMapper.toUserResponse(userRepository.findById(id)
-                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"User")));
+        User user =userRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"User"));
+        UserResponse userResponse = userMapper.toUserResponse(user);
+        Set<RoleName> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
+        userResponse.setRoles(roles);
+        return userResponse;
     }
 
 

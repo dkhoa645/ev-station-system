@@ -195,6 +195,20 @@ public class PaymentTransactionService {
                     .collect(Collectors.toList());
     }
 
+    public List<PaymentTransactionResponse> getAllTransaction() {
+        return paymentTransactionRepository.findAll().stream()
+                .map(entity -> {
+                    PaymentTransactionResponse response = paymentTransactionMapper.toResponse(entity);
+                    response.setId(entity.getId());
+                    String type ="";
+                    if(entity.getBooking() != null) type ="BOOKING";
+                    if(entity.getPayment() != null) type ="PAYMENT";
+                    if(entity.getVehicleSubscription() != null) type ="VEHICLE SUBSCRIPTION";
+                    response.setType(type);
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
 
 
 //            PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(
