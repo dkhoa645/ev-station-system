@@ -75,6 +75,8 @@ public class MemberPaymentTransactionController {
                     response.sendRedirect("http://localhost:5173/bookingPaymentSuccess");
                 }else if(result.equals("subscriptionSuccess")) {
                     response.sendRedirect("http://localhost:5173/success");
+                }else if(result.equals("paymentSuccess")) {
+                    response.sendRedirect("http://localhost:5173/payment/invoice/${user.id}");
                 }
             } else {
                 response.sendRedirect("http://localhost:5173/fail");

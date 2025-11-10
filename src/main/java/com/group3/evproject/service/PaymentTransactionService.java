@@ -174,6 +174,7 @@ public class PaymentTransactionService {
             checkPayment.setPaidCost(checkPayment.getPaidCost().add(paymentTransaction.getAmount()));
             checkPayment.setStatus(PaymentStatus.PAID);
             paymentService.save(checkPayment);
+            return "paymentSuccess";
         }
         return "fail";
     }
