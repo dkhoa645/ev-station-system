@@ -15,6 +15,7 @@ import com.group3.evproject.mapper.UserMapper;
 import com.group3.evproject.mapper.VehicleMapper;
 import com.group3.evproject.repository.CompanyRepository;
 import com.group3.evproject.repository.UserRepository;
+import com.group3.evproject.repository.VehicleRepository;
 import com.group3.evproject.utils.PasswordUntil;
 import com.group3.evproject.utils.UserUtils;
 import jakarta.transaction.Transactional;
@@ -45,6 +46,7 @@ public class UserService {
     VehicleService vehicleService;
     EmailService emailService;
     private final VehicleMapper vehicleMapper;
+    private final VehicleRepository vehicleRepository;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -153,12 +155,13 @@ public class UserService {
 
     public List<CompanyUserResponse> getAllCompanyUsers() {
         User user = userUtils.getCurrentUser();
-        return userRepository
-                .findByCompanyIdAndIdNot(user.getCompany().getId(),user.getId())
+                return userRepository
+                .findByCompanyAndIdNot(user.getCompany(),user.getId())
                 .stream()
                 .map( userEach -> {
                     CompanyUserResponse companyUserResponse = userMapper.toCompanyUserResponse(userEach);
-                    Vehicle vehicleForResponse = userEach.getVehicles().stream().findFirst().get();
+                    Vehicle vehicleForResponse = userEach.getVehicles().stream().findFirst()
+                            .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
                     companyUserResponse.setVehicleResponse(vehicleMapper.vehicleToVehicleResponse(vehicleForResponse));
                     return companyUserResponse;
                 })
@@ -195,14 +198,14 @@ public class UserService {
         User user = User.builder()
                 .name(userCreationRequest.getName())
                 .email(userCreationRequest.getEmail())
-                .username(userCreationRequest.getName())
+                .username(userCreationRequest.getEmail())
                 .password(passwordEncoder.encode(password))
                 .vehicles(vehicles)
                 .roles(roles)
                 .company(company)
                 .verified(true)
                 .build();
-
+        vehicle.setUser(user);
         emailService.sendDriverEmail(userCreationRequest.getEmail(),password,company.getName());
         userRepository.save(user);
 
@@ -219,9 +222,15 @@ public class UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
         user.getVehicles().stream().forEach(vehicle -> {
             vehicle.setUser(null);
+            VehicleSubscription vehicleSubscription = vehicle.getSubscription();
+            vehicleSubscription.setStatus(VehicleSubscriptionStatus.PENDING);
+            vehicleSubscription.setEndDate(null);
+            vehicleSubscription.setStartDate(null);
+            vehicleRepository.save(vehicle);
         });
         user.getVehicles().clear();
         userRepository.save(user);
+        userRepository.deleteById(userId);
         return "User has been deleted successfully";
     }
 }

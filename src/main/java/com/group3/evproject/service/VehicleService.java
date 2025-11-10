@@ -101,7 +101,7 @@ public class VehicleService  {
     }
 
     //Vehicle Response
-    public List<VehicleResponse> getByUser(HttpServletRequest request) {
+    public List<VehicleResponse> getByUser() {
         User user = userUtils.getCurrentUser();
         List<Vehicle> list = vehicleRepository.findByUser(user);
         List<VehicleResponse> responses = new ArrayList<>();
@@ -113,19 +113,12 @@ public class VehicleService  {
     }
 
     @Transactional
-    public String deleteByUserAndId(Long id, HttpServletRequest request) {
-        Vehicle existVehicle = vehicleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
-        User user = userUtils.getCurrentUser();
-        List<Vehicle> list = vehicleRepository.findByUser(user);
+    public String deleteByUserAndId(Long id) {
+        Vehicle existVehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "Vehicle"));
 
-        for(Vehicle vehicle : list){
-            if(vehicle.getId().equals(existVehicle.getId())){
-                vehicleRepository.delete(vehicle);
-                String message = "Vehicle has been deleted";
-                return message;
-            }
-        }
-        throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle");
+        vehicleRepository.delete(existVehicle);
+        return "Vehicle has been deleted";
     }
 
     public List<VehicleResponse> getCompanyVehicles() {

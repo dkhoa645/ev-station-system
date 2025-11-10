@@ -72,7 +72,7 @@ public class MemberPaymentTransactionController {
             if (status.equals("00")) {
                 String result = paymentTransactionService.processSuccessfulPayment(ref);
                 if (result.equals("bookingSuccess")) {
-                    response.sendRedirect("http://localhost:5173/chargingSession");
+                    response.sendRedirect("http://localhost:5173/bookingPaymentSuccess");
                 }else if(result.equals("subscriptionSuccess")) {
                     response.sendRedirect("http://localhost:5173/success");
                 }

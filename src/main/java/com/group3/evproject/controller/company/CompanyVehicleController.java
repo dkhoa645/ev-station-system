@@ -47,9 +47,9 @@ public class CompanyVehicleController {
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> deleteVehicleById(
-            @PathVariable Long id,
-            HttpServletRequest request) {
-        String message = vehicleService.deleteByUserAndId(id,request);
+            @PathVariable Long id)
+    {
+        String message = vehicleService.deleteByUserAndId(id);
         return ApiResponse.<String>builder()
                         .result(message)
                         .build();

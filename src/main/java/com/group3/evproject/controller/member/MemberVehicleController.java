@@ -28,9 +28,9 @@ public class MemberVehicleController {
     }
 
     @GetMapping()
-    public ApiResponse<List<VehicleResponse>> getUserVehicle(HttpServletRequest request) {
+    public ApiResponse<List<VehicleResponse>> getUserVehicle() {
     return ApiResponse.<List<VehicleResponse>>builder()
-            .result(vehicleService.getByUser(request))
+            .result(vehicleService.getByUser())
             .build();
 }
 
@@ -44,9 +44,8 @@ public class MemberVehicleController {
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> deleteVehicleById(
-            @PathVariable Long id,
-            HttpServletRequest request) {
-        String message = vehicleService.deleteByUserAndId(id,request);
+            @PathVariable Long id) {
+        String message = vehicleService.deleteByUserAndId(id);
         return ApiResponse.<String>builder()
                         .result(message)
                         .build();
