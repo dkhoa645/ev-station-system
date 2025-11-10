@@ -17,4 +17,6 @@ public interface ChargingSessionRepository extends JpaRepository<ChargingSession
 
     boolean existsByBookingAndStatus(Booking booking, ChargingSession.Status status);
 
+    List<ChargingSession> findBySpotId (Long spotId);
+
 }

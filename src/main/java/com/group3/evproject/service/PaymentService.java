@@ -153,7 +153,7 @@ public class PaymentService {
         payment.setPaidCost(newPaidCost);
 
         //trả đủ -> paid
-        if (newPaidCost.compareTo(payment.getPaidCost()) >= 0) {
+        if (newPaidCost.compareTo(payment.getTotalCost()) >= 0) {
             payment.setStatus(PaymentStatus.PAID);
         }else {
             payment.setStatus(PaymentStatus.UNPAID);
