@@ -1,4 +1,4 @@
-package com.group3.evproject.controller.member;
+package com.group3.evproject.controller;
 
 
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("member/payment-transaction")
+@RequestMapping("api/payment-transaction")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
 public class PaymentTransactionController {
@@ -72,9 +72,11 @@ public class PaymentTransactionController {
             if (status.equals("00")) {
                 String result = paymentTransactionService.processSuccessfulPayment(ref);
                 if (result.equals("bookingSuccess")) {
-                    response.sendRedirect("http://localhost:5173/chargingSession");
+                    response.sendRedirect("http://localhost:5173/bookingPaymentSuccess");
                 }else if(result.equals("subscriptionSuccess")) {
                     response.sendRedirect("http://localhost:5173/success");
+                }else if(result.equals("paymentSuccess")) {
+                    response.sendRedirect("http://localhost:5173/payment/invoice/${user.id}");
                 }
             } else {
                 response.sendRedirect("http://localhost:5173/fail");

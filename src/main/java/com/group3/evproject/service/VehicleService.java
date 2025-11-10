@@ -1,8 +1,8 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
+import com.group3.evproject.dto.request.CompanyVehicleCreationRequest;
 import com.group3.evproject.dto.request.VehicleRegisterRequest;
-import com.group3.evproject.dto.response.SubscriptionPlanResponse;
 import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.dto.response.VehicleSubscriptionResponse;
 import com.group3.evproject.entity.*;
@@ -13,6 +13,8 @@ import com.group3.evproject.mapper.VehicleMapper;
 import com.group3.evproject.mapper.VehicleModelMapper;
 import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.VehicleRepository;
+import com.group3.evproject.repository.VehicleSubscriptionRepository;
+import com.group3.evproject.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -22,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,15 +31,12 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VehicleService  {
     VehicleRepository vehicleRepository;
-    AuthenticationService authenticationService;
-    UserService userService;
     VehicleModelService vehicleModelService;
     SubscriptionPlanService subscriptionPlanService;
-    VehicleSubscriptionService vehicleSubscriptionService;
+    VehicleSubscriptionRepository vehicleSubscriptionRepository;
     VehicleMapper vehicleMapper;
-    SubscriptionPlanMapper subscriptionPlanMapper;
     VehicleSubscriptionMapper vehicleSubscriptionMapper;
-    VehicleModelMapper vehicleModelMapper;
+    UserUtils userUtils;
 
     public List<VehicleResponse> getAllVehicles() {
         return vehicleRepository.findAll()
@@ -56,19 +54,19 @@ public class VehicleService  {
         }
 
     @Transactional
-    public VehicleResponse registerVehicle(HttpServletRequest request, VehicleRegisterRequest vehicleRegisterRequest) {
+    public VehicleResponse registerVehicle(
+            VehicleRegisterRequest vehicleRegisterRequest) {
 //        Kiểm tra hoá don xe da tung duoc thanh toan chua
 
-//                Kiểm tra biển số xe
+//         Kiểm tra biển số xe
         if(vehicleRepository.existsByLicensePlate(vehicleRegisterRequest.getLicensePlate())){
             throw new AppException(ErrorCode.RESOURCES_EXISTS,"Vehicle");
         }
 //        Tìm Model
         VehicleModel vehicleModel =
                 vehicleModelService.getModelById(vehicleRegisterRequest.getModelId());
-//            Lấy user để đăng ký xe
-        String username = authenticationService.extractUsernameFromRequest(request);
-        User user = userService.getUserByUsername(username);
+//         Lấy user để đăng ký xe
+        User user = userUtils.getCurrentUser();
 //        1.Tạo Vehicle, save nên có id
         Vehicle vehicle = vehicleRepository.save(
                 Vehicle.builder()
@@ -80,14 +78,14 @@ public class VehicleService  {
         SubscriptionPlan subscriptionPlan = subscriptionPlanService
                 .findById(vehicleRegisterRequest.getSubscriptionPlanId());
 //        2.Tạo Vehicle Subscription, save nên có id
-        VehicleSubscription vehicleSubscription =vehicleSubscriptionService.saveVehicle(
+        VehicleSubscription vehicleSubscription =vehicleSubscriptionRepository.save(
                 VehicleSubscription.builder()
                         .vehicle(vehicle)
                         .subscriptionPlan(subscriptionPlan)
                         .startDate(null)
                         .endDate(null)
                         .status(VehicleSubscriptionStatus.PENDING)
-                        .autoRenew(false)
+                        .autoRenew(true)
                         .paymentTransactions(new ArrayList<>())
                         .build());
 //        4.Tạo Response
@@ -103,9 +101,8 @@ public class VehicleService  {
     }
 
     //Vehicle Response
-    public List<VehicleResponse> getByUser(HttpServletRequest request) {
-        String username = authenticationService.extractUsernameFromRequest(request);
-        User user = userService.getUserByUsername(username);
+    public List<VehicleResponse> getByUser() {
+        User user = userUtils.getCurrentUser();
         List<Vehicle> list = vehicleRepository.findByUser(user);
         List<VehicleResponse> responses = new ArrayList<>();
         for(Vehicle vehicle : list) {
@@ -116,27 +113,67 @@ public class VehicleService  {
     }
 
     @Transactional
-    public String deleteByUserAndId(Long id, HttpServletRequest request) {
-        Vehicle existVehicle = vehicleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
+    public String deleteByUserAndId(Long id) {
+        Vehicle existVehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "Vehicle"));
 
-        String username = authenticationService.extractUsernameFromRequest(request);
-        User user = userService.getUserByUsername(username);
-        List<Vehicle> list = vehicleRepository.findByUser(user);
+        vehicleRepository.delete(existVehicle);
+        return "Vehicle has been deleted";
+    }
 
-        for(Vehicle vehicle : list){
-            if(vehicle.getId().equals(existVehicle.getId())){
-                vehicleRepository.delete(vehicle);
-                String message = "Vehicle has been deleted";
-                return message;
-            }
-        }
-        throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle");
+    public List<VehicleResponse> getCompanyVehicles() {
+        return vehicleRepository.findAll()
+                .stream()
+                .map(vehicleMapper::vehicleToVehicleResponse)
+                .collect(Collectors.toList());
+    }
+
+    public Vehicle findById(Long vehicleId) {
+        return vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
+    }
+
+    @Transactional
+    public Vehicle saveVehicle(Vehicle vehicle) {
+        return vehicleRepository.save(vehicle);
+    }
+
+    @Transactional
+    public VehicleResponse createCompanyVehicle(CompanyVehicleCreationRequest companyVehicleCreationRequest) {
+
+
+        SubscriptionPlan subscriptionPlan = subscriptionPlanService.findByName("COMPANY");
+
+        VehicleSubscription vehicleSubscription = VehicleSubscription.builder()
+                .subscriptionPlan(subscriptionPlan)
+                .status(VehicleSubscriptionStatus.PENDING)
+                .autoRenew(true)
+                .startDate(null)
+                .endDate(null)
+                .build();
+
+        User user = userUtils.getCurrentUser();
+
+        Vehicle vehicle = Vehicle.builder()
+                .company(user.getCompany())
+                .licensePlate(companyVehicleCreationRequest.getLicensePlate())
+                .model(vehicleModelService.getModelById(companyVehicleCreationRequest.getModelId()))
+                .subscription(vehicleSubscription)
+                .build();
+
+        vehicleSubscription.setVehicle(vehicle);
+
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+
+        return vehicleMapper.vehicleToVehicleResponse(savedVehicle);
     }
 
 
-//    @Transactional
-//    public VehicleResponse updateUserVehicle(Long id, HttpServletRequest request) {
-//        Vehicle vehicle = vehicleRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));;
-//        List<VehicleResponse> vehicleResponseList = getByUser(request);
-//    }
+    public List<VehicleResponse> getAllCompanyVehicles() {
+        User user = userUtils.getCurrentUser();
+        List<Vehicle> list = vehicleRepository.findByCompany(user.getCompany());
+        return  list.stream()
+                .map(vehicleMapper::vehicleToVehicleResponse)
+                .collect(Collectors.toList());
+    }
 }

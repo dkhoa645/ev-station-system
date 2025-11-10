@@ -13,6 +13,7 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentMapper;
 import com.group3.evproject.repository.CompanyRepository;
 import com.group3.evproject.repository.PaymentRepository;
+import com.group3.evproject.utils.UserUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +33,7 @@ public class PaymentService {
     PaymentMapper paymentMapper;
     UserService userService;
     CompanyRepository companyRepository;
+    UserUtils userUtils;
 
 
     public Payment save(Payment payment){
@@ -112,25 +114,36 @@ public class PaymentService {
         return period;
     }
 
-    public List<PaymentDetailResponse> getByCompany(Long id) {
+    public List<PaymentDetailResponse> getAll() {
+        return paymentRepository.findAll()
+                .stream().map(paymentMapper::toPaymentDetailResponse)
+                .collect(Collectors.toList());}
+
+    public List<PaymentDetailResponse> getCompany(Long id) {
         Company company = companyRepository.findById(id)
                 .orElseThrow( () ->  new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company"));
-        List<Payment> payments = paymentRepository.findByCompany(company);
-        List<PaymentDetailResponse> paymentResponseList = payments.stream()
+        return paymentRepository.findByCompany(company).stream()
                 .map(paymentMapper::toPaymentDetailResponse)
-                .collect(Collectors.toList());
-        return paymentResponseList;
-    }
+                .collect(Collectors.toList());}
 
-    public List<PaymentDetailResponse> getByUser(Long id) {
+    public List<PaymentDetailResponse> getUser(Long id) {
         User user = userService.findById(id);
-        List<Payment> payments = paymentRepository.findByUser(user);
-        List<PaymentDetailResponse> paymentResponseList = payments.stream()
+        return paymentRepository.findByUser(user).stream()
                 .map(paymentMapper::toPaymentDetailResponse)
-                .collect(Collectors.toList());
-        return paymentResponseList;
-    }
+                .collect(Collectors.toList());}
 
+    public List<PaymentDetailResponse> getForCompany() {
+        User user = userUtils.getCurrentUser();
+        return paymentRepository.findByCompany(user.getCompany()).stream()
+                .map(paymentMapper::toPaymentDetailResponse)
+                .collect(Collectors.toList());}
+
+    public List<PaymentDetailResponse> getForUser() {
+        User user = userUtils.getCurrentUser();
+        return paymentRepository.findByUser(user)
+                .stream()
+                .map(paymentMapper::toPaymentDetailResponse)
+                .collect(Collectors.toList());}
     public Payment processPayment(Payment payment, BigDecimal amount){
         if (payment.getStatus() == PaymentStatus.PAID) {
             throw new RuntimeException("Payment is already paid");

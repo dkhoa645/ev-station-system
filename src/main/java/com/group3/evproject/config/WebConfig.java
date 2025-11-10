@@ -15,7 +15,9 @@ public class WebConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*") // hoặc chỉ định cụ thể swagger domain
+                        .allowedOrigins("http://localhost:8080",
+                                        "https://ev-station-system-production.up.railway.app",
+                                        "http://localhost:5173")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*");
             }

@@ -1,5 +1,7 @@
-package com.group3.evproject.controller.member;
+package com.group3.evproject.controller.company;
 
+import com.group3.evproject.dto.request.CompanyUserCreationRequest;
+import com.group3.evproject.dto.request.CompanyVehicleCreationRequest;
 import com.group3.evproject.dto.request.VehicleRegisterRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.VehicleResponse;
@@ -12,13 +14,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/api/member/vehicle")
+@RequestMapping("/api/company/vehicle")
 @RequiredArgsConstructor
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class MemberVehicleController {
+public class CompanyVehicleController {
 
     VehicleService vehicleService;
+
+    @GetMapping("/all")
+    public ApiResponse<List<VehicleResponse>> getVehicles() {
+        return ApiResponse.<List<VehicleResponse>>builder()
+                .result(vehicleService.getAllCompanyVehicles())
+                .build();
+    }
 
     @GetMapping("/{id}")
     public ApiResponse<VehicleResponse> getVehicleById(@PathVariable Long id) {
@@ -27,24 +36,19 @@ public class MemberVehicleController {
                 .build();
     }
 
-    @GetMapping()
-    public ApiResponse<List<VehicleResponse>> getUserVehicle() {
-    return ApiResponse.<List<VehicleResponse>>builder()
-            .result(vehicleService.getByUser())
-            .build();
-}
-
     @PostMapping()
-    public ApiResponse<VehicleResponse> registerVehicle(@RequestBody VehicleRegisterRequest vehicleRegisterRequest)
-    {
+    public ApiResponse<VehicleResponse> createVehicle(
+            @RequestBody CompanyVehicleCreationRequest companyVehicleCreationRequest
+    ) {
         return ApiResponse.<VehicleResponse>builder()
-                .result(vehicleService.registerVehicle( vehicleRegisterRequest))
+                .result(vehicleService.createCompanyVehicle(companyVehicleCreationRequest))
                 .build();
     }
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> deleteVehicleById(
-            @PathVariable Long id) {
+            @PathVariable Long id)
+    {
         String message = vehicleService.deleteByUserAndId(id);
         return ApiResponse.<String>builder()
                         .result(message)

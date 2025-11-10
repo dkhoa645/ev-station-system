@@ -4,6 +4,7 @@ import com.group3.evproject.dto.request.CompanyCreationRequest;
 import com.group3.evproject.dto.request.CompanyUpdateRequest;
 import com.group3.evproject.dto.response.ApiResponse;
 import com.group3.evproject.dto.response.CompanyResponse;
+import com.group3.evproject.dto.response.UserResponse;
 import com.group3.evproject.service.CompanyService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/admin/company")
+@RequestMapping("/api/admin/company")
 @RequiredArgsConstructor
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -56,4 +57,5 @@ public class CompanyController {
                 .result(companyService.deleteCompany(id))
                 .build();
     }
+
 }

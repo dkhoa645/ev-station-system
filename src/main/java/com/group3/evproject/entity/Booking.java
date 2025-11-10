@@ -1,5 +1,6 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -43,6 +44,9 @@ public class Booking extends BaseEntity {
     @JoinColumn(name = "spot_id")
     @JsonIgnore
     private ChargingSpot spot;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    List<ChargingSession> chargingSession;
 
     @Column(name = "time_to_charge", nullable = true)
     LocalDateTime timeToCharge;
@@ -88,5 +92,5 @@ public class Booking extends BaseEntity {
     }
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     @JsonManagedReference
-    List<PaymentTransaction> paymentTransactions = new ArrayList<>();
+    List<PaymentTransaction> paymentTransactions ;
 }

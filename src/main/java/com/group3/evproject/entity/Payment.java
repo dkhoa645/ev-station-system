@@ -39,7 +39,7 @@ public class Payment {
 
     //orphanRemoval = true: Nếu xóa invoice khỏi list thì nó tự xóa DB
     //Khởi tạo new ArrayList<>() tránh NullPointerException
-    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "payment", orphanRemoval = true)
     @JsonManagedReference
     List<Invoice> invoices = new ArrayList<>();
 

@@ -22,14 +22,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 public class SecurityConfig {
 
-
-
-
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/authentication/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/auth/**"
     };
 
     @Value("${jwt.signerKey}")
@@ -43,9 +41,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers( "/auth/**").permitAll()
-                        .requestMatchers(PUBLIC_ENDPOINTS)
-                        .permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 //                        .requestMatchers("/member/**").hasAnyAuthority("ROLE_ADMIN","ROLE_MEMBER")
 //                        .requestMatchers("/company/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY")
 //                        .requestMatchers("/driver/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY","ROLE_DRIVER")
@@ -55,8 +51,8 @@ public class SecurityConfig {
                 )
                 .httpBasic(withDefaults()); // HTTP Basic mặc định
         http.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer
-                        .decoder(jwtDecoder())
+                        oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                                .decoder(jwtDecoder())
                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 );
 

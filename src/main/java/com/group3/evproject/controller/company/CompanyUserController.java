@@ -1,11 +1,14 @@
-package com.group3.evproject.controller.admin;
+package com.group3.evproject.controller.company;
 
 import com.group3.evproject.dto.request.AdminUserCreationRequest;
-import com.group3.evproject.dto.request.UserCreationRequest;
+import com.group3.evproject.dto.request.CompanyUserCreationRequest;
+import com.group3.evproject.dto.request.CompanyUserUpdateRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
 import com.group3.evproject.dto.response.ApiResponse;
+import com.group3.evproject.dto.response.CompanyResponse;
+import com.group3.evproject.dto.response.CompanyUserResponse;
 import com.group3.evproject.dto.response.UserResponse;
-import com.group3.evproject.entity.User;
+import com.group3.evproject.service.CompanyService;
 import com.group3.evproject.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -16,17 +19,26 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@RequestMapping("/api/admin/user")
+@RequestMapping("/api/company/user")
 @RequiredArgsConstructor
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UserController {
-    UserService userService;
+public class CompanyUserController {
 
-    @GetMapping
-    ApiResponse<List<UserResponse>>  getAllUsers() {
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getAllUsers())
+    UserService userService;
+    CompanyService companyService;
+
+    @GetMapping("/all")
+    ApiResponse<List<CompanyUserResponse>>  getUsers() {
+        return ApiResponse.<List<CompanyUserResponse>>builder()
+                .result(userService.getAllCompanyUsers())
+                .build();
+    }
+
+    @GetMapping("/info")
+    ApiResponse<CompanyResponse>  getCompanyInfo() {
+        return ApiResponse.<CompanyResponse>builder()
+                .result(companyService.getCompanyInfo())
                 .build();
     }
 
@@ -38,9 +50,9 @@ public class UserController {
     }
 
     @PostMapping
-    ApiResponse<UserResponse> createUser(@RequestBody @Valid AdminUserCreationRequest request) {
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.createUser(request))
+    ApiResponse<CompanyUserResponse> createUser(@RequestBody @Valid CompanyUserCreationRequest request) {
+        return ApiResponse.<CompanyUserResponse>builder()
+                .result(userService.createCompanyUser(request))
                 .build();
     }
 
@@ -53,11 +65,17 @@ public class UserController {
                 .build();
     }
 
+    @PutMapping("/password")
+    ApiResponse<UserResponse> updateCompany(CompanyUserUpdateRequest companyUserUpdateRequest) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.updateCompanyPass(companyUserUpdateRequest))
+                .build();
+    }
+
     @DeleteMapping("/{userId}")
     ApiResponse<String> deleteUser(@PathVariable Long userId) {
-        userService.deleteUser(userId);
         return ApiResponse.<String>builder()
-                .result("User has been deleted")
+                .result(userService.deleteCompanyUser(userId))
                 .build();
     }
 

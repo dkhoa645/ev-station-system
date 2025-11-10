@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/admin/vehicle")
+@RequestMapping("/api/admin/vehicle")
 @RequiredArgsConstructor
 @RestController
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -36,19 +36,17 @@ public class VehicleController {
 
     @PostMapping()
     public ApiResponse<VehicleResponse> registerVehicle(
-            @RequestBody VehicleRegisterRequest vehicleRegisterRequest,
-            HttpServletRequest request)
+            @RequestBody VehicleRegisterRequest vehicleRegisterRequest)
     {
         return ApiResponse.<VehicleResponse>builder()
-                .result(vehicleService.registerVehicle(request, vehicleRegisterRequest))
+                .result(vehicleService.registerVehicle(vehicleRegisterRequest))
                 .build();
     }
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> deleteVehicleById(
-            @PathVariable Long id,
-            HttpServletRequest request) {
-        String message = vehicleService.deleteByUserAndId(id,request);
+            @PathVariable Long id) {
+        String message = vehicleService.deleteByUserAndId(id);
         return ApiResponse.<String>builder()
                         .result(message)
                         .build();

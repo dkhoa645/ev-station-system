@@ -1,20 +1,23 @@
 package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.RoleName;
+import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.request.AdminUserCreationRequest;
-import com.group3.evproject.dto.request.UserCreationRequest;
+import com.group3.evproject.dto.request.CompanyUserCreationRequest;
+import com.group3.evproject.dto.request.CompanyUserUpdateRequest;
 import com.group3.evproject.dto.request.UserUpdateRequest;
+import com.group3.evproject.dto.response.CompanyUserResponse;
 import com.group3.evproject.dto.response.UserResponse;
-import com.group3.evproject.entity.Company;
-import com.group3.evproject.entity.Role;
-import com.group3.evproject.entity.User;
+import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.CompanyMapper;
 import com.group3.evproject.mapper.UserMapper;
+import com.group3.evproject.mapper.VehicleMapper;
 import com.group3.evproject.repository.CompanyRepository;
-import com.group3.evproject.repository.RoleRepository;
 import com.group3.evproject.repository.UserRepository;
+import com.group3.evproject.repository.VehicleRepository;
+import com.group3.evproject.utils.PasswordUntil;
 import com.group3.evproject.utils.UserUtils;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -25,10 +28,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +44,10 @@ public class UserService {
     UserUtils userUtils;
     CompanyRepository companyRepository;
     CompanyMapper companyMapper;
-
+    VehicleService vehicleService;
+    EmailService emailService;
+    private final VehicleMapper vehicleMapper;
+    private final VehicleRepository vehicleRepository;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -61,13 +66,19 @@ public class UserService {
                 .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS));
     }
 
+    public UserResponse getUserById(@PathVariable Long id) {
+        return userMapper.toUserResponse(userRepository.findById(id)
+                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"User")));
+    }
+
+
 
     @Transactional
     public UserResponse createUser(AdminUserCreationRequest userCreationRequest) {
         if(userCreationRequest.getRole().equals(RoleName.ADMIN)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
-        User user = userMapper.toUserFormAdmin(userCreationRequest);
+        User user = userMapper.toUserFromAdmin(userCreationRequest);
         user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
         if(userRepository.existsByUsername(user.getUsername())){
                 throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
@@ -92,30 +103,12 @@ public class UserService {
         return userResponse;
     }
 
-//    @Transactional
-//    public UserResponse registerUser(UserCreationRequest userCreationRequest) {
-//        User user = userMapper.toUser(userCreationRequest);
-//        user.setPassword(passwordEncoder.encode(userCreationRequest.getPassword()));
-//
-//        Role userRole = roleRepository.findByName("USER");
-//        if(user.getRoles() == null) {
-//            user.setRoles(new HashSet<>());
-//        }
-//
-//        user.getRoles().add(userRole);
-//
-//        if(userRepository.existsByUsername(user.getUsername())){
-//            throw new AppException(ErrorCode.RESOURCES_EXISTS,"User");
-//        }
-//        if(userRepository.existsByEmail(user.getEmail())){
-//            throw new AppException(ErrorCode.RESOURCES_EXISTS,"Email");
-//        }
-//        return userMapper.toUserResponse(userRepository.save(user));
-//    }
+    public void save(User user) {
+        userRepository.save(user);
+    }
 
-    public UserResponse getUserById(@PathVariable Long id) {
-        return userMapper.toUserResponse(userRepository.findById(id)
-                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"User")));
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     //ADMIN
@@ -129,13 +122,10 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long userId) {
-        if(userRepository.existsById(userId)) {
-            userRepository.deleteById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
+            userRepository.delete(user);
         }
-        else {
-            throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User");
-        }
-    }
 
     @Transactional
     public UserResponse updateMember(@Valid UserUpdateRequest userUpdateRequest) {
@@ -164,5 +154,91 @@ public class UserService {
         return userRepository.findById(userId).orElse(null);
     }
 
+    public List<CompanyUserResponse> getAllCompanyUsers() {
+        User user = userUtils.getCurrentUser();
+                return userRepository
+                .findByCompanyAndIdNot(user.getCompany(),user.getId())
+                .stream()
+                .map( userEach -> {
+                    CompanyUserResponse companyUserResponse = userMapper.toCompanyUserResponse(userEach);
+                    Vehicle vehicleForResponse = userEach.getVehicles().stream().findFirst()
+                            .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
+                    companyUserResponse.setVehicleResponse(vehicleMapper.vehicleToVehicleResponse(vehicleForResponse));
+                    return companyUserResponse;
+                })
+                .collect(Collectors.toList());
+    }
 
+    @Transactional
+    public CompanyUserResponse createCompanyUser(CompanyUserCreationRequest userCreationRequest) {
+        if(userRepository.existsByEmail(userCreationRequest.getEmail())){
+            throw new AppException(ErrorCode.RESOURCES_EXISTS, "Email");
+        }
+
+        String password = PasswordUntil.generateSecurePassword(10);
+
+        User userCurrent = userUtils.getCurrentUser();
+        Company company = userCurrent.getCompany();
+
+        Role role = roleService.findByName(RoleName.DRIVER);
+        Set<Role>roles = new HashSet<>();
+        roles.add(role);
+
+        Vehicle vehicle = vehicleService.findById(userCreationRequest.getVehicleId());
+        if(vehicle.getUser()!=null)
+            throw new AppException(ErrorCode.VEHICLE_REGISTED);
+        VehicleSubscription vehicleSubscription = vehicle.getSubscription();
+        vehicleSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+        vehicleSubscription.setStartDate(now);
+        vehicleSubscription.setEndDate(now.plusYears(1));
+
+        List<Vehicle> vehicles = new ArrayList<>();
+        vehicles.add(vehicle);
+
+        User user = User.builder()
+                .name(userCreationRequest.getName())
+                .email(userCreationRequest.getEmail())
+                .username(userCreationRequest.getEmail())
+                .password(passwordEncoder.encode(password))
+                .vehicles(vehicles)
+                .roles(roles)
+                .company(company)
+                .verified(true)
+                .build();
+        vehicle.setUser(user);
+        emailService.sendDriverEmail(userCreationRequest.getEmail(),password,company.getName());
+        userRepository.save(user);
+
+        CompanyUserResponse companyUserResponse = userMapper.toCompanyUserResponse(user);
+        Vehicle vehicleForResponse = vehicles.stream().findFirst().get();
+        companyUserResponse.setVehicleResponse(vehicleMapper.vehicleToVehicleResponse(vehicleForResponse));
+
+        return companyUserResponse;
+    }
+
+
+    public String deleteCompanyUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
+        user.getVehicles().stream().forEach(vehicle -> {
+            vehicle.setUser(null);
+            VehicleSubscription vehicleSubscription = vehicle.getSubscription();
+            vehicleSubscription.setStatus(VehicleSubscriptionStatus.PENDING);
+            vehicleSubscription.setEndDate(null);
+            vehicleSubscription.setStartDate(null);
+            vehicleRepository.save(vehicle);
+        });
+        user.getVehicles().clear();
+        userRepository.save(user);
+        userRepository.deleteById(userId);
+        return "User has been deleted successfully";
+    }
+
+    public UserResponse updateCompanyPass(CompanyUserUpdateRequest companyUserUpdateRequest) {
+        User user = userUtils.getCurrentUser();
+        user.setPassword(passwordEncoder.encode(companyUserUpdateRequest.getPassword()));
+        userRepository.save(user);
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
 }
