@@ -1,4 +1,4 @@
-package com.group3.evproject.controller.member;
+package com.group3.evproject.controller;
 
 
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/member/payment-transaction")
+@RequestMapping("api/payment-transaction")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal=true)
-public class MemberPaymentTransactionController {
+public class PaymentTransactionController {
     VNPayService paymentService;
     PaymentTransactionService paymentTransactionService;
     BookingService bookingService;
