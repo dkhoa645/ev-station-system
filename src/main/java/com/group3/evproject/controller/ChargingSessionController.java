@@ -20,7 +20,7 @@ public class ChargingSessionController {
     private final ChargingSessionService chargingSessionService;
 
     @GetMapping
-    public ResponseEntity<List<ChargingSession>> getAllSessions() {
+    public ResponseEntity<List<ChargingSessionResponse>> getAllSessions() {
         return ResponseEntity.ok(chargingSessionService.getAllSessions());
     }
 
