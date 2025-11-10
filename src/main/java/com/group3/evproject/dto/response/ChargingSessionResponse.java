@@ -14,6 +14,7 @@ public class ChargingSessionResponse {
 
     Long sessionId;
     String stationName;
+    Long stationId;
     String spotName;
     Long bookingId;
 

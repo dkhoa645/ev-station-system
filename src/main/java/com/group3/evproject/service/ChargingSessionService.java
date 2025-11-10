@@ -24,8 +24,27 @@ public class ChargingSessionService {
     private final PaymentService paymentService;
     private final InvoiceRepository invoiceRepository;
 
-    public List<ChargingSession> getAllSessions() {
-        return chargingSessionRepository.findAll();
+    public List<ChargingSessionResponse> getAllSessions() {
+        return chargingSessionRepository.findAll().stream()
+                .map(session -> ChargingSessionResponse.builder()
+                        .sessionId(session.getId())
+                        .stationName(session.getStation() != null ? session.getStation().getName() : null)
+                        .stationId(session.getStation() != null ? session.getStation().getId() : null)
+                        .spotName(session.getSpot() != null ? session.getSpot().getSpotName() : null)
+                        .bookingId(session.getBooking() != null ? session.getBooking().getId() : null)
+                        .startTime(session.getStartTime())
+                        .endTime(session.getEndTime())
+                        .chargingDuration(session.getChargingDuration())
+                        .powerOutput(session.getPowerOutput())
+                        .batteryCapacity(session.getBatteryCapacity())
+                        .percentBefore(session.getPercentBefore())
+                        .percentAfter(session.getPercentAfter())
+                        .energyUsed(session.getEnergyUsed())
+                        .ratePerKWh(session.getRatePerKWh())
+                        .totalCost(session.getTotalCost())
+                        .status(session.getStatus().name())
+                        .build()
+                ).toList();
     }
     public ChargingSession getSessionEntityById(Long id) {
         return chargingSessionRepository.findById(id)
@@ -38,6 +57,7 @@ public class ChargingSessionService {
         return ChargingSessionResponse.builder()
                 .sessionId(session.getId())
                 .stationName(session.getStation() != null ? session.getStation().getName() : null)
+                .stationId(session.getStation() != null ? session.getStation().getId() : null)
                 .spotName(session.getSpot() != null ? session.getSpot().getSpotName() : null)
                 .bookingId(session.getBooking() != null ? session.getBooking().getId() : null)
                 .startTime(session.getStartTime())
