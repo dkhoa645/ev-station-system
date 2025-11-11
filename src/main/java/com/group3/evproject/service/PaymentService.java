@@ -3,6 +3,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.PaymentStatus;
 import com.group3.evproject.dto.request.PaymentCreationRequest;
+import com.group3.evproject.dto.response.CompanyPaymentSummaryResponse;
 import com.group3.evproject.dto.response.PaymentDetailResponse;
 import com.group3.evproject.dto.response.PaymentResponse;
 import com.group3.evproject.entity.Company;
@@ -161,4 +162,13 @@ public class PaymentService {
         return  paymentRepository.save(payment);
     }
 
+    public List<CompanyPaymentSummaryResponse> getDetailForCompany() {
+        User user = userUtils.getCurrentUser();
+        return paymentRepository.findByCompany(user.getCompany()).stream()
+                .map(payment -> {
+                     CompanyPaymentSummaryResponse response =   paymentMapper.toCompanyPaymentSummaryResponse(payment);
+
+                     return response;
+                })
+                .collect(Collectors.toList());}
 }

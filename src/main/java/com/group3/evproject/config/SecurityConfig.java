@@ -41,7 +41,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                            .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+//
+//                                .requestMatchers("/api/admin/subscription-plan/**").hasAnyAuthority("ADMIN","MEMBER","DRIVER")
+//                                .requestMatchers("/api/admin/station", HttpMethod.GET.name()).hasAnyAuthority("MEMBER")
 //                        .requestMatchers("/member/**").hasAnyAuthority("ROLE_ADMIN","ROLE_MEMBER")
 //                        .requestMatchers("/company/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY")
 //                        .requestMatchers("/driver/**").hasAnyAuthority("ROLE_ADMIN","ROLE_COMPANY","ROLE_DRIVER")
