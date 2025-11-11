@@ -92,9 +92,9 @@ public class ChargingSessionService {
             throw new RuntimeException("Spot is already in use.");
         }
 
-        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
-            throw new RuntimeException("Spot is not available.");
-        }
+//        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
+//            throw new RuntimeException("Spot is not available.");
+//        }
 
         // Tạo session
         ChargingSession session = ChargingSession.builder()
@@ -179,9 +179,9 @@ public class ChargingSessionService {
             throw new RuntimeException("This spot already has an active charging session.");
         }
 
-        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
-            throw new RuntimeException("Spot is not available");
-        }
+//        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
+//            throw new RuntimeException("Spot is not available");
+//        }
 
         ChargingStation station = spot.getStation();
 
@@ -268,9 +268,9 @@ public class ChargingSessionService {
             throw new RuntimeException("This spot already has an active charging session.");
         }
 
-        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
-            throw new RuntimeException("Spot is not available");
-        }
+//        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
+//            throw new RuntimeException("Spot is not available");
+//        }
 
         ChargingStation station = spot.getStation();
 
