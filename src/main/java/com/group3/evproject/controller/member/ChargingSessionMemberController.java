@@ -1,7 +1,7 @@
-package com.group3.evproject.controller.staff;
+package com.group3.evproject.controller.member;
 
-import com.group3.evproject.dto.request.EndRequestForStaff;
-import com.group3.evproject.dto.request.StartRequestForStaff;
+
+import com.group3.evproject.dto.request.*;
 import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.mapper.ChargingSessionMapper;
 import com.group3.evproject.service.ChargingSessionService;
@@ -10,26 +10,26 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/staff/sessions")
+@RequestMapping("/api/member/sessions")
 @RequiredArgsConstructor
 @CrossOrigin("*")
 
-public class ChargingSessionStaffController {
+public class ChargingSessionMemberController {
     private final ChargingSessionService chargingSessionService;
 
     @PostMapping("/start")
-    public ResponseEntity<?> startSession(@RequestBody StartRequestForStaff startRequestForStaff) {
+    public ResponseEntity<?> startSession(@RequestBody StartRequestForMember startRequestForMember) {
         try {
-            Long spotId = startRequestForStaff.getSpotId();
-            Long userId = startRequestForStaff.getUserId();
-            Long vehicleId = startRequestForStaff.getVehicleId();
-            Long stationId = startRequestForStaff.getStationId();
-            Double percentBefore = startRequestForStaff.getPercentBefore();
+            Long spotId = startRequestForMember.getSpotId();
+            Long userId = startRequestForMember.getUserId();
+            Long vehicleId = startRequestForMember.getVehicleId();
+            Long stationId = startRequestForMember.getStationId();
+            Double percentBefore = startRequestForMember.getPercentBefore();
             if (spotId == null || userId == null || vehicleId == null || stationId == null|| percentBefore == null) {
                 return ResponseEntity.badRequest().body("Missing required field: spotId, percentBefore");
             }
 
-            ChargingSession session = chargingSessionService.startSessionForStaff(spotId,userId,vehicleId,stationId,percentBefore);
+            ChargingSession session = chargingSessionService.startSessionForMember(spotId,userId,vehicleId,stationId,percentBefore);
             return ResponseEntity.ok(ChargingSessionMapper.toSimpleResponse(session));
 
         } catch (RuntimeException ex) {
@@ -42,17 +42,17 @@ public class ChargingSessionStaffController {
     @PutMapping("/end/{session_id}")
     public ResponseEntity<?> endSession(
             @PathVariable("session_id") Long sessionId,
-            @RequestBody EndRequestForStaff endRequestForStaff) {
+            @RequestBody EndRequestForMember endRequestForMember) {
         try {
-            Double ratePerKWh = endRequestForStaff.getRatePerKWh();
-            Double batteryCapacity = endRequestForStaff.getBatteryCapacity();
-            Double percentBefore = endRequestForStaff.getPercentBefore();
+            Double ratePerKWh = endRequestForMember.getRatePerKWh();
+            Double batteryCapacity = endRequestForMember.getBatteryCapacity();
+            Double percentBefore = endRequestForMember.getPercentBefore();
 
             if (ratePerKWh == null || batteryCapacity == null) {
                 return ResponseEntity.badRequest().body("Missing required fields: ratePerKWh");
             }
 
-            ChargingSession session = chargingSessionService.endSessionForStaff(batteryCapacity,ratePerKWh,sessionId,percentBefore);
+            ChargingSession session = chargingSessionService.endSessionForMember(batteryCapacity ,ratePerKWh, sessionId, percentBefore);
 
             //Dùng Mapper để trả về DTO đầy đủ
             return ResponseEntity.ok(ChargingSessionMapper.toDetailResponse(session));
@@ -63,4 +63,6 @@ public class ChargingSessionStaffController {
             return ResponseEntity.internalServerError().body("Unexpected error: " + ex.getMessage());
         }
     }
+
+
 }

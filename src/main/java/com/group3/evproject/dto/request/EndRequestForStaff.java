@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 @Schema
 public class EndRequestForStaff {
-    @Schema(description = "Giá sạc", example = "5", required = true)
+    @Schema(description = "Giá sạc", example = "5000", required = true)
     @NotNull(message = "ratePerKWh is required")
     private Double ratePerKWh;
 
