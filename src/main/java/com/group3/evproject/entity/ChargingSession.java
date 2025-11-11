@@ -34,6 +34,11 @@ public class ChargingSession {
     ChargingStation station;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id")
+    @JsonBackReference
+    Vehicle vehicle;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "spot_id")
     @JsonBackReference
     ChargingSpot spot;
