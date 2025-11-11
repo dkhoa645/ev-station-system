@@ -4,6 +4,7 @@ import com.group3.evproject.entity.Booking;
 import com.group3.evproject.entity.ChargingStation;
 import com.group3.evproject.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.List;
@@ -29,4 +30,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     //tim booking theo user va ID (user chi xem dc booking cua minh)
     Optional<Booking> findByIdAndUser(Long id, User user);
+
+    @Query("SELECT COALESCE(SUM(b.reservationFee), 0) FROM Booking b WHERE b.station.id = :stationId")
+    Double getTotalBookingRevenueByStation(Long stationId);
 }
