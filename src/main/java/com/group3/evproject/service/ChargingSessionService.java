@@ -92,9 +92,9 @@ public class ChargingSessionService {
             throw new RuntimeException("Spot is already in use.");
         }
 
-//        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
-//            throw new RuntimeException("Spot is not available.");
-//        }
+        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
+            throw new RuntimeException("Spot is not available.");
+        }
 
         // Tạo session
         ChargingSession session = ChargingSession.builder()
@@ -169,19 +169,28 @@ public class ChargingSessionService {
         return chargingSessionRepository.save(session);
     }
 
-    public ChargingSession startSessionForStaff (Long spotId,Double percentBefore) {
+    public ChargingSession startSessionForStaff (Long spotId,Long userId, Long vehicleId,Long stationId, Double percentBefore) {
 
         // Tìm spot khả dụng
         ChargingSpot spot = chargingSpotRepository.findById(spotId)
                 .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
 
-        if (chargingSessionRepository.existsBySpotAndStatus(spot, ChargingSession.Status.ACTIVE)) {
-            throw new RuntimeException("This spot already has an active charging session.");
-        }
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
 
+
+//        if (chargingSessionRepository.existsBySpotAndStatus(spot, ChargingSession.Status.ACTIVE)) {
+//            throw new RuntimeException("This spot already has an active charging session.");
+//        }
+//
 //        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
 //            throw new RuntimeException("Spot is not available");
 //        }
+
+        boolean spotOccupied = chargingSessionRepository.existsBySpotAndStatus(spot, ChargingSession.Status.ACTIVE);
+        if (spotOccupied || spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
+            throw new RuntimeException("Spot is not available.");
+        }
 
         ChargingStation station = spot.getStation();
 
@@ -189,6 +198,7 @@ public class ChargingSessionService {
         ChargingSession session = ChargingSession.builder()
                 .spot(spot)
                 .station(station)
+                .vehicle(vehicle)
                 .startTime(LocalDateTime.now())
                 .powerOutput(station.getPowerCapacity())
                 .percentBefore(percentBefore)
@@ -197,12 +207,13 @@ public class ChargingSessionService {
 
         if (spot.getSpotType() == ChargingSpot.SpotType.WALK_IN) {
             spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
-            chargingSpotRepository.save(spot);
+            chargingSpotRepository.saveAndFlush(spot);
         }
 
         return chargingSessionRepository.save(session);
     }
 
+    @Transactional
     public ChargingSession endSessionForStaff (Double batteryCapacity, Double ratePerKWh, Long sessionId, Double percentBefore) {
 
         ChargingSession session = getSessionEntityById(sessionId);
@@ -244,7 +255,7 @@ public class ChargingSessionService {
         //Giải phóng spot
         ChargingSpot spot = session.getSpot();
         spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-        chargingSpotRepository.save(spot);
+        chargingSpotRepository.saveAndFlush(spot);
 
         //tạo invoice và thanh toán
         Invoice invoice = invoiceService.createInvoiceBySessionId(sessionId);
@@ -254,6 +265,7 @@ public class ChargingSessionService {
         return chargingSessionRepository.save(session);
     }
 
+    @Transactional
     public ChargingSession startSessionForMember (Long spotId,Long userId, Long vehicleId,Long stationId, Double percentBefore) {
 
         // Tìm spot khả dụng
@@ -264,13 +276,18 @@ public class ChargingSessionService {
                 .orElseThrow(() -> new RuntimeException("Vehicle not found"));
 
 
-        if (chargingSessionRepository.existsBySpotAndStatus(spot, ChargingSession.Status.ACTIVE)) {
-            throw new RuntimeException("This spot already has an active charging session.");
-        }
-
+//        if (chargingSessionRepository.existsBySpotAndStatus(spot, ChargingSession.Status.ACTIVE)) {
+//            throw new RuntimeException("This spot already has an active charging session.");
+//        }
+//
 //        if (spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
 //            throw new RuntimeException("Spot is not available");
 //        }
+
+        boolean spotOccupied = chargingSessionRepository.existsBySpotAndStatus(spot, ChargingSession.Status.ACTIVE);
+        if (spotOccupied || spot.getStatus() != ChargingSpot.SpotStatus.AVAILABLE) {
+            throw new RuntimeException("Spot is not available.");
+        }
 
         ChargingStation station = spot.getStation();
 
@@ -287,12 +304,13 @@ public class ChargingSessionService {
 
         if (spot.getSpotType() == ChargingSpot.SpotType.WALK_IN) {
             spot.setStatus(ChargingSpot.SpotStatus.OCCUPIED);
-            chargingSpotRepository.save(spot);
+            chargingSpotRepository.saveAndFlush(spot);
         }
 
         return chargingSessionRepository.save(session);
     }
 
+    @Transactional
     public ChargingSession endSessionForMember (Double batteryCapacity, Double ratePerKWh, Long sessionId, Double percentBefore) {
 
         ChargingSession session = getSessionEntityById(sessionId);
@@ -334,7 +352,7 @@ public class ChargingSessionService {
         //Giải phóng spot
         ChargingSpot spot = session.getSpot();
         spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
-        chargingSpotRepository.save(spot);
+        chargingSpotRepository.saveAndFlush(spot);
 
         Long stationId = session.getStation() != null ? session.getStation().getId() : null;
         Long vehicleId = session.getVehicle() != null ? session.getVehicle().getId() : null;

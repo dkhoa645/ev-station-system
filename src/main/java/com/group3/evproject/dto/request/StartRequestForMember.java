@@ -29,5 +29,5 @@ public class StartRequestForMember {
 
     @Schema(description = "Lượng pin ban đầu", example = "5", required = true)
     @NotNull(message = "percentBefore is required")
-    private Double percentBefore;;
+    private Double percentBefore;
 }
