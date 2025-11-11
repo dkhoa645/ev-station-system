@@ -21,12 +21,15 @@ public class ChargingSessionMemberController {
     public ResponseEntity<?> startSession(@RequestBody StartRequestForMember startRequestForMember) {
         try {
             Long spotId = startRequestForMember.getSpotId();
+            Long userId = startRequestForMember.getUserId();
+            Long vehicleId = startRequestForMember.getVehicleId();
+            Long stationId = startRequestForMember.getStationId();
             Double percentBefore = startRequestForMember.getPercentBefore();
-            if (spotId == null || percentBefore == null) {
+            if (spotId == null || userId == null || vehicleId == null || stationId == null|| percentBefore == null) {
                 return ResponseEntity.badRequest().body("Missing required field: spotId, percentBefore");
             }
 
-            ChargingSession session = chargingSessionService.startSessionForMember(spotId, percentBefore);
+            ChargingSession session = chargingSessionService.startSessionForMember(spotId,userId,vehicleId,stationId,percentBefore);
             return ResponseEntity.ok(ChargingSessionMapper.toSimpleResponse(session));
 
         } catch (RuntimeException ex) {

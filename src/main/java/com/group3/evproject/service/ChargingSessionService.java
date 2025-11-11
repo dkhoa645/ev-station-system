@@ -23,6 +23,7 @@ public class ChargingSessionService {
     private final InvoiceService invoiceService;
     private final PaymentService paymentService;
     private final InvoiceRepository invoiceRepository;
+    private final VehicleRepository vehicleRepository;
 
     public List<ChargingSessionResponse> getAllSessions() {
         return chargingSessionRepository.findAll().stream()
@@ -253,11 +254,15 @@ public class ChargingSessionService {
         return chargingSessionRepository.save(session);
     }
 
-    public ChargingSession startSessionForMember (Long spotId,Double percentBefore) {
+    public ChargingSession startSessionForMember (Long spotId,Long userId, Long vehicleId,Long stationId, Double percentBefore) {
 
         // Tìm spot khả dụng
         ChargingSpot spot = chargingSpotRepository.findById(spotId)
                 .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
+
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+
 
         if (chargingSessionRepository.existsBySpotAndStatus(spot, ChargingSession.Status.ACTIVE)) {
             throw new RuntimeException("This spot already has an active charging session.");
@@ -273,6 +278,7 @@ public class ChargingSessionService {
         ChargingSession session = ChargingSession.builder()
                 .spot(spot)
                 .station(station)
+                .vehicle(vehicle)
                 .startTime(LocalDateTime.now())
                 .powerOutput(station.getPowerCapacity())
                 .percentBefore(percentBefore)
@@ -330,13 +336,8 @@ public class ChargingSessionService {
         spot.setStatus(ChargingSpot.SpotStatus.AVAILABLE);
         chargingSpotRepository.save(spot);
 
-        //Cập nhật booking tương ứng
-        Booking booking = session.getBooking();
-        if (booking != null) {
-            booking.setStatus(Booking.BookingStatus.COMPLETED);
-            booking.setTotalCost(session.getTotalCost());
-            bookingRepository.save(booking);
-        }
+        Long stationId = session.getStation() != null ? session.getStation().getId() : null;
+        Long vehicleId = session.getVehicle() != null ? session.getVehicle().getId() : null;
 
         invoiceService.createInvoiceBySessionId(sessionId);
         return chargingSessionRepository.save(session);

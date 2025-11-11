@@ -109,21 +109,29 @@ public class InvoiceService {
             throw new IllegalStateException("Invoice already exists for this session.");
         }
 
-        Vehicle vehicle = session.getBooking() != null ? session.getBooking().getVehicle() : null;
-        SubscriptionPlan plan = null;
-
-        //Lấy SubscriptionPlan nếu xe đang có gói đang hoạt động
-        if (vehicle != null && vehicle.getSubscription() != null) {
-            VehicleSubscription vehicleSub = vehicle.getSubscription();
-            boolean isActive = vehicleSub.getStatus() == VehicleSubscriptionStatus.ACTIVE &&
-                    (vehicleSub.getEndDate() == null || vehicleSub.getEndDate().isAfter(LocalDateTime.now()));
-
-            if (isActive) {
-                plan = vehicleSub.getSubscriptionPlan();
-            }
+        Vehicle vehicle = null;
+        if (session.getBooking() != null && session.getBooking().getVehicle() != null) {
+            // TH1: Có booking
+            vehicle = session.getBooking().getVehicle();
+        } else if (session.getVehicle() != null) {
+            // TH2: Walk-in member (không booking)
+            vehicle = session.getVehicle();
         }
 
-        //tính chi phí
+        if (vehicle == null) {
+            throw new IllegalStateException("No vehicle associated with this session.");
+        }
+
+        // --- Lấy SubscriptionPlan nếu có gói hoạt động ---
+        SubscriptionPlan plan = null;
+        VehicleSubscription vehicleSub = vehicle.getSubscription();
+        if (vehicleSub != null &&
+                vehicleSub.getStatus() == VehicleSubscriptionStatus.ACTIVE &&
+                (vehicleSub.getEndDate() == null || vehicleSub.getEndDate().isAfter(LocalDateTime.now()))) {
+            plan = vehicleSub.getSubscriptionPlan();
+        }
+
+        // --- Tính chi phí ---
         BigDecimal baseCost = BigDecimal.valueOf(session.getTotalCost() != null ? session.getTotalCost() : 0.0);
         BigDecimal multiplier = (plan != null && plan.getMultiplier() != null)
                 ? plan.getMultiplier()
@@ -131,7 +139,7 @@ public class InvoiceService {
 
         BigDecimal finalCost = baseCost.multiply(multiplier).setScale(2, RoundingMode.HALF_UP);
 
-        //Tạo invoice mới
+        // --- Tạo Invoice ---
         Invoice invoice = Invoice.builder()
                 .session(session)
                 .subscriptionPlan(plan)
@@ -140,9 +148,9 @@ public class InvoiceService {
                 .status(Invoice.Status.PENDING)
                 .build();
 
-        Invoice saved = invoiceRepository.save(invoice);
-        return saved;
+        return invoiceRepository.save(invoice);
     }
+
 
     // Xóa hóa đơn
     @Transactional
