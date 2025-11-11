@@ -78,8 +78,10 @@ public class PaymentTransactionController {
                     response.sendRedirect("http://localhost:5173/bookingPaymentSuccess");
                 }else if(result.equals("subscriptionSuccess")) {
                     response.sendRedirect("http://localhost:5173/success");
-                }else if(result.equals("paymentSuccess")) {
+                }else if(result.equals("userPaymentSuccess")) {
                     response.sendRedirect("http://localhost:5173/payment/invoice/" + user.getId());
+                } else if (result.equals("companyPaymentSuccess")) {
+                    response.sendRedirect("http://localhost:5173/company/invoice/" + user.getCompany().getId());
                 }
             } else {
                 response.sendRedirect("http://localhost:5173/fail");

@@ -1,5 +1,6 @@
 package com.group3.evproject.mapper;
 
+import com.group3.evproject.dto.response.CompanyPaymentSummaryResponse;
 import com.group3.evproject.dto.response.PaymentDetailResponse;
 import com.group3.evproject.dto.response.PaymentResponse;
 import com.group3.evproject.entity.Payment;
@@ -12,4 +13,6 @@ public interface PaymentMapper {
     PaymentResponse toPaymentResponse(Payment payment);
 
     PaymentDetailResponse toPaymentDetailResponse(Payment payment);
+
+    CompanyPaymentSummaryResponse toCompanyPaymentSummaryResponse(Payment payment);
 }
