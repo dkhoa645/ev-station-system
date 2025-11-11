@@ -35,7 +35,7 @@ public class CompanyUserController {
                 .build();
     }
 
-    @GetMapping("/info")
+    @GetMapping("/my-info")
     ApiResponse<CompanyResponse>  getCompanyInfo() {
         return ApiResponse.<CompanyResponse>builder()
                 .result(companyService.getCompanyInfo())

@@ -137,7 +137,9 @@ public class UserService {
         User user = userUtils.getCurrentUser();
         userMapper.updateUserFromRequest(userUpdateRequest, user);
         user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
-        return userMapper.toUserResponse(userRepository.save(user));
+        UserResponse userResponse = userMapper.toUserResponse(userRepository.save(user));
+        userResponse.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+        return userResponse;
     }
 
     @Transactional
@@ -244,6 +246,9 @@ public class UserService {
         User user = userUtils.getCurrentUser();
         user.setPassword(passwordEncoder.encode(companyUserUpdateRequest.getPassword()));
         userRepository.save(user);
-        return userMapper.toUserResponse(userRepository.save(user));
+        UserResponse userResponse = userMapper.toUserResponse(userRepository.save(user));
+        Set<RoleName> roles = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
+        userResponse.setRoles(roles);
+        return userResponse;
     }
 }

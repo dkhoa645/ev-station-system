@@ -2,8 +2,10 @@ package com.group3.evproject.controller;
 
 
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
+import com.group3.evproject.entity.User;
 import com.group3.evproject.service.BookingService;
 import com.group3.evproject.service.PaymentTransactionService;
+import com.group3.evproject.utils.UserUtils;
 import com.group3.evproject.vnpay.VNPayDTO;
 import com.group3.evproject.vnpay.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +29,7 @@ import java.util.List;
 public class PaymentTransactionController {
     VNPayService paymentService;
     PaymentTransactionService paymentTransactionService;
-    BookingService bookingService;
+    UserUtils userUtils;
 
     @PostMapping("/subscription/{id}")
     public ApiResponse<PaymentTransactionResponse> createSubscription(
@@ -69,6 +71,7 @@ public class PaymentTransactionController {
     public void payCallbackHandler(HttpServletResponse response, HttpServletRequest request) throws IOException {
             String status = request.getParameter("vnp_ResponseCode");
             String ref = request.getParameter("vnp_TxnRef");
+            User user = userUtils.getCurrentUser();
             if (status.equals("00")) {
                 String result = paymentTransactionService.processSuccessfulPayment(ref);
                 if (result.equals("bookingSuccess")) {
@@ -76,7 +79,7 @@ public class PaymentTransactionController {
                 }else if(result.equals("subscriptionSuccess")) {
                     response.sendRedirect("http://localhost:5173/success");
                 }else if(result.equals("paymentSuccess")) {
-                    response.sendRedirect("http://localhost:5173/payment/invoice/${user.id}");
+                    response.sendRedirect("http://localhost:5173/payment/invoice/" + user.getId());
                 }
             } else {
                 response.sendRedirect("http://localhost:5173/fail");
