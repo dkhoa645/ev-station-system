@@ -2,6 +2,7 @@ package com.group3.evproject.service;
 
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.request.SubscriptionRequest;
+import com.group3.evproject.dto.response.SubscriptionSummaryResponse;
 import com.group3.evproject.dto.response.VehicleResponse;
 import com.group3.evproject.entity.User;
 import com.group3.evproject.entity.Vehicle;
@@ -9,6 +10,7 @@ import com.group3.evproject.entity.VehicleSubscription;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.VehicleMapper;
+import com.group3.evproject.repository.SubscriptionPlanRepository;
 import com.group3.evproject.repository.VehicleSubscriptionRepository;
 import com.group3.evproject.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,16 +20,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VehicleSubscriptionService {
     VehicleSubscriptionRepository vehicleSubscriptionRepository;
-    UserService userService;
     SubscriptionPlanService subscriptionPlanService;
-    private final VehicleService vehicleService;
+    VehicleService vehicleService;
     VehicleMapper vehicleMapper;
-    private final UserUtils userUtils;
+    SubscriptionPlanRepository subscriptionPlanRepository;
 
     public VehicleSubscription findById(Long id){
         return vehicleSubscriptionRepository.findById(id)
@@ -73,4 +80,5 @@ public class VehicleSubscriptionService {
         vehicleSubscriptionRepository.save(vehicle.getSubscription());
         return "Vehicle no longer renewed subscription";
     }
+
 }

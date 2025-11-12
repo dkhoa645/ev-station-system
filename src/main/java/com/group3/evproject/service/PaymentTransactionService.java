@@ -3,6 +3,7 @@ package com.group3.evproject.service;
 import com.group3.evproject.Enum.PaymentStatus;
 import com.group3.evproject.Enum.PaymentTransactionStatus;
 import com.group3.evproject.dto.response.BookingResponse;
+import com.group3.evproject.dto.response.SubscriptionSummaryResponse;
 import com.group3.evproject.entity.PaymentTransaction;
 import com.group3.evproject.Enum.VehicleSubscriptionStatus;
 import com.group3.evproject.dto.response.PaymentTransactionResponse;
@@ -12,6 +13,7 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentTransactionMapper;
 import com.group3.evproject.mapper.VehicleSubscriptionMapper;
 import com.group3.evproject.repository.PaymentTransactionRepository;
+import com.group3.evproject.repository.SubscriptionPlanRepository;
 import com.group3.evproject.utils.UserUtils;
 import com.group3.evproject.utils.VNPayUtil;
 import jakarta.transaction.Transactional;
@@ -23,7 +25,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,15 +35,10 @@ public class PaymentTransactionService {
     PaymentTransactionRepository paymentTransactionRepository;
     PaymentTransactionMapper paymentTransactionMapper;
     VehicleSubscriptionService vehicleSubscriptionService;
-    VehicleSubscriptionMapper vehicleSubscriptionMapper;
     PaymentService paymentService;
     BookingService bookingService;
     UserUtils userUtils;
-
-    SubscriptionPlanService subscriptionPlanService;
-    AuthenticationService authenticationService;
-    UserService userService;
-
+    SubscriptionPlanRepository subscriptionPlanRepository;
 
     public PaymentTransaction savePayment(PaymentTransaction paymentTransaction){
         return paymentTransactionRepository.save(paymentTransaction);
@@ -224,4 +221,59 @@ public class PaymentTransactionService {
                 .collect(Collectors.toList());
     }
 
+    public Map<String, SubscriptionSummaryResponse> getDetailSubscription() {
+        Map<String, SubscriptionSummaryResponse> map = new HashMap<>();
+
+        List<PaymentTransaction> paymentTransactions = paymentTransactionRepository.findAll().stream()
+                .filter(pt -> pt.getVehicleSubscription() != null
+                        && pt.getVehicleSubscription().getStatus().equals(VehicleSubscriptionStatus.ACTIVE))
+                .toList();
+
+        List<SubscriptionPlan> subscriptionPlans = subscriptionPlanRepository.findAll();
+
+        for (SubscriptionPlan plan : subscriptionPlans) {
+            long purchaseCount = 0;
+            BigDecimal revenue = BigDecimal.ZERO;
+            Set<String> subscribers = new HashSet<>(); // dùng Set để tránh trùng
+
+            for (PaymentTransaction pt : paymentTransactions) {
+                if (pt.getVehicleSubscription().getSubscriptionPlan().equals(plan)) {
+                    purchaseCount++;
+                    revenue = revenue.add(pt.getAmount());
+                    subscribers.add(pt.getUser().getName()); // tự động tránh trùng
+                }
+            }
+
+            SubscriptionSummaryResponse summary = SubscriptionSummaryResponse.builder()
+                    .purchaseCount(purchaseCount)
+                    .revenue(revenue)
+                    .subscriber(subscribers)
+                    .build();
+
+            map.put(plan.getName(), summary);
+        }
+
+
+
+//        subscriptionPlanRepository.findAll().forEach(subscriptionPlan -> {
+//            SubscriptionSummaryResponse subscriptionSummaryResponse = SubscriptionSummaryResponse.builder()
+//                    .purchaseCount(0L)
+//                    .revenue(BigDecimal.ZERO)
+//                    .subscriber(new ArrayList<>())
+//                    .build();
+//           paymentTransactions.forEach(paymentTransaction -> {
+//               if(paymentTransaction.getVehicleSubscription().getSubscriptionPlan().equals(subscriptionPlan)){
+//                   subscriptionSummaryResponse.setPurchaseCount(subscriptionSummaryResponse.getPurchaseCount()+1);
+//                   subscriptionSummaryResponse.setRevenue(subscriptionSummaryResponse.getRevenue().add(paymentTransaction.getAmount()));
+//                   if(!subscriptionSummaryResponse.getSubscriber().contains(paymentTransaction.getPayment().getUser().getName()))
+//                   subscriptionSummaryResponse.getSubscriber().add(paymentTransaction.getUser().getName());
+//               }
+//           }) ;
+//
+//
+//
+//            map.put(subscriptionPlan.getName(), subscriptionSummaryResponse);
+//        });
+        return map;
+    }
 }
