@@ -40,15 +40,6 @@ public class VehicleSubscriptionService {
                 .save(vehicleSubscription);
     }
 
-    public User isFromUser(Long id){
-        VehicleSubscription vs = findById(id);
-        Vehicle vehicle = vs.getVehicle();
-        User user = userUtils.getCurrentUser();
-        String username = user.getUsername();
-        if(vehicle.getUser().getUsername().equals(username))
-            return userService.getUserByUsername(username);
-        return null;
-    }
 
     @Transactional
     public VehicleResponse renewSubscription(SubscriptionRequest subscriptionRequest) {

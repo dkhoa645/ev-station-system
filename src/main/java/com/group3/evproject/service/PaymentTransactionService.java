@@ -147,6 +147,14 @@ public class PaymentTransactionService {
         return response;
     }
 
+    public Long getCompanyOrUserId(String ref){
+        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByVnpTxnRef(ref)
+                .orElseThrow(()->new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"VnpTxnRef"));
+        Company company = paymentTransaction.getPayment().getCompany();
+        if(company != null) return company.getId();
+        else return paymentTransaction.getPayment().getUser().getId();
+    }
+
     @Transactional
     public String processSuccessfulPayment(String ref) {
 //        Tìm transaction có mã giao dịch ref
@@ -216,83 +224,4 @@ public class PaymentTransactionService {
                 .collect(Collectors.toList());
     }
 
-
-//            PaymentTransaction paymentTransaction = paymentTransactionService.savePayment(
-//                    PaymentTransaction.builder()
-//                            .vehicleSubscription(vehicleSubscription)
-//                            .amount(subscriptionPlan.getPrice())
-//                            .paymentMethod("VNPAY")
-//                            .vnpTxnRef(VNPayUtil.getRandomNumber(8))
-//                            .status(PaymentTransactionEnum.FAILED)
-//                            .paidAt(null)
-//                            .bankCode("VNBANK")
-//                            .build());
-
-
-//@Transactional
-//public String processSuccessfulPayment(String vnpTxnRef) {
-//
-//    //  Tìm payment bằng vnpTxnRef
-//    PaymentTransaction paymentTransaction = paymentTransactionRepository
-//            .findByVnpTxnRef(vnpTxnRef)
-//            .orElseThrow(() -> new AppException(
-//                    ErrorCode.RESOURCES_NOT_EXISTS,
-//                    "Payment transaction with ref: " + vnpTxnRef
-//            ));
-//
-//    //  Kiểm tra trạng thái để tránh xử lý trùng
-//    if (paymentTransaction.getStatus() == PaymentStatusEnum.SUCCESS) {
-//        return "Already processed";
-//    }
-//
-//    VehicleSubscription vehicleSubscription = paymentTransaction.getVehicleSubscription();
-//    if (vehicleSubscription == null) {
-//        throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "Vehicle subscription");
-//    }
-//
-//    SubscriptionPlan subscriptionPlan = vehicleSubscription.getSubscriptionPlan();
-//    if (subscriptionPlan == null) {
-//        throw new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "Subscription plan");
-//    }
-//
-//    LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
-//
-//    // Cập nhật payment
-//    paymentTransaction.setStatus(PaymentStatusEnum.SUCCESS);
-//    paymentTransaction.setPaidAt(now);
-//
-//    //  Cập nhật hoặc kích hoạt subscription
-//    if (vehicleSubscription.getStatus() == VehicleSubscriptionStatusEnum.PENDING
-//            || vehicleSubscription.getStartDate() == null) {
-//        // Lần đầu kích hoạt
-//        vehicleSubscription.setStartDate(now);
-//        vehicleSubscription.setEndDate(now.plusMonths(1));
-//    } else {
-//        // Gia hạn - extend từ endDate hiện tại
-//        LocalDateTime currentEnd = vehicleSubscription.getEndDate();
-//        vehicleSubscription.setEndDate(currentEnd.plusMonths(1));
-//    }
-//    vehicleSubscription.setStatus(VehicleSubscriptionStatusEnum.ACTIVE);
-//
-//    //  Xử lý usage
-//    VehicleSubscriptionUsage usage = vehicleSubscription.getUsage();
-//    if (usage == null) {
-//        usage = VehicleSubscriptionUsage.builder()
-//                .vehicleSubscription(vehicleSubscription)
-//                .limitKwh(subscriptionPlan.getLimitValue())
-//                .usedKwh(BigDecimal.ZERO)
-//                .build();
-//        vehicleSubscription.setUsage(usage);
-//    } else {
-//        // Reset usage cho chu kỳ mới
-//        usage.setLimitKwh(subscriptionPlan.getLimitValue());
-//        usage.setUsedKwh(BigDecimal.ZERO);
-//    }
-//
-//    //  Save parent entity (cascade sẽ save các child)
-//    vehicleSubscriptionService.saveVehicle(vehicleSubscription);
-//    paymentTransactionRepository.save(paymentTransaction);
-//
-//    return "Success";
-//}
 }
