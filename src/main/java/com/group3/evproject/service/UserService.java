@@ -135,8 +135,12 @@ public class UserService {
     @Transactional
     public UserResponse updateMember(@Valid UserUpdateRequest userUpdateRequest) {
         User user = userUtils.getCurrentUser();
-        userMapper.updateUserFromRequest(userUpdateRequest, user);
-        user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+        if(userUpdateRequest.getName()!=null){
+            user.setName(userUpdateRequest.getName());
+        }
+        if(userUpdateRequest.getPassword()!=null){
+            user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+        }
         UserResponse userResponse = userMapper.toUserResponse(userRepository.save(user));
         userResponse.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
         return userResponse;
