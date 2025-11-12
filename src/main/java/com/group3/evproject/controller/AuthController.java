@@ -62,5 +62,15 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/verifyForgetPassword")
+    public void forgetPassword(@RequestParam String token, HttpServletResponse response) throws IOException {
+        boolean validForget = authenticationService.verifyForgetPassword(token);
+        if (validForget) {
+            response.sendRedirect("http://localhost:5173/");
+        } else {
+            response.sendRedirect("http://localhost:5173/");
+        }
+    }
+
 
 }
