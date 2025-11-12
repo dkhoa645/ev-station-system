@@ -170,21 +170,21 @@ public class PaymentTransactionService {
             checkSubscription.setEndDate(now.plusMonths(1));
             checkSubscription.setStatus(VehicleSubscriptionStatus.ACTIVE);
             vehicleSubscriptionService.saveVehicleSubscription(checkSubscription);
-            return "subscriptionSuccess";
+            return "http://localhost:5173/success";
         } else if (checkBooking != null) {
             checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
             bookingService.saveBooking(checkBooking);
-            return "bookingSuccess";
+            return "http://localhost:5173/bookingPaymentSuccess";
         } else if (checkPayment.getCompany() != null && checkPayment != null ) {
             checkPayment.setPaidCost(checkPayment.getPaidCost().add(paymentTransaction.getAmount()));
             checkPayment.setStatus(PaymentStatus.PAID);
             paymentService.save(checkPayment);
-            return "userPaymentSuccess";
+            return "http://localhost:5173/company/invoice/"+checkPayment.getCompany().getId();
         } else if(checkPayment.getUser() != null && checkPayment != null){
             checkPayment.setPaidCost(checkPayment.getPaidCost().add(paymentTransaction.getAmount()));
             checkPayment.setStatus(PaymentStatus.PAID);
             paymentService.save(checkPayment);
-            return "userPaymentSuccess";
+            return "http://localhost:5173/payment/invoice/" + checkPayment.getUser().getId() ;
         }
 
         return "fail";
