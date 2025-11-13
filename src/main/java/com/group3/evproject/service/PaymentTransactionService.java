@@ -234,13 +234,13 @@ public class PaymentTransactionService {
         for (SubscriptionPlan plan : subscriptionPlans) {
             long purchaseCount = 0;
             BigDecimal revenue = BigDecimal.ZERO;
-            Set<String> subscribers = new HashSet<>(); // dùng Set để tránh trùng
+            Set<String> subscribers = new HashSet<>();
 
             for (PaymentTransaction pt : paymentTransactions) {
                 if (pt.getVehicleSubscription().getSubscriptionPlan().equals(plan)) {
                     purchaseCount++;
                     revenue = revenue.add(pt.getAmount());
-                    subscribers.add(pt.getUser().getName()); // tự động tránh trùng
+                    subscribers.add(pt.getUser().getName());
                 }
             }
 
@@ -252,28 +252,6 @@ public class PaymentTransactionService {
 
             map.put(plan.getName(), summary);
         }
-
-
-
-//        subscriptionPlanRepository.findAll().forEach(subscriptionPlan -> {
-//            SubscriptionSummaryResponse subscriptionSummaryResponse = SubscriptionSummaryResponse.builder()
-//                    .purchaseCount(0L)
-//                    .revenue(BigDecimal.ZERO)
-//                    .subscriber(new ArrayList<>())
-//                    .build();
-//           paymentTransactions.forEach(paymentTransaction -> {
-//               if(paymentTransaction.getVehicleSubscription().getSubscriptionPlan().equals(subscriptionPlan)){
-//                   subscriptionSummaryResponse.setPurchaseCount(subscriptionSummaryResponse.getPurchaseCount()+1);
-//                   subscriptionSummaryResponse.setRevenue(subscriptionSummaryResponse.getRevenue().add(paymentTransaction.getAmount()));
-//                   if(!subscriptionSummaryResponse.getSubscriber().contains(paymentTransaction.getPayment().getUser().getName()))
-//                   subscriptionSummaryResponse.getSubscriber().add(paymentTransaction.getUser().getName());
-//               }
-//           }) ;
-//
-//
-//
-//            map.put(subscriptionPlan.getName(), subscriptionSummaryResponse);
-//        });
         return map;
     }
 }

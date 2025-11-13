@@ -1,7 +1,7 @@
 package com.group3.evproject.controller.company;
 
 import com.group3.evproject.dto.response.ApiResponse;
-import com.group3.evproject.dto.response.CompanyPaymentSummaryResponse;
+import com.group3.evproject.dto.response.CompanyPaymentDetailResponse;
 import com.group3.evproject.dto.response.PaymentDetailResponse;
 import com.group3.evproject.service.PaymentService;
 import lombok.AccessLevel;
@@ -26,11 +26,11 @@ public class CompanyPaymentController {
                 .build();
     }
 
-//    @GetMapping("/{userId}")
-//    public ApiResponse<List<CompanyPaymentSummaryResponse>> getPaymentDetail(){
-//            return ApiResponse.<List<CompanyPaymentSummaryResponse>>builder()
-//                    .result(paymentService.getDetailForCompany())
-//                    .build();
-//    }
+    @GetMapping("/detail")
+    public ApiResponse<List<CompanyPaymentDetailResponse>> getPaymentDetail(){
+            return ApiResponse.<List<CompanyPaymentDetailResponse>>builder()
+                    .result(paymentService.getDetailForCompany())
+                    .build();
+    }
 
 }
