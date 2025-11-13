@@ -122,6 +122,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
         userMapper.updateUserFromRequest(userUpdateRequest, user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userMapper.toUserResponse(userRepository.save(user));
     }
 

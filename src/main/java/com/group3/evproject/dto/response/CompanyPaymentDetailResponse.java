@@ -4,16 +4,19 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CompanyPaymentSummaryResponse {
-    String period;
+public class CompanyPaymentDetailResponse {
+    Long id;
+    LocalDateTime period;
     BigDecimal totalCost;
     Long invoiceCount;
-    List<DriverInvoiceSummaryResponse> details;
+    Map<String,DriverInvoiceSummaryResponse> driverDetails;
 }

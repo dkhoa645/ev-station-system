@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DriverInvoiceSummaryResponse {
-    String driverName;
+    Long id;
     Long invoiceCount;
     BigDecimal totalCost;
 }

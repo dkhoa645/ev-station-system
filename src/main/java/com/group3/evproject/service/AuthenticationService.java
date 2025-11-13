@@ -202,6 +202,39 @@ public class AuthenticationService {
         return "Email verified successfully! You can now login.";
     }
 
+
+    public String extractUsernameFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AppException(ErrorCode.TOKEN_INVALID);
+        }
+        String token = authHeader.substring(7);
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return signedJWT.getJWTClaimsSet().getSubject();
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.TOKEN_INVALID);
+        }
+    }
+    public User getUserFromRequest(String accessToken){
+        try {
+            if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+                throw new AppException(ErrorCode.TOKEN_INVALID);
+            }
+            String token = accessToken.substring(7);
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+            if (!signedJWT.verify(verifier)) {
+                throw new AppException(ErrorCode.TOKEN_INVALID);
+            }
+            String username = signedJWT.getJWTClaimsSet().getSubject();
+            return userRepository.findByUsername(username)
+                    .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.TOKEN_INVALID);
+        }
+    }
+
     private String buildScope(User user){
         StringJoiner stringJoiner = new StringJoiner(" ");
         if(!CollectionUtils.isEmpty(user.getRoles()))
@@ -209,6 +242,15 @@ public class AuthenticationService {
         return stringJoiner.toString();
     }
 
-
-
+    public String forgetPassword(String email) {
+        User user = userRepository.findByEmail(email);
+        if(user==null){
+            return "Can't find email";
+        }
+        String verificationToken = UUID.randomUUID().toString();
+        user.setResetToken(verificationToken);
+        userRepository.save(user);
+        emailService.sendForgetEmail(user.getEmail(), verificationToken);
+        return "Recovery Email has been sent";
+    }
 }
