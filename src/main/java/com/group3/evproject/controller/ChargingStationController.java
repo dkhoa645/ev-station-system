@@ -1,4 +1,5 @@
 package com.group3.evproject.controller;
+import com.group3.evproject.dto.response.StationRevenueResponse;
 import com.group3.evproject.entity.ChargingStation;
 import com.group3.evproject.service.ChargingStationService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,12 @@ public class ChargingStationController {
     @GetMapping
     public ResponseEntity<List<ChargingStation>> getAllChargingStations() {
         return ResponseEntity.ok(chargingStationService.getAllChargingStations());
+    }
+
+    @GetMapping("/{stationId}/revenue")
+    public ResponseEntity<StationRevenueResponse> getStationRevenue(@PathVariable Long stationId) {
+        StationRevenueResponse response = chargingStationService.getStationRevenue(stationId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

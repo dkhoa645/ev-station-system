@@ -1,5 +1,9 @@
 package com.group3.evproject.service;
+import com.group3.evproject.dto.response.StationRevenueResponse;
+import com.group3.evproject.entity.ChargingSession;
 import com.group3.evproject.entity.ChargingStation;
+import com.group3.evproject.repository.BookingRepository;
+import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.ChargingStationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,6 +13,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChargingStationService {
     private final ChargingStationRepository chargingStationRepository;
+    private final ChargingSessionRepository chargingSessionRepository;
+    private final BookingRepository bookingRepository;
 
     public List<ChargingStation> getAllChargingStations() {
         return chargingStationRepository.findAll();
@@ -62,5 +68,20 @@ public class ChargingStationService {
 
     public List<ChargingStation> findStationsByLocation(String location) {
         return chargingStationRepository.findByLocationContainingIgnoreCase(location);
+    }
+
+    public StationRevenueResponse getStationRevenue(Long stationId) {
+        ChargingStation station = chargingStationRepository.findById(stationId)
+                .orElseThrow(() -> new RuntimeException("Charging station not found with id: " + stationId));
+
+        Double totalSession = chargingSessionRepository.getTotalSessionRevenueByStation(stationId);
+        Double totalBooking = bookingRepository.getTotalBookingRevenueByStation(stationId);
+        Double total = totalSession + totalBooking;
+
+        return new StationRevenueResponse(
+                stationId,
+                totalSession,
+                totalBooking
+        );
     }
 }
