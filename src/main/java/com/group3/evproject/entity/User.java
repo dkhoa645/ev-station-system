@@ -41,7 +41,7 @@ public class User {
     )
     Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     List<Vehicle> vehicles;
 
     @ManyToOne()

@@ -237,7 +237,6 @@ public class UserService {
             vehicleRepository.save(vehicle);
         });
         user.getVehicles().clear();
-        userRepository.save(user);
         userRepository.deleteById(userId);
         return "User has been deleted successfully";
     }

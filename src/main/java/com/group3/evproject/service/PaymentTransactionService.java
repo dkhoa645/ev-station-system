@@ -170,12 +170,18 @@ public class PaymentTransactionService {
             checkBooking.setStatus(Booking.BookingStatus.CONFIRMED);
             bookingService.saveBooking(checkBooking);
             return "bookingSuccess";
-        } else if (checkPayment != null) {
+        } else if (checkPayment.getCompany() != null && checkPayment != null ) {
             checkPayment.setPaidCost(checkPayment.getPaidCost().add(paymentTransaction.getAmount()));
             checkPayment.setStatus(PaymentStatus.PAID);
             paymentService.save(checkPayment);
-            return "paymentSuccess";
+            return "userPaymentSuccess";
+        } else if(checkPayment.getUser() != null && checkPayment != null){
+            checkPayment.setPaidCost(checkPayment.getPaidCost().add(paymentTransaction.getAmount()));
+            checkPayment.setStatus(PaymentStatus.PAID);
+            paymentService.save(checkPayment);
+            return "userPaymentSuccess";
         }
+
         return "fail";
     }
 
