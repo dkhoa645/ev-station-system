@@ -66,7 +66,7 @@ public class InvoiceService {
     }
 
     public List<Invoice> getInvoicesByUserId(Long userId) {
-        return invoiceRepository.findBySession_Booking_User_Id(userId);
+        return invoiceRepository.findInvoicesByUserId(userId);
     }
 
     public List<Invoice> getInvoicesByVehicle(Long vehicleId) {

@@ -169,15 +169,11 @@ public class ChargingSessionService {
         return chargingSessionRepository.save(session);
     }
 
-    public ChargingSession startSessionForStaff (Long spotId,Long userId, Long vehicleId,Long stationId, Double percentBefore) {
+    public ChargingSession startSessionForStaff (Long spotId,Long stationId, Double percentBefore) {
 
         // Tìm spot khả dụng
         ChargingSpot spot = chargingSpotRepository.findById(spotId)
                 .orElseThrow(() -> new RuntimeException("No available charging spots at this station"));
-
-        Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
-
 
 //        if (chargingSessionRepository.existsBySpotAndStatus(spot, ChargingSession.Status.ACTIVE)) {
 //            throw new RuntimeException("This spot already has an active charging session.");
@@ -198,7 +194,6 @@ public class ChargingSessionService {
         ChargingSession session = ChargingSession.builder()
                 .spot(spot)
                 .station(station)
-                .vehicle(vehicle)
                 .startTime(LocalDateTime.now())
                 .powerOutput(station.getPowerCapacity())
                 .percentBefore(percentBefore)
