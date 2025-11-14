@@ -68,7 +68,7 @@ public class InvoiceService {
     }
 
     public List<Invoice> getInvoicesByUserId(Long userId) {
-        return invoiceRepository.findBySession_Booking_User_Id(userId);
+        return invoiceRepository.findInvoicesByUserId(userId);
     }
 
     public List<Invoice> getInvoicesByVehicle(Long vehicleId) {
@@ -124,7 +124,7 @@ public class InvoiceService {
             throw new IllegalStateException("No vehicle associated with this session.");
         }
 
-        // --- Lấy SubscriptionPlan nếu có gói hoạt động ---
+        //
         SubscriptionPlan plan = null;
         VehicleSubscription vehicleSub = vehicle.getSubscription();
         if (vehicleSub != null &&
@@ -133,7 +133,7 @@ public class InvoiceService {
             plan = vehicleSub.getSubscriptionPlan();
         }
 
-        // --- Tính chi phí ---
+        //
         BigDecimal baseCost = BigDecimal.valueOf(session.getTotalCost() != null ? session.getTotalCost() : 0.0);
         BigDecimal multiplier = (plan != null && plan.getMultiplier() != null)
                 ? plan.getMultiplier()
@@ -141,7 +141,7 @@ public class InvoiceService {
 
         BigDecimal finalCost = baseCost.multiply(multiplier).setScale(2, RoundingMode.HALF_UP);
 
-        // --- Tạo Invoice ---
+        //
         Invoice invoice = Invoice.builder()
                 .session(session)
                 .subscriptionPlan(plan)
