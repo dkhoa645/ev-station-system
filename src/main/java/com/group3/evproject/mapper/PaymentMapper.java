@@ -1,12 +1,10 @@
 package com.group3.evproject.mapper;
 
-import com.group3.evproject.dto.response.CompanyPaymentSummaryResponse;
+import com.group3.evproject.dto.response.CompanyPaymentDetailResponse;
 import com.group3.evproject.dto.response.PaymentDetailResponse;
 import com.group3.evproject.dto.response.PaymentResponse;
 import com.group3.evproject.entity.Payment;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 public interface PaymentMapper {
@@ -14,5 +12,5 @@ public interface PaymentMapper {
 
     PaymentDetailResponse toPaymentDetailResponse(Payment payment);
 
-    CompanyPaymentSummaryResponse toCompanyPaymentSummaryResponse(Payment payment);
+    CompanyPaymentDetailResponse toCompanyPaymentDetailResponse(Payment payment);
 }

@@ -62,5 +62,25 @@ public class AuthController {
         }
     }
 
+//    @GetMapping("/verifyForget")
+//    public void verifyForget(@RequestParam String token,
+//                             HttpServletResponse response,
+//                             String password
+//    ) throws IOException {
+//        String message = authenticationService.verifyEmail(token);
+//        if (message.contains("success")) {
+//            response.sendRedirect("http://localhost:5173/");
+//        } else {
+//            response.sendRedirect("http://localhost:5173/");
+//        }
+//    }
+
+    @GetMapping("/forget")
+    public ApiResponse<String> forgotPassword(@RequestParam String email) {
+        return ApiResponse.<String>builder()
+                .result(authenticationService.forgetPassword(email))
+                .build();
+    }
+
 
 }

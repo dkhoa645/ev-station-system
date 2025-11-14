@@ -172,6 +172,56 @@ public class EmailService {
         }
     }
 
+    public void sendForgetEmail(String toEmail, String verificationToken)  {
+        String subject = "EV Charge Password Recovery";
+        String resetUrl = "https://ev-station-system-production.up.railway.app/auth/verifyForget?token=" + verificationToken;
+// String resetUrl = "http://localhost:8080/auth/verifyForget?token=" + verificationToken;
+
+        String body = """
+<html>
+<body style="font-family: Arial, sans-serif; color: #333;">
+    <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #f9f9f9;">
+        <h2 style="color: #2E86C1;">Password Recovery</h2>
+        <p>Hi,</p>
+        <p>We received a request to reset the password for your EV Charge account.</p>
+        <p>Please click the button below to reset your password:</p>
+        <p style="text-align: center;">
+            <a href="%s" style="
+                display: inline-block;
+                padding: 10px 20px;
+                font-size: 16px;
+                color: #fff;
+                background-color: #2E86C1;
+                text-decoration: none;
+                border-radius: 5px;
+            ">Reset Password</a>
+        </p>
+        <p>If you did not request a password reset, please ignore this email.</p>
+        <hr style="border: none; border-top: 1px solid #eee;" />
+        <p style="font-size: 12px; color: #999;">EV Charge Team</p>
+    </div>
+</body>
+</html>
+""".formatted(resetUrl);
+
+        Email from = new Email("vietanh.hotrokekhai@gmail.com");
+        Email recipient = new Email(toEmail);
+        Content content = new Content("text/html",body);
+        Mail mail = new Mail(from,subject,recipient,content);
+
+        SendGrid sg = new SendGrid(sendGridApiKey);
+        Request  request = new Request();
+
+        try{
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            sg.api(request);
+        }catch(IOException ex){
+            throw new RuntimeException("Failed to send email",ex);
+        }
+    }
+
 
 
 }

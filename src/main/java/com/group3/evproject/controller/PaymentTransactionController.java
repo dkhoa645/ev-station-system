@@ -71,18 +71,9 @@ public class PaymentTransactionController {
     public void payCallbackHandler(HttpServletResponse response, HttpServletRequest request) throws IOException {
             String status = request.getParameter("vnp_ResponseCode");
             String ref = request.getParameter("vnp_TxnRef");
-            User user = userUtils.getCurrentUser();
             if (status.equals("00")) {
                 String result = paymentTransactionService.processSuccessfulPayment(ref);
-                if (result.equals("bookingSuccess")) {
-                    response.sendRedirect("http://localhost:5173/bookingPaymentSuccess");
-                }else if(result.equals("subscriptionSuccess")) {
-                    response.sendRedirect("http://localhost:5173/success");
-                }else if(result.equals("userPaymentSuccess")) {
-                    response.sendRedirect("http://localhost:5173/payment/invoice/" + user.getId());
-                } else if (result.equals("companyPaymentSuccess")) {
-                    response.sendRedirect("http://localhost:5173/company/invoice/" + user.getCompany().getId());
-                }
+                response.sendRedirect(result);
             } else {
                 response.sendRedirect("http://localhost:5173/fail");
             }

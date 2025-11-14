@@ -34,7 +34,7 @@ public class Vehicle {
     @JoinColumn(name = "company_id",nullable = true)
     Company company;
 
-    @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL)
     @JsonManagedReference
     VehicleSubscription subscription;
 

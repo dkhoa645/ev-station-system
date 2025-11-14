@@ -241,4 +241,16 @@ public class AuthenticationService {
             user.getRoles().forEach(role -> stringJoiner.add(role.getName().name()));
         return stringJoiner.toString();
     }
+
+    public String forgetPassword(String email) {
+        User user = userRepository.findByEmail(email);
+        if(user==null){
+            return "Can't find email";
+        }
+        String verificationToken = UUID.randomUUID().toString();
+        user.setResetToken(verificationToken);
+        userRepository.save(user);
+        emailService.sendForgetEmail(user.getEmail(), verificationToken);
+        return "Recovery Email has been sent";
+    }
 }

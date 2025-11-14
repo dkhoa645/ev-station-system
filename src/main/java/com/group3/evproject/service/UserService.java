@@ -122,6 +122,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
         userMapper.updateUserFromRequest(userUpdateRequest, user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
@@ -135,8 +136,12 @@ public class UserService {
     @Transactional
     public UserResponse updateMember(@Valid UserUpdateRequest userUpdateRequest) {
         User user = userUtils.getCurrentUser();
-        userMapper.updateUserFromRequest(userUpdateRequest, user);
-        user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+        if(userUpdateRequest.getName()!=null){
+            user.setName(userUpdateRequest.getName());
+        }
+        if(userUpdateRequest.getPassword()!=null){
+            user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+        }
         UserResponse userResponse = userMapper.toUserResponse(userRepository.save(user));
         userResponse.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
         return userResponse;
@@ -237,7 +242,6 @@ public class UserService {
             vehicleRepository.save(vehicle);
         });
         user.getVehicles().clear();
-        userRepository.save(user);
         userRepository.deleteById(userId);
         return "User has been deleted successfully";
     }
