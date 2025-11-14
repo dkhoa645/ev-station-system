@@ -254,13 +254,8 @@ public class ChargingSessionService {
 
         //tạo invoice và thanh toán
         Invoice invoice = invoiceService.createInvoiceBySessionId(sessionId);
-
-       invoice.setStatus(Invoice.Status.PAID);
-       invoice.setIssueDate(LocalDateTime.now());
-
-       invoiceRepository.save(invoice);
-
-       session.setInvoice(invoice);
+        Payment payment = invoice.getPayment();
+        paymentService.processPayment(payment, invoice.getFinalCost());
 
         return chargingSessionRepository.save(session);
     }
@@ -383,7 +378,7 @@ public class ChargingSessionService {
 
     public List<ChargingSessionResponse> getSessionsByVehicle(Long vehicleId) {
         List<ChargingSession> sessions = chargingSessionRepository
-                .findByVehicle_IdOrderByStartTimeDesc(vehicleId);
+                .findByBooking_Vehicle_IdOrderByStartTimeDesc(vehicleId);
 
         return sessions.stream()
                 .map(session -> ChargingSessionResponse.builder()
