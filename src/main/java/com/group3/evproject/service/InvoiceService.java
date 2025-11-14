@@ -10,6 +10,7 @@ import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.repository.ChargingSessionRepository;
 import com.group3.evproject.repository.InvoiceRepository;
 import com.group3.evproject.repository.SubscriptionPlanRepository;
+import com.group3.evproject.utils.UserUtils;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class InvoiceService {
     private final ChargingSessionRepository chargingSessionRepository;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final PaymentService paymentService;
+    private final UserUtils userUtils;
 
     // Lấy tất cả hóa đơn
     public List<InvoiceResponse> getAllInvoices() {
@@ -81,9 +83,9 @@ public class InvoiceService {
 
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Invoice"));
-
+        User user = userUtils.getCurrentUser();
         //tìm payment theo user
-        Payment payment = paymentService.findByUser(invoice.getSession().getBooking().getUser());
+        Payment payment = paymentService.findByUser(user);
 
         //payment  vào invoice, add invoice vào payment
         invoice.setPayment(payment);
