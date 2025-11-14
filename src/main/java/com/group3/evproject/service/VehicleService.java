@@ -116,8 +116,11 @@ public class VehicleService  {
     public String deleteByUserAndId(Long id) {
         Vehicle existVehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "Vehicle"));
+        existVehicle.getBookings().stream().forEach(vehicleBooking -> {
+            vehicleBooking.setVehicle(null);
+        });
 
-        vehicleRepository.delete(existVehicle);
+        existVehicle.getBookings().clear();
         return "Vehicle has been deleted";
     }
 
