@@ -67,10 +67,9 @@ public class InvoiceController {
         return ResponseEntity.ok(saved);
     }
 
-    @PostMapping("/{invoiceId}/confirm")
-    public ResponseEntity<?> confirmInvoice(@PathVariable Long invoiceId) {
-        Invoice confirmed = invoiceService.confirmInvoice(invoiceId);
-        return ResponseEntity.ok(confirmed);
+    @PutMapping("/{invoiceId}/confirm-paid")
+    public ResponseEntity<Invoice> confirmInvoicePaid(@PathVariable Long invoiceId) {
+        return ResponseEntity.ok(invoiceService.confirmInvoice(invoiceId));
     }
 
     @DeleteMapping("/{id}")
