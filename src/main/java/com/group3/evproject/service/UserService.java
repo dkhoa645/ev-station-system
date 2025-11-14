@@ -97,7 +97,6 @@ public class UserService {
         roles.add(role);
 
         user.setRoles(roles);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setVerified(true);
 
         UserResponse userResponse = userMapper.toUserResponse(userRepository.save(user));
@@ -265,15 +264,13 @@ public class UserService {
             vehicleSubscription.setStartDate(null);
             vehicleRepository.save(vehicle);
         });
-        user.getBookings().stream().forEach(booking -> {
-            booking.setUser(null);
+
+        user.getVehicles().stream().forEach(vehicle -> {
+           vehicle.setUser(null);
         });
-        user.getPaymentTransactionList().stream().forEach(paymentTransaction -> {
-            paymentTransaction.setUser(null);
-        });
-        user.setPaymentTransactionList(null);
-        user.getBookings().clear();
+
         user.getVehicles().clear();
+
         userRepository.deleteById(userId);
         return "User has been deleted successfully";
     }

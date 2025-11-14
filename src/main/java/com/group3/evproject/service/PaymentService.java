@@ -7,10 +7,7 @@ import com.group3.evproject.dto.response.CompanyPaymentDetailResponse;
 import com.group3.evproject.dto.response.DriverInvoiceSummaryResponse;
 import com.group3.evproject.dto.response.PaymentDetailResponse;
 import com.group3.evproject.dto.response.PaymentResponse;
-import com.group3.evproject.entity.Company;
-import com.group3.evproject.entity.Invoice;
-import com.group3.evproject.entity.Payment;
-import com.group3.evproject.entity.User;
+import com.group3.evproject.entity.*;
 import com.group3.evproject.exception.AppException;
 import com.group3.evproject.exception.ErrorCode;
 import com.group3.evproject.mapper.PaymentMapper;
@@ -183,7 +180,16 @@ public class PaymentService {
             CompanyPaymentDetailResponse companyPaymentDetailResponse = paymentMapper.toCompanyPaymentDetailResponse(payment);
             companyPaymentDetailResponse.setInvoiceCount(0L);
             for (Invoice invoice : payment.getInvoices()) {
-                User driver = invoice.getSession().getVehicle().getUser();
+                User driverSession = new User();
+                ChargingSession session = new ChargingSession();
+                if(session.getBooking()!=null && session.getBooking().getUser()!=null){
+                    driverSession = session.getBooking().getUser();
+                } else if (session.getVehicle() != null && session.getVehicle().getUser() != null) {
+                    driverSession = session.getVehicle().getUser();
+                }
+
+                User driver = driverSession;
+
                 detailMap.compute(driver.getName(), (k, v) -> {
                     if (v == null) {
                         companyPaymentDetailResponse.setInvoiceCount(companyPaymentDetailResponse.getInvoiceCount() + 1);
