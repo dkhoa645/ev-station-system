@@ -183,7 +183,7 @@ public class PaymentService {
             CompanyPaymentDetailResponse companyPaymentDetailResponse = paymentMapper.toCompanyPaymentDetailResponse(payment);
             companyPaymentDetailResponse.setInvoiceCount(0L);
             for (Invoice invoice : payment.getInvoices()) {
-                User driver = invoice.getSession().getBooking().getUser();
+                User driver = invoice.getSession().getVehicle().getUser();
                 detailMap.compute(driver.getName(), (k, v) -> {
                     if (v == null) {
                         companyPaymentDetailResponse.setInvoiceCount(companyPaymentDetailResponse.getInvoiceCount() + 1);

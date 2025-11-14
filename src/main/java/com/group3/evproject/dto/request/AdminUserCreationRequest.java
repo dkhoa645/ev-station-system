@@ -20,5 +20,4 @@ public class AdminUserCreationRequest {
     String email;
     String name;
     RoleName role;
-    Long companyId;
 }

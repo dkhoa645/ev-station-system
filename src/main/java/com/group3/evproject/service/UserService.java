@@ -91,19 +91,16 @@ public class UserService {
         if(userRepository.existsByEmail(user.getEmail())){
             throw new AppException(ErrorCode.RESOURCES_EXISTS, "Email");
         }
-        Company company = companyRepository.findById(userCreationRequest.getCompanyId())
-                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Company"));
 
         Role role = roleService.findByName(userCreationRequest.getRole());
         Set<Role>roles = new HashSet<>();
         roles.add(role);
 
-        user.setCompany(company);
         user.setRoles(roles);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setVerified(true);
 
         UserResponse userResponse = userMapper.toUserResponse(userRepository.save(user));
-        userResponse.setCompanyResponse(companyMapper.toCompanyResponse(company));
         userResponse.setRoles(roles.stream().map(Role::getName).collect(Collectors.toSet()));
         return userResponse;
     }
@@ -168,17 +165,28 @@ public class UserService {
 
     public List<CompanyUserResponse> getAllCompanyUsers() {
         User user = userUtils.getCurrentUser();
-                return userRepository
-                .findByCompanyAndIdNot(user.getCompany(),user.getId())
-                .stream()
-                .map( userEach -> {
-                    CompanyUserResponse companyUserResponse = userMapper.toCompanyUserResponse(userEach);
-                    Vehicle vehicleForResponse = userEach.getVehicles().stream().findFirst()
-                            .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
-                    companyUserResponse.setVehicleResponse(vehicleMapper.vehicleToVehicleResponse(vehicleForResponse));
-                    return companyUserResponse;
-                })
-                .collect(Collectors.toList());
+        List<User> users = userRepository.findByCompanyAndIdNot(user.getCompany(),user.getId());
+        List<CompanyUserResponse> list = new ArrayList<>();
+        for(User u : users){
+            CompanyUserResponse userResponse = userMapper.toCompanyUserResponse(u);
+            List<Vehicle> vehicle = u.getVehicles();
+            userResponse.setVehicleResponse(vehicleMapper.vehicleToVehicleResponse(
+                    vehicle.stream().findFirst().orElse(null)));
+            list.add(userResponse);
+        }
+        return list;
+
+//                return userRepository
+//                .findByCompanyAndIdNot(user.getCompany(),user.getId())
+//                .stream()
+//                .map( userEach -> {
+//                    CompanyUserResponse companyUserResponse = userMapper.toCompanyUserResponse(userEach);
+//                    Vehicle vehicleForResponse = userEach.getVehicles().stream().findFirst()
+//                            .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Vehicle"));
+//                    companyUserResponse.setVehicleResponse(vehicleMapper.vehicleToVehicleResponse(vehicleForResponse));
+//                    return companyUserResponse;
+//                })
+//                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -186,7 +194,6 @@ public class UserService {
         if(userRepository.existsByEmail(userCreationRequest.getEmail())){
             throw new AppException(ErrorCode.RESOURCES_EXISTS, "Email");
         }
-
         String password = PasswordUntil.generateSecurePassword(10);
 
         User userCurrent = userUtils.getCurrentUser();

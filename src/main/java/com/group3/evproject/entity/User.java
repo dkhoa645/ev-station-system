@@ -1,5 +1,6 @@
 package com.group3.evproject.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -43,6 +44,10 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     List<Vehicle> vehicles;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<Booking> bookings;
 
     @ManyToOne()
     @JoinColumn(name = "company_id",nullable = true)
