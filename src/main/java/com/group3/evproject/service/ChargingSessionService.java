@@ -255,7 +255,7 @@ public class ChargingSessionService {
         //tạo invoice và thanh toán
         Invoice invoice = invoiceService.createInvoiceBySessionId(sessionId);
 
-       invoice.setStatus(Invoice.Status.PAID);
+       invoice.setStatus(Invoice.Status.PENDING);
        invoice.setIssueDate(LocalDateTime.now());
 
        invoiceRepository.save(invoice);
