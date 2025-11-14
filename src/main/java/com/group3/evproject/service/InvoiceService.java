@@ -108,7 +108,6 @@
         }
 
         public Invoice createInvoice(Long invoiceId) {
-
             Invoice invoice = invoiceRepository.findById(invoiceId)
                     .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Invoice"));
             User user = userUtils.getCurrentUser();
