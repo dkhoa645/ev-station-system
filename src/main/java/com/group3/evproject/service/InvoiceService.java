@@ -111,7 +111,9 @@ public class InvoiceService {
             throw new IllegalStateException("Invoice already exists for this session.");
         }
 
+        //lấy vehicle nếu có
         Vehicle vehicle = null;
+
         if (session.getBooking() != null && session.getBooking().getVehicle() != null) {
             // TH1: Có booking
             vehicle = session.getBooking().getVehicle();
@@ -120,28 +122,27 @@ public class InvoiceService {
             vehicle = session.getVehicle();
         }
 
-        if (vehicle == null) {
-            throw new IllegalStateException("No vehicle associated with this session.");
-        }
-
-        //
         SubscriptionPlan plan = null;
-        VehicleSubscription vehicleSub = vehicle.getSubscription();
-        if (vehicleSub != null &&
-                vehicleSub.getStatus() == VehicleSubscriptionStatus.ACTIVE &&
-                (vehicleSub.getEndDate() == null || vehicleSub.getEndDate().isAfter(LocalDateTime.now()))) {
-            plan = vehicleSub.getSubscriptionPlan();
+
+        if (vehicle != null) {
+            VehicleSubscription vehicleSub = vehicle.getSubscription();
+            if (vehicleSub != null &&
+                    vehicleSub.getStatus() == VehicleSubscriptionStatus.ACTIVE &&
+                    (vehicleSub.getEndDate() == null || vehicleSub.getEndDate().isAfter(LocalDateTime.now()))) {
+                plan = vehicleSub.getSubscriptionPlan();
+            }
         }
 
-        //
-        BigDecimal baseCost = BigDecimal.valueOf(session.getTotalCost() != null ? session.getTotalCost() : 0.0);
+        BigDecimal baseCost = BigDecimal.valueOf(
+                session.getTotalCost() != null ? session.getTotalCost() : 0.0);
+
         BigDecimal multiplier = (plan != null && plan.getMultiplier() != null)
                 ? plan.getMultiplier()
                 : BigDecimal.ONE;
 
-        BigDecimal finalCost = baseCost.multiply(multiplier).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal finalCost = baseCost.multiply(multiplier)
+                .setScale(2, RoundingMode.HALF_UP);
 
-        //
         Invoice invoice = Invoice.builder()
                 .session(session)
                 .subscriptionPlan(plan)

@@ -169,7 +169,7 @@ public class ChargingSessionService {
         return chargingSessionRepository.save(session);
     }
 
-    public ChargingSession startSessionForStaff (Long spotId,Long stationId, Double percentBefore) {
+    public ChargingSession startSessionForStaff (Long spotId, Double percentBefore) {
 
         // Tìm spot khả dụng
         ChargingSpot spot = chargingSpotRepository.findById(spotId)
