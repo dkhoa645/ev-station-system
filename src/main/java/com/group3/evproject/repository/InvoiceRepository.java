@@ -15,4 +15,8 @@ public interface InvoiceRepository  extends JpaRepository<Invoice,Long> {
     List<Invoice> findBySession_Booking_Vehicle_Id (Long vehicleId);
     List<Invoice> findByStatus (Invoice.Status status);
 
+    @Query("SELECT i FROM Invoice i " +
+            "WHERE i.session.vehicle.user.id = :userId")
+    List<Invoice> findInvoicesByUserId(@Param("userId") Long userId);
+
 }
