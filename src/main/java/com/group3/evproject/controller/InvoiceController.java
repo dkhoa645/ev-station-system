@@ -72,6 +72,12 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceService.confirmInvoice(invoiceId));
     }
 
+    @GetMapping("/staff")
+    public ResponseEntity<List<InvoiceResponse>> getAllStaffInvoices() {
+        List<InvoiceResponse> invoices = invoiceService.getAllStaffInvoices();
+        return ResponseEntity.ok(invoices);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteInvoice(@PathVariable Long id) {
         try {
