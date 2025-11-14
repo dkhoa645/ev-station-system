@@ -27,4 +27,8 @@ public interface InvoiceRepository  extends JpaRepository<Invoice,Long> {
 """)
     List<Invoice> findInvoicesByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT i FROM Invoice i " +
+            "WHERE i.session.vehicle IS NULL")
+    List<Invoice> findInvoicesForStaffSessions();
+
 }

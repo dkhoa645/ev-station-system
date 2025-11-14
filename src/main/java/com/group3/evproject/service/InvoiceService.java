@@ -1,192 +1,220 @@
-package com.group3.evproject.service;
+    package com.group3.evproject.service;
 
-import com.group3.evproject.Enum.PaymentStatus;
-import com.group3.evproject.Enum.VehicleSubscriptionStatus;
-import com.group3.evproject.dto.response.ChargingSessionSimpleResponse;
-import com.group3.evproject.dto.response.InvoiceResponse;
-import com.group3.evproject.entity.*;
-import com.group3.evproject.exception.AppException;
-import com.group3.evproject.exception.ErrorCode;
-import com.group3.evproject.repository.ChargingSessionRepository;
-import com.group3.evproject.repository.InvoiceRepository;
-import com.group3.evproject.repository.SubscriptionPlanRepository;
-import com.group3.evproject.utils.UserUtils;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+    import com.group3.evproject.Enum.PaymentStatus;
+    import com.group3.evproject.Enum.VehicleSubscriptionStatus;
+    import com.group3.evproject.dto.response.ChargingSessionSimpleResponse;
+    import com.group3.evproject.dto.response.InvoiceResponse;
+    import com.group3.evproject.entity.*;
+    import com.group3.evproject.exception.AppException;
+    import com.group3.evproject.exception.ErrorCode;
+    import com.group3.evproject.repository.ChargingSessionRepository;
+    import com.group3.evproject.repository.InvoiceRepository;
+    import com.group3.evproject.repository.SubscriptionPlanRepository;
+    import com.group3.evproject.utils.UserUtils;
+    import jakarta.persistence.EntityNotFoundException;
+    import jakarta.transaction.Transactional;
+    import lombok.RequiredArgsConstructor;
+    import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
-import java.util.List;
+    import java.math.BigDecimal;
+    import java.math.RoundingMode;
+    import java.time.LocalDateTime;
+    import java.util.List;
 
-import static org.antlr.v4.runtime.tree.xpath.XPath.findAll;
+    import static org.antlr.v4.runtime.tree.xpath.XPath.findAll;
 
-@Service
-@RequiredArgsConstructor
-public class InvoiceService {
+    @Service
+    @RequiredArgsConstructor
+    public class InvoiceService {
 
-    private final InvoiceRepository invoiceRepository;
-    private final ChargingSessionRepository chargingSessionRepository;
-    private final SubscriptionPlanRepository subscriptionPlanRepository;
-    private final PaymentService paymentService;
-    private final UserUtils userUtils;
+        private final InvoiceRepository invoiceRepository;
+        private final ChargingSessionRepository chargingSessionRepository;
+        private final SubscriptionPlanRepository subscriptionPlanRepository;
+        private final PaymentService paymentService;
+        private final UserUtils userUtils;
 
-    // Lấy tất cả hóa đơn
-    public List<InvoiceResponse> getAllInvoices() {
-        List<Invoice> invoices = invoiceRepository.findAll();
+        // Lấy tất cả hóa đơn
+        public List<InvoiceResponse> getAllInvoices() {
+            List<Invoice> invoices = invoiceRepository.findAll();
 
-        return invoices.stream().map(invoice -> {
-            ChargingSession chargingSession = invoice.getSession();
+            return invoices.stream().map(invoice -> {
+                ChargingSession chargingSession = invoice.getSession();
 
-            ChargingSessionSimpleResponse sessionSimpleResponse = null;
-            if (chargingSession != null) {
-                sessionSimpleResponse = ChargingSessionSimpleResponse.builder()
-                        .sessionId(chargingSession.getId())
-                        .stationName(chargingSession.getBooking() != null && chargingSession.getStation() != null ? chargingSession.getBooking().getStation().getName() : null)
-                        .stationId(chargingSession.getBooking() != null && chargingSession.getStation() != null ? chargingSession.getBooking().getStation().getId() : null)
-                        .spotName(chargingSession.getSpot() != null ? chargingSession.getSpot().getSpotName() : null)
-                        .bookingId(chargingSession.getBooking() != null ? chargingSession.getBooking().getId() : null)
-                        .startTime(chargingSession.getStartTime())
-                        .status(chargingSession.getStatus() != null ? chargingSession.getStatus().name() : null)
+                ChargingSessionSimpleResponse sessionSimpleResponse = null;
+                if (chargingSession != null) {
+                    sessionSimpleResponse = ChargingSessionSimpleResponse.builder()
+                            .sessionId(chargingSession.getId())
+                            .stationName(chargingSession.getBooking() != null && chargingSession.getStation() != null ? chargingSession.getBooking().getStation().getName() : null)
+                            .stationId(chargingSession.getBooking() != null && chargingSession.getStation() != null ? chargingSession.getBooking().getStation().getId() : null)
+                            .spotName(chargingSession.getSpot() != null ? chargingSession.getSpot().getSpotName() : null)
+                            .bookingId(chargingSession.getBooking() != null ? chargingSession.getBooking().getId() : null)
+                            .startTime(chargingSession.getStartTime())
+                            .status(chargingSession.getStatus() != null ? chargingSession.getStatus().name() : null)
+                            .build();
+                }
+                return InvoiceResponse.builder()
+                        .id(invoice.getId())
+                        .issueDate(invoice.getIssueDate())
+                        .finalCost(invoice.getFinalCost())
+                        .status(invoice.getStatus().name())
+                        .session(sessionSimpleResponse)
                         .build();
+            }).toList();
+        }
+
+        public List<InvoiceResponse> getAllStaffInvoices() {
+            List<Invoice> invoices = invoiceRepository.findInvoicesForStaffSessions();
+
+            return invoices.stream().map(invoice -> {
+                ChargingSession session = invoice.getSession();
+
+                ChargingSessionSimpleResponse sessionSimpleResponse = null;
+                if (session != null) {
+                    sessionSimpleResponse = ChargingSessionSimpleResponse.builder()
+                            .sessionId(session.getId())
+                            .stationName(session.getStation() != null ? session.getStation().getName() : null)
+                            .stationId(session.getStation() != null ? session.getStation().getId() : null)
+                            .spotName(session.getSpot() != null ? session.getSpot().getSpotName() : null)
+                            .startTime(session.getStartTime())
+                            .status(session.getStatus() != null ? session.getStatus().name() : null)
+                            .build();
+                }
+
+                return InvoiceResponse.builder()
+                        .id(invoice.getId())
+                        .issueDate(invoice.getIssueDate())
+                        .finalCost(invoice.getFinalCost())
+                        .status(invoice.getStatus().name())
+                        .session(sessionSimpleResponse)
+                        .build();
+            }).toList();
+        }
+
+        public Invoice getInvoiceBySessionId(Long sessionId) {
+            return invoiceRepository.findBySession_Id(sessionId)
+                    .orElseThrow(() -> new RuntimeException("Invoice not found for session id: " + sessionId));
+        }
+
+        public List<Invoice> getInvoicesByUserId(Long userId) {
+            return invoiceRepository.findInvoicesByUserId(userId);
+        }
+
+        public List<Invoice> getInvoicesByVehicle(Long vehicleId) {
+            return invoiceRepository.findBySession_Booking_Vehicle_Id(vehicleId);
+        }
+
+        public List<Invoice> getPedingInvoices (String status) {
+            return invoiceRepository.findByStatus(Invoice.Status.PENDING);
+        }
+
+        public Invoice createInvoice(Long invoiceId) {
+
+            Invoice invoice = invoiceRepository.findById(invoiceId)
+                    .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Invoice"));
+            User user = userUtils.getCurrentUser();
+            //tìm payment theo user
+            Payment payment = paymentService.findByUser(user);
+
+            //payment  vào invoice, add invoice vào payment
+            invoice.setPayment(payment);
+            payment.getInvoices().add(invoice);
+
+            //cập nhật tổng chi phí
+            BigDecimal totalCost = payment.getTotalCost().add(invoice.getFinalCost());
+            payment.setTotalCost(totalCost);
+            payment.setTotalEnergy(payment.getTotalEnergy()
+                    .add(BigDecimal.valueOf(invoice.getSession().getEnergyUsed())));
+            payment.setStatus(PaymentStatus.UNPAID);
+            paymentService.save(payment);
+            return invoice;
+        }
+
+        @Transactional
+        public Invoice createInvoiceBySessionId(Long sessionId) {
+            ChargingSession session = chargingSessionRepository.findById(sessionId)
+                    .orElseThrow(() -> new EntityNotFoundException("Session not found with ID: " + sessionId));
+
+            // Kiểm tra xem invoice đã tồn tại chưa
+            if (invoiceRepository.findBySession_Id(sessionId).isPresent()) {
+                throw new IllegalStateException("Invoice already exists for this session.");
             }
-            return InvoiceResponse.builder()
-                    .id(invoice.getId())
-                    .issueDate(invoice.getIssueDate())
-                    .finalCost(invoice.getFinalCost())
-                    .status(invoice.getStatus().name())
-                    .session(sessionSimpleResponse)
+
+            //lấy vehicle nếu có
+            Vehicle vehicle = null;
+
+            if (session.getBooking() != null && session.getBooking().getVehicle() != null) {
+                // TH1: Có booking
+                vehicle = session.getBooking().getVehicle();
+            } else if (session.getVehicle() != null) {
+                // TH2: Walk-in member (không booking)
+                vehicle = session.getVehicle();
+            }
+
+            SubscriptionPlan plan = null;
+
+            if (vehicle != null) {
+                VehicleSubscription vehicleSub = vehicle.getSubscription();
+                if (vehicleSub != null &&
+                        vehicleSub.getStatus() == VehicleSubscriptionStatus.ACTIVE &&
+                        (vehicleSub.getEndDate() == null || vehicleSub.getEndDate().isAfter(LocalDateTime.now()))) {
+                    plan = vehicleSub.getSubscriptionPlan();
+                }
+            }
+
+            BigDecimal baseCost = BigDecimal.valueOf(
+                    session.getTotalCost() != null ? session.getTotalCost() : 0.0);
+
+            BigDecimal multiplier = (plan != null && plan.getMultiplier() != null)
+                    ? plan.getMultiplier()
+                    : BigDecimal.ONE;
+
+            BigDecimal finalCost = baseCost.multiply(multiplier)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            Invoice invoice = Invoice.builder()
+                    .session(session)
+                    .subscriptionPlan(plan)
+                    .issueDate(LocalDateTime.now())
+                    .finalCost(finalCost)
+                    .status(Invoice.Status.PENDING)
                     .build();
-        }).toList();
-    }
 
-    public Invoice getInvoiceBySessionId(Long sessionId) {
-        return invoiceRepository.findBySession_Id(sessionId)
-                .orElseThrow(() -> new RuntimeException("Invoice not found for session id: " + sessionId));
-    }
-
-    public List<Invoice> getInvoicesByUserId(Long userId) {
-        return invoiceRepository.findInvoicesByUserId(userId);
-    }
-
-    public List<Invoice> getInvoicesByVehicle(Long vehicleId) {
-        return invoiceRepository.findBySession_Booking_Vehicle_Id(vehicleId);
-    }
-
-    public List<Invoice> getPedingInvoices (String status) {
-        return invoiceRepository.findByStatus(Invoice.Status.PENDING);
-    }
-
-    public Invoice createInvoice(Long invoiceId) {
-
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS,"Invoice"));
-        User user = userUtils.getCurrentUser();
-        //tìm payment theo user
-        Payment payment = paymentService.findByUser(user);
-
-        //payment  vào invoice, add invoice vào payment
-        invoice.setPayment(payment);
-        payment.getInvoices().add(invoice);
-
-        //cập nhật tổng chi phí
-        BigDecimal totalCost = payment.getTotalCost().add(invoice.getFinalCost());
-        payment.setTotalCost(totalCost);
-        payment.setTotalEnergy(payment.getTotalEnergy()
-                .add(BigDecimal.valueOf(invoice.getSession().getEnergyUsed())));
-        payment.setStatus(PaymentStatus.UNPAID);
-        paymentService.save(payment);
-        return invoice;
-    }
-
-    @Transactional
-    public Invoice createInvoiceBySessionId(Long sessionId) {
-        ChargingSession session = chargingSessionRepository.findById(sessionId)
-                .orElseThrow(() -> new EntityNotFoundException("Session not found with ID: " + sessionId));
-
-        // Kiểm tra xem invoice đã tồn tại chưa
-        if (invoiceRepository.findBySession_Id(sessionId).isPresent()) {
-            throw new IllegalStateException("Invoice already exists for this session.");
+            return invoiceRepository.save(invoice);
         }
 
-        //lấy vehicle nếu có
-        Vehicle vehicle = null;
+        @Transactional
+        public Invoice confirmInvoice (Long invoiceId) {
+            Invoice invoice = invoiceRepository.findById(invoiceId)
+                    .orElseThrow(()-> new EntityNotFoundException("Invoice not found with ID: " + invoiceId));
 
-        if (session.getBooking() != null && session.getBooking().getVehicle() != null) {
-            // TH1: Có booking
-            vehicle = session.getBooking().getVehicle();
-        } else if (session.getVehicle() != null) {
-            // TH2: Walk-in member (không booking)
-            vehicle = session.getVehicle();
-        }
-
-        SubscriptionPlan plan = null;
-
-        if (vehicle != null) {
-            VehicleSubscription vehicleSub = vehicle.getSubscription();
-            if (vehicleSub != null &&
-                    vehicleSub.getStatus() == VehicleSubscriptionStatus.ACTIVE &&
-                    (vehicleSub.getEndDate() == null || vehicleSub.getEndDate().isAfter(LocalDateTime.now()))) {
-                plan = vehicleSub.getSubscriptionPlan();
+            if (invoice.getStatus() == Invoice.Status.PENDING) {
+                throw new IllegalStateException("Invoice cannot be confirmed. Current status: " + invoice.getStatus());
             }
+
+            invoice.setStatus(Invoice.Status.PAID);
+            invoice.setIssueDate(LocalDateTime.now());
+
+            return invoiceRepository.save(invoice);
         }
 
-        BigDecimal baseCost = BigDecimal.valueOf(
-                session.getTotalCost() != null ? session.getTotalCost() : 0.0);
+        // Xóa hóa đơn
+        @Transactional
+        public void deleteInvoice(Long id) {
+            Invoice invoice = invoiceRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Invoice not found with id: " + id));
 
-        BigDecimal multiplier = (plan != null && plan.getMultiplier() != null)
-                ? plan.getMultiplier()
-                : BigDecimal.ONE;
+            ChargingSession session = invoice.getSession();
+            if (session != null) {
+                session.setInvoice(null);
+                chargingSessionRepository.save(session);
+            }
 
-        BigDecimal finalCost = baseCost.multiply(multiplier)
-                .setScale(2, RoundingMode.HALF_UP);
+            Payment payment = invoice.getPayment();
+            if (payment != null) {
+                payment.getInvoices().remove(invoice);
+            }
 
-        Invoice invoice = Invoice.builder()
-                .session(session)
-                .subscriptionPlan(plan)
-                .issueDate(LocalDateTime.now())
-                .finalCost(finalCost)
-                .status(Invoice.Status.PENDING)
-                .build();
+            invoiceRepository.delete(invoice);
+        }
 
-        return invoiceRepository.save(invoice);
     }
-
-    @Transactional
-    public Invoice confirmInvoice (Long invoiceId) {
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(()-> new EntityNotFoundException("Invoice not found with ID: " + invoiceId));
-
-        if (invoice.getStatus() == Invoice.Status.PENDING) {
-            throw new IllegalStateException("Invoice cannot be confirmed. Current status: " + invoice.getStatus());
-        }
-
-        invoice.setStatus(Invoice.Status.PAID);
-        invoice.setIssueDate(LocalDateTime.now());
-
-        return invoiceRepository.save(invoice);
-    }
-
-    // Xóa hóa đơn
-    @Transactional
-    public void deleteInvoice(Long id) {
-        Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Invoice not found with id: " + id));
-
-        ChargingSession session = invoice.getSession();
-        if (session != null) {
-            session.setInvoice(null);
-            chargingSessionRepository.save(session);
-        }
-
-        Payment payment = invoice.getPayment();
-        if (payment != null) {
-            payment.getInvoices().remove(invoice);
-        }
-
-        invoiceRepository.delete(invoice);
-    }
-
-}
