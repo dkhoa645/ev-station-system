@@ -255,12 +255,12 @@ public class ChargingSessionService {
         //tạo invoice và thanh toán
         Invoice invoice = invoiceService.createInvoiceBySessionId(sessionId);
 
-        invoice.setStatus(Invoice.Status.PENDING);
-        invoice.setIssueDate(LocalDateTime.now());
+       invoice.setStatus(Invoice.Status.PENDING);
+       invoice.setIssueDate(LocalDateTime.now());
 
-        invoiceRepository.save(invoice);
+       invoiceRepository.save(invoice);
 
-        session.setInvoice(invoice);
+       session.setInvoice(invoice);
 
         return chargingSessionRepository.save(session);
     }
