@@ -154,6 +154,20 @@ public class InvoiceService {
         return invoiceRepository.save(invoice);
     }
 
+    @Transactional
+    public Invoice confirmInvoice (Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(()-> new EntityNotFoundException("Invoice not found with ID: " + invoiceId));
+
+        if (invoice.getStatus() == Invoice.Status.PENDING) {
+            throw new IllegalStateException("Invoice cannot be confirmed. Current status: " + invoice.getStatus());
+        }
+
+        invoice.setStatus(Invoice.Status.PAID);
+        invoice.setIssueDate(LocalDateTime.now());
+
+        return invoiceRepository.save(invoice);
+    }
 
     // Xóa hóa đơn
     @Transactional
