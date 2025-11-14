@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface ChargingSessionRepository extends JpaRepository<ChargingSession, Long> {
 
-    List<ChargingSession> findByBooking_Vehicle_IdOrderByStartTimeDesc(Long vehicleId);
+    List<ChargingSession> findByVehicle_IdOrderByStartTimeDesc(Long vehicleId);
 
     boolean existsBySpotAndStatus( ChargingSpot spot,ChargingSession.Status status);
 
