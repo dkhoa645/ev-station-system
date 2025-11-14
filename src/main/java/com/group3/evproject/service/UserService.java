@@ -118,8 +118,12 @@ public class UserService {
     public UserResponse updateUser(Long userId, UserUpdateRequest userUpdateRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
-        userMapper.updateUserFromRequest(userUpdateRequest, user);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if(userUpdateRequest.getPassword()!=null) {
+            user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+        }
+        if(userUpdateRequest.getName()!=null) {
+            user.setName(userUpdateRequest.getName());
+        }
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
@@ -127,7 +131,20 @@ public class UserService {
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.RESOURCES_NOT_EXISTS, "User"));
-            userRepository.delete(user);
+        user.getPaymentTransactionList().stream().forEach(paymentTransaction -> {
+            paymentTransaction.setUser(null);
+        });
+        user.getBookings().stream().forEach(booking -> {
+                booking.setUser(null);
+        });
+        user.getVehicles().stream().forEach(vehicle -> {
+           vehicle.setUser(null);
+        });
+            user.getVehicles().clear();
+            user.getBookings().clear();
+            user.getPaymentTransactionList().clear();
+            user.getRoles().clear();
+        userRepository.delete(user);
         }
 
     @Transactional
@@ -248,6 +265,14 @@ public class UserService {
             vehicleSubscription.setStartDate(null);
             vehicleRepository.save(vehicle);
         });
+        user.getBookings().stream().forEach(booking -> {
+            booking.setUser(null);
+        });
+        user.getPaymentTransactionList().stream().forEach(paymentTransaction -> {
+            paymentTransaction.setUser(null);
+        });
+        user.setPaymentTransactionList(null);
+        user.getBookings().clear();
         user.getVehicles().clear();
         userRepository.deleteById(userId);
         return "User has been deleted successfully";
