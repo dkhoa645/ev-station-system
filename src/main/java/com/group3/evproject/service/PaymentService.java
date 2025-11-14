@@ -181,10 +181,12 @@ public class PaymentService {
 //        Mỗi payment 1 period khác nhau, mỗi period gồm nhiều invoice
         for (Payment payment : payments) {
             CompanyPaymentDetailResponse companyPaymentDetailResponse = paymentMapper.toCompanyPaymentDetailResponse(payment);
+            companyPaymentDetailResponse.setInvoiceCount(0L);
             for (Invoice invoice : payment.getInvoices()) {
                 User driver = invoice.getSession().getBooking().getUser();
                 detailMap.compute(driver.getName(), (k, v) -> {
                     if (v == null) {
+                        companyPaymentDetailResponse.setInvoiceCount(companyPaymentDetailResponse.getInvoiceCount() + 1);
                         return DriverInvoiceSummaryResponse.builder()
                                 .id(driver.getId())
                                 .totalCost(invoice.getFinalCost())
@@ -193,7 +195,7 @@ public class PaymentService {
                     } else {
                         v.setTotalCost(v.getTotalCost().add(invoice.getFinalCost()));
                         v.setInvoiceCount(v.getInvoiceCount() + 1);
-                        companyPaymentDetailResponse.setInvoiceCount(v.getInvoiceCount());
+                        companyPaymentDetailResponse.setInvoiceCount(companyPaymentDetailResponse.getInvoiceCount() + 1);
                         return v;
                     }
                 });}
